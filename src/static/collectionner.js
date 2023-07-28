@@ -231,7 +231,7 @@ fetch(PDP + "/CosmicDataLoc").then(function (response) {
  * @param theme The selected theme
  */
 function setTheme(theme) {
-    document.head.getElementsByTagName("link")[5].href = "/themes/" + theme;
+    document.head.getElementsByTagName("link")[5].href = PDP+"/themes/" + theme;
 }
 
 
@@ -1392,7 +1392,12 @@ function selectTheme() {
     document.head.getElementsByTagName("link")[5].href = "/themes/" + document.getElementById("themeselector").value;
     modifyConfigJson("theme", document.getElementById("themeselector").value);
 }
-
+function setCookie(cName, cValue, expHours) {
+    let date = new Date();
+    date.setTime(date.getTime() + (expHours * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
+}
 function selectLang() {
     setCookie("lang", document.getElementById("languageselector").value, 60);
     window.location.reload();
@@ -3462,7 +3467,7 @@ function AccountMenu() {
     });
 }
 
-fetch("/profile/custo/getNumber").then((res) => {
+fetch(PDP+"/profile/custo/getNumber").then((res) => {
     return res.json();
 }).then((data) => {
     data = data.length;

@@ -77,6 +77,25 @@ along with Cosmic-Comics.  If not, see <https://www.gnu.org/licenses/>.*/
     bottom: -10px;
 }
 
+html {
+    /*background: linear-gradient(227deg, #1f307c, #251f52, #222f72);
+    background-size: 600% 600%;
+    -webkit-animation: AnimationName 14s ease infinite;
+    -moz-animation: AnimationName 14s ease infinite;
+    -o-animation: AnimationName 14s ease infinite;
+    animation: AnimationName 14s ease infinite;*/
+    background: var(--background);
+    background-size: var(--HTMLBGSize);
+    background-attachment: fixed;
+    color: var(--text);
+    --speed: 0.65s;
+    transition: background-color 1s;
+    scroll-behavior: smooth;
+}
+
+body {
+    transition: background-color 1s;
+}
 
 a {
     text-decoration: none;
@@ -608,12 +627,6 @@ body {
     line-height: 1.2;
     letter-spacing: 0.005rem;
     -webkit-font-smoothing: subpixel-antialiased;
-    background: var(--background);
-    background-size: var(--HTMLBGSize);
-    background-attachment: fixed;
-    color: var(--text);
-    --speed: 0.65s;
-    scroll-behavior: smooth;
 }
 
 .cardcusto {
@@ -1070,7 +1083,14 @@ body {
     color: white;
     text-align: right;
 }
-
+input[type=text]{
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    text-align: left;
+    width: 100%;
+    height: 31px;
+    font-size: 21px;
+}
 label{
     width: 100%;
 }
@@ -1885,36 +1905,4 @@ select{
     float: left;
     line-height: 1;
 
-}
-.stars-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-
-}
-
-.star {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    opacity: 0;
-    background-color: #fff;
-    /* Add any other star styles here */
-}
-
-@keyframes starAnimation {
-    from {
-        opacity: 1;
-
-        transform: translate(0, 100vh);
-    }
-    to {
-        opacity: 1;
-
-        transform: translate(0, -160vh);
-    }
 }

@@ -1,12 +1,6 @@
-import {PDP} from "@/utils/common";
-import {enqueueSnackbar} from "notistack";
+class Profile {
 
-export default class Profile {
-    private _token: string;
-    private _name: string;
-    private _pp: string;
-
-    constructor(token: string) {
+    constructor(token) {
         this._token = token;
         this._name = "Unknown";
         this._pp = PDP+ "/profile/getPP/" + this._token;
@@ -16,8 +10,8 @@ export default class Profile {
     /**
      * Create an account on the server
      */
-    /*async createAccount() {
-        let accountsNames: string[] = [];
+    async createAccount() {
+        let accountsNames = [];
         fetch(PDP + "/profile/discover").then(function (response) {
             return response.text();
         }).then(async function (data) {
@@ -38,12 +32,12 @@ export default class Profile {
             fetch(PDP + "/createUser", option).then(() => {
                 console.log("account created !");
             });
-            // Toastifycation("The user is created", "#00C33C");
+            Toastifycation("The user is created", "#00C33C");
             document.getElementById("close_mna").click();
         } else {
-            // Toastifycation("This username is already used. User creation aborted", "#ff0000");
+            Toastifycation("This username is already used. User creation aborted", "#ff0000");
         }
-    }*/
+    }
     /**
      * Delete the account
      */
@@ -54,9 +48,9 @@ export default class Profile {
             }, null, 2)
         };
         fetch(PDP+ "/profile/deleteAccount", option).then(() => {
-            enqueueSnackbar("Account deleted", {variant: "success"});
+            Toastifycation("Account deleted", "#00C33C");
         }).catch((err) => {
-            enqueueSnackbar("Account not deleted", {variant: "error"});
+            Toastifycation("Account not deleted", "#ff0000");
         });
         window.location.href = 'login';
     }
@@ -71,7 +65,7 @@ export default class Profile {
      * Modify the account
      * @param {{form: (*|HTMLElement)[]}} forma The form to get the data (The HTML element)
      */
-    async modifyAccount(forma: { form: (HTMLElement | any)[] }) {
+    async modifyAccount(forma) {
         let form = forma.form;
         let nuser = form[0];
         let npass = form[1];
@@ -93,7 +87,7 @@ export default class Profile {
         await fetch("/profile/modification", options);
     }
 
-    set setName(name: string) {
+    set setName(name) {
         this._name = name;
     }
 
@@ -101,7 +95,7 @@ export default class Profile {
         return this._name;
     }
 
-    set setPP(pp: string) {
+    set setPP(pp) {
         this._pp = pp;
     }
 

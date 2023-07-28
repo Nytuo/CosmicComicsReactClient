@@ -48,7 +48,7 @@ let connected = getCookie("selectedProfile");
 console.log(connected);
 
 function setTheme(theme) {
-	document.head.getElementsByTagName("link")[6].href = "/themes/" + theme;
+	document.head.getElementsByTagName("link")[6].href = PDP+"/themes/" + theme;
 }
 
 if (connected == null) {
