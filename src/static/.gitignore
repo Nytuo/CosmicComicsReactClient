@@ -1,8 +1,0 @@
-CosmicData/
-.idea/
-dist/
-yarn.lock
-*.lock
-public/FirstImagesOfAll/
-sonar-project.properties
-.scannerwork

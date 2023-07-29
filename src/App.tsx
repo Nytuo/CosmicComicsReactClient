@@ -16,6 +16,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Loading />} />
             <Route path="/login" element={<Login />} />
+            <Route path="*" element={<Loading />} />
           </Routes>
         </BrowserRouter>
       </ThemeProvider>
