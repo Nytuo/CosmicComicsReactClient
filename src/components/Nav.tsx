@@ -159,95 +159,22 @@ export default function PrimarySearchAppBar() {
         <Box sx={{ flexGrow: 1 }} id="navbar">
             <AppBar position="static">
                 <Toolbar>
-                    {window.location.href.includes("login") ? <></> :
-                        <IconButton
-                            size="large"
-                            edge="start"
-                            color="inherit"
-                            aria-label="open drawer"
-                            sx={{ mr: 2 }}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                    }
-                    {
-                        window.location.href.includes("login") ? <div style={{
-                            width: "100%",
-                            textAlign: "center"
-                        }}><img
-                                src="Images/Logo.png"
-                                alt=""
-                                width="auto"
-                                height="40px"
-                                className="rotate linear infinite"
-                            />
-                            <img
-                                src="Images/LogoTxt.png"
-                                alt=""
+                    <div style={{
+                        width: "100%",
+                        textAlign: "center"
+                    }}><img
+                            src="Images/Logo.png"
+                            alt=""
+                            width="auto"
+                            height="40px"
+                            className="rotate linear infinite"
+                        />
+                        <img
+                            src="Images/LogoTxt.png"
+                            alt=""
 
-                                height="40px"
-                            /></div> : <> <img
-                                src="Images/Logo.png"
-                                alt=""
-                                width="auto"
-                                height="40px"
-                                id="logo_id"
-                                className="navbar-brand rotate linear infinite"
-                            />
-                            <img
-                                src="Images/LogoTxt.png"
-                                alt=""
-                                id="logo_id_txt"
-                                className="navbar-brand"
-                                height="40px"
-                            /></>
-                    }
-
-                    {
-                        window.location.href.includes("login") ? <></> : <Search>
-                            <SearchIconWrapper>
-                                <SearchIcon />
-                            </SearchIconWrapper>
-                            <StyledInputBase
-                                placeholder="Search…"
-                                inputProps={{ 'aria-label': 'search' }}
-                            />
-                        </Search>
-                    }
-
-                    {
-                        window.location.href.includes("login") ? <></> : <>
-                            <Box sx={{ flexGrow: 1 }} />
-                            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                                <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-                                    <MoreIconHor />
-                                </IconButton>
-
-                                <IconButton
-                                    size="large"
-                                    edge="end"
-                                    aria-label="account of current user"
-                                    aria-controls={menuId}
-                                    aria-haspopup="true"
-                                    onClick={handleProfileMenuOpen}
-                                    color="inherit"
-                                >
-                                    <AccountCircle />
-                                </IconButton>
-                            </Box>
-                            <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-                                <IconButton
-                                    size="large"
-                                    aria-label="show more"
-                                    aria-controls={mobileMenuId}
-                                    aria-haspopup="true"
-                                    onClick={handleMobileMenuOpen}
-                                    color="inherit"
-                                >
-                                    <MoreIcon />
-                                </IconButton>
-                            </Box></>
-                    }
+                            height="40px"
+                        /></div>
                 </Toolbar>
             </AppBar>
             {renderMobileMenu}

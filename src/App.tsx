@@ -5,6 +5,7 @@ import Login from './pages/Login.tsx';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import PrimarySearchAppBar from './components/Nav.tsx';
 import { OLEDTheme } from './themes/OLED.ts';
+import Collectionner from './pages/Collectionner.tsx';
 function App() {
   const OLED = createTheme(OLEDTheme);
   return (
@@ -16,6 +17,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Loading />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/collectionner" element={<Collectionner />} />
             <Route path="*" element={<Loading />} />
           </Routes>
         </BrowserRouter>

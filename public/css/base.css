@@ -391,20 +391,6 @@ img {
     background-color: var(--topBtnHover);
 }
 
-ul:not(.browser-default) > li {
-    list-style-type: none;
-}
-
-ul.staggered-list li {
-    opacity: 0;
-}
-
-ul li {
-    float: left;
-    padding: 0 0 0;
-    margin: 0 0px 3px;
-    cursor: pointer;
-}
 
 a {
     color: var(--line-color);
@@ -1380,12 +1366,6 @@ a[href^="http://marvel.com"] {
     background-color: var(--color-black);
 }
 
-/* The home page style*/
-#home {
-    margin-top: 8vh;
-    margin-left: 18vw;
-    transition: margin-left .5s ease;
-}
 
 /* disposition for recently added abd continue reading */
 #recentlyAdded, #continueReadingHome, #toRead, #myfavoriteHome {

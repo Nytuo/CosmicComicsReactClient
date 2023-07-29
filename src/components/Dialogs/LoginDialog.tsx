@@ -7,9 +7,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
-import IProfile from "../utils/IProfile";
-import { PDP, setCookie } from "../utils/Common";
-import { Toaster } from "./Toaster";
+import IProfile from "../../utils/IProfile";
+import { PDP, setCookie } from "../../utils/Common";
+import { Toaster } from "../Toaster";
 import { useTranslation } from 'react-i18next';
 
 export default function LoginDialog({ onClose, openModal, title, text, okBtn, cancelBtn, profile }: {
