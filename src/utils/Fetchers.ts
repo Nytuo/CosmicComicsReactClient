@@ -158,7 +158,7 @@ async function logout() {
         method: 'POST', headers: { 'Content-Type': 'application/json' }
     };
     await fetch(PDP + '/profile/logout/' + currentProfile.getToken, option).then(() => {
-        window.location.href = 'login.html';
+        window.location.href = 'login';
     });
 }
 

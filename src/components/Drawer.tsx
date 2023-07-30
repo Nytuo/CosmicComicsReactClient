@@ -22,7 +22,7 @@ import { Avatar, InputBase, Menu, MenuItem } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CollapsedBreadcrumbs from './Breadcrumb.tsx';
 import { useTranslation } from 'react-i18next';
-import { getFromDB } from '@/utils/Fetchers.ts';
+import { getFromDB, logout } from '@/utils/Fetchers.ts';
 import { providerEnum } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
 import { currentProfile } from '@/utils/Common.ts';
@@ -214,7 +214,9 @@ export default function MiniDrawer() {
         >
             <MenuItem onClick={() => { setUserAccountOpen(true); setDialogFor("edit"); }}>{t("Modifyyouraccount")}</MenuItem>
             <MenuItem onClick={() => { setUserAccountOpen(true); setDialogFor("create"); }}>{t("Createanewuser")}</MenuItem>
-            <MenuItem onClick={handleMenuClose}>{t("logout")}</MenuItem>
+            <MenuItem onClick={() => {
+                logout();
+            }}>{t("logout")}</MenuItem>
         </Menu>
     );
 
