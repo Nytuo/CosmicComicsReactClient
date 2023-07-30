@@ -6,7 +6,6 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -18,11 +17,15 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-import { AccountCircle, MoreHoriz, MoreVert } from '@mui/icons-material';
-import { Badge, InputBase, Menu, MenuItem } from '@mui/material';
+import { AccountCircle, Download, FileOpen, GpsFixed, Home, LibraryAdd, LibraryBooks, LocalLibrary, MoreHoriz, MoreVert } from '@mui/icons-material';
+import { Avatar, InputBase, Menu, MenuItem } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CollapsedBreadcrumbs from './Breadcrumb.tsx';
 import { useTranslation } from 'react-i18next';
+import { getFromDB } from '@/utils/Fetchers.ts';
+import { providerEnum } from '@/utils/utils.ts';
+import HomeContainer from './Home.tsx';
+import { currentProfile } from '@/utils/Common.ts';
 
 
 const drawerWidth = 240;
@@ -134,13 +137,28 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
+
+
 export default function MiniDrawer() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
         React.useState<null | HTMLElement>(null);
+    const [anchorAPI, setAnchorAPI] = React.useState<null | HTMLElement>(null);
     const { t } = useTranslation();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
+    const [libraries, setLibraries] = React.useState([]);
+
+    React.useEffect(() => {
+        const fetchLibraries = async () => {
+            await getFromDB("Libraries", "* FROM Libraries").then((res) => {
+                if (!res) return;
+                if (res.includes("404")) return;
+                setLibraries(JSON.parse(res));
+            });
+        };
+        fetchLibraries();
+    }, []);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -151,10 +169,15 @@ export default function MiniDrawer() {
     };
 
     const isMenuOpen = Boolean(anchorEl);
+    const isAPIOpen = Boolean(anchorAPI);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
     const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
+    };
+
+    const handleAPIOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorAPI(event.currentTarget);
     };
 
     const handleMobileMenuClose = () => {
@@ -163,6 +186,7 @@ export default function MiniDrawer() {
 
     const handleMenuClose = () => {
         setAnchorEl(null);
+        setAnchorAPI(null);
         handleMobileMenuClose();
     };
 
@@ -193,6 +217,7 @@ export default function MiniDrawer() {
         </Menu>
     );
 
+
     const mobileMenuId = 'primary-search-account-menu-mobile';
     const renderMobileMenu = (
         <Menu
@@ -222,7 +247,7 @@ export default function MiniDrawer() {
                     aria-haspopup="true"
                     color="inherit"
                 >
-                    <AccountCircle />
+                    <Avatar alt="" src={currentProfile.getPP} />
                 </IconButton>
                 <p style={{ marginLeft: "10px" }}>Profile</p>
             </MenuItem>
@@ -290,7 +315,7 @@ export default function MiniDrawer() {
                             onClick={handleProfileMenuOpen}
                             color="inherit"
                         >
-                            <AccountCircle />
+                            <Avatar alt="" src={currentProfile.getPP} />
                         </IconButton>
                     </Box>
                     <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
@@ -309,6 +334,32 @@ export default function MiniDrawer() {
             </AppBar>
             {renderMobileMenu}
             {renderMenu}
+            {
+                libraries.map((el: any, index: number) => {
+                    return <Menu
+                        anchorEl={anchorAPI}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        id={"api-list-" + index}
+                        keepMounted
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        open={isAPIOpen}
+                        onClose={handleMenuClose}
+                    >
+                        {/* <MenuItem onClick={() => deleteLib(el)}>{t("DELETE")}</MenuItem>
+                        <MenuItem onClick={() => modifyLib(el)}>{t("EDIT")}</MenuItem>
+                        <MenuItem onClick={() => new API().refreshMetadata(el)}>{t("refreshMetadata")}</MenuItem> */}
+                        <MenuItem >{t("DELETE")}</MenuItem>
+                        <MenuItem >{t("EDIT")}</MenuItem>
+                        <MenuItem >{t("refreshMetadata")}</MenuItem>
+                    </Menu>;
+                })
+            }
             <Drawer variant="permanent" open={open}>
                 <DrawerHeader>
                     <IconButton onClick={handleDrawerClose}>
@@ -317,8 +368,8 @@ export default function MiniDrawer() {
                 </DrawerHeader>
                 <Divider />
                 <List>
-                    {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                        <ListItem key={text} disablePadding sx={{ display: 'block' }}>
+                    {[t("addLib"), t('open_file'), t('TRACKER')].map((text, index) => (
+                        <ListItem key={index + text} disablePadding sx={{ display: 'block' }}>
                             <ListItemButton
                                 sx={{
                                     minHeight: 48,
@@ -333,7 +384,10 @@ export default function MiniDrawer() {
                                         justifyContent: 'center',
                                     }}
                                 >
-                                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                    {
+                                        text === t("addLib") ? <LibraryAdd /> : (text === t('open_file') ? <FileOpen /> : <LocalLibrary />)
+                                    }
+
                                 </ListItemIcon>
                                 <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
                             </ListItemButton>
@@ -342,44 +396,166 @@ export default function MiniDrawer() {
                 </List>
                 <Divider />
                 <List>
-                    {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                        <ListItem key={text} disablePadding sx={{ display: 'block' }}>
-                            <ListItemButton
+                    <ListItem key={t('HOME') + Math.random()} disablePadding sx={{ display: 'block' }}>
+                        <ListItemButton
+                            onClick={() => {
+                                //
+                            }}
+                            sx={{
+                                minHeight: 48,
+                                justifyContent: open ? 'initial' : 'center',
+                                px: 2.5,
+                            }}
+                        >
+                            <ListItemIcon
                                 sx={{
-                                    minHeight: 48,
-                                    justifyContent: open ? 'initial' : 'center',
-                                    px: 2.5,
+                                    minWidth: 0,
+                                    mr: open ? 3 : 'auto',
+                                    justifyContent: 'center',
                                 }}
                             >
-                                <ListItemIcon
+                                <Home />
+                            </ListItemIcon>
+                            <ListItemText primary={t('HOME')} sx={{ opacity: open ? 1 : 0 }} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem key={t('download') + Math.random()} disablePadding sx={{ display: 'block' }}>
+                        <ListItemButton
+                            onClick={() => {
+                                // TODO breadcrumb logic
+                                //TODO openLibrary(CosmicComicsTemp + "/downloads", 2);
+                            }}
+                            sx={{
+                                minHeight: 48,
+                                justifyContent: open ? 'initial' : 'center',
+                                px: 2.5,
+                            }}
+                        >
+                            <ListItemIcon
+                                sx={{
+                                    minWidth: 0,
+                                    mr: open ? 3 : 'auto',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <Download />
+                            </ListItemIcon>
+                            <ListItemText primary={t('download')} sx={{ opacity: open ? 1 : 0 }} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem key={t('ALL') + Math.random()} disablePadding sx={{ display: 'block' }}>
+                        <ListItemButton
+                            onClick={() => {
+                                // TODO breadcrumb logic
+                                // AllBooks();
+                            }}
+                            sx={{
+                                minHeight: 48,
+                                justifyContent: open ? 'initial' : 'center',
+                                px: 2.5,
+                            }}
+                        >
+                            <ListItemIcon
+                                sx={{
+                                    minWidth: 0,
+                                    mr: open ? 3 : 'auto',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <LibraryBooks />
+                            </ListItemIcon>
+                            <ListItemText primary={t('ALL')} sx={{ opacity: open ? 1 : 0 }} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem key={t('TRACKER') + Math.random()} disablePadding sx={{ display: 'block' }}>
+                        <ListItemButton
+                            onClick={() => {
+                                //TODO Breadcrumb logic
+                                // AllBooks("PATH IS NULL OR PATH = '' OR PATH = 'null'");
+                            }}
+                            sx={{
+                                minHeight: 48,
+                                justifyContent: open ? 'initial' : 'center',
+                                px: 2.5,
+                            }}
+                        >
+                            <ListItemIcon
+                                sx={{
+                                    minWidth: 0,
+                                    mr: open ? 3 : 'auto',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <GpsFixed />
+                            </ListItemIcon>
+                            <ListItemText primary={t('TRACKER')} sx={{ opacity: open ? 1 : 0 }} />
+                        </ListItemButton>
+                    </ListItem>
+                </List>
+                <Divider />
+                <List>
+                    {
+                        libraries.map((el: any, index: number) => {
+                            return <ListItem key={el["NAME"]} disablePadding sx={{ display: 'block' }}>
+                                <ListItemButton
+                                    onClick={() => {
+                                        //TODO Breadcrumb logic
+                                        //                 openLibrary(el["PATH"], el["API_ID"]);
+
+                                    }}
                                     sx={{
-                                        minWidth: 0,
-                                        mr: open ? 3 : 'auto',
-                                        justifyContent: 'center',
+                                        minHeight: 48,
+                                        justifyContent: open ? 'initial' : 'center',
+                                        px: 2.5,
                                     }}
                                 >
-                                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                                </ListItemIcon>
-                                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
+                                    <ListItemIcon
+                                        sx={{
+                                            minWidth: 0,
+                                            mr: open ? 3 : 'auto',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <img src={
+                                            (el["API_ID"] === providerEnum.Marvel) ? "./Images/marvel-logo-png-10.png" :
+                                                (el["API_ID"] === providerEnum.Anilist) ? "./Images/android-chrome-512x512.png" :
+                                                    (el["API_ID"] === providerEnum.MANUAL) ? "./Images/manual.svg" :
+                                                        (el["API_ID"] === providerEnum.OL) ? "./Images/OL.svg" :
+                                                            (el["API_ID"] === providerEnum.GBooks) ? "./Images/Gbooks.svg" : ""
+                                        } alt="" className="libLogo" style={el["API_ID"] === providerEnum.MANUAL ? { filter: "invert(100%)" } : el["API_ID"] === providerEnum.OL ? { filter: "invert(100%)" } : {}} />
+
+                                    </ListItemIcon>
+                                    <ListItemText primary={el["NAME"]} sx={{ opacity: open ? 1 : 0 }} />
+                                    <ListItemIcon
+                                        sx={{
+                                            display: open ? 'flex' : 'none',
+                                            opacity: open ? 1 : 0,
+                                            minWidth: 0,
+                                            mr: open ? 3 : 'auto',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <IconButton
+                                            size="large"
+                                            edge="end"
+                                            aria-label="account of current user"
+                                            aria-controls={"api-list-" + index}
+                                            aria-haspopup="true"
+                                            onClick={handleAPIOpen}
+                                            color="inherit"
+                                        >
+                                            <MoreVert />
+                                        </IconButton>
+                                    </ListItemIcon>
+                                </ListItemButton>
+                            </ListItem>;
+                        })
+                    }
                 </List>
             </Drawer>
             <Box component="main" sx={{ flexGrow: 1, p: 3 }} style={{}}>
                 <DrawerHeader />
-                <div id="home">
-                    <p id="continueReading">Continue reading : </p>
-                    <div id="continueReadingHome">
-                    </div>
-                    <p id="myfav">My favorites : </p>
-
-                    <div id="myfavoriteHome"></div>
-                    <p id="recentlyAddedLabel">Recently added : </p>
-                    <div id="recentlyAdded"></div>
-                    <p id="toReadd">To read : </p>
-                    <div id="toRead"></div>
-                </div>
+                <HomeContainer />
             </Box>
         </Box >
     );

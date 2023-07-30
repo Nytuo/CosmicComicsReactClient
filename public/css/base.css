@@ -632,12 +632,9 @@ body {
     top: 10px;
     right: 10px;
     display: block;
-    width: 35px;
-    height: 35px;
     background: transparent;
     border: 0;
     opacity: 0;
-    border-radius: 3px;
     -webkit-transition: all var(--speed) ease;
     transition: all var(--speed) ease;
     z-index: 2;
@@ -652,30 +649,11 @@ body {
     opacity: 0.6;
 }
 
-.card__save i {
-    font-size: 24px;
-    color: var(--DisabledColor);
-    cursor: pointer;
-    -webkit-transition: all var(--speed) ease;
-    transition: all var(--speed) ease;
-}
-
-.card__save:hover i {
-    color: var(--saveActivedColor);
-}
-
-.card__save:active i,
-.card__save.active i {
-    color: var(--saveActivedColor);
-}
-
 .card__close {
     position: absolute;
     top: 10px;
-    right: 40px;
+    right: 50px;
     display: block;
-    width: 35px;
-    height: 35px;
     background: transparent;
     border: 0;
     opacity: 0;
@@ -694,30 +672,11 @@ body {
     opacity: 0.6;
 }
 
-.card__close i {
-    font-size: 24px;
-    color: var(--DisabledColor);
-    cursor: pointer;
-    -webkit-transition: all var(--speed) ease;
-    transition: all var(--speed) ease;
-}
-
-.card__close:hover i {
-    color: var(--saveActivedColor)
-}
-
-.card__close:active i,
-.card__close.active i {
-    color: var(--saveActivedColor)
-}
-
 .card__reading {
     position: absolute;
     top: 10px;
-    right: 80px;
+    right: 90px;
     display: block;
-    width: 35px;
-    height: 35px;
     background: transparent;
     border: 0;
     opacity: 0;
@@ -736,30 +695,12 @@ body {
     opacity: 0.6;
 }
 
-.card__reading i {
-    font-size: 24px;
-    color: var(--DisabledColor);
-    cursor: pointer;
-    -webkit-transition: all var(--speed) ease;
-    transition: all var(--speed) ease;
-}
-
-.card__reading:hover i {
-    color: var(--color-orange)
-}
-
-.card__reading:active i,
-.card__reading.active i {
-    color: var(--color-orange)
-}
 
 .card__read {
     position: absolute;
     top: 10px;
-    right: 120px;
+    right: 130px;
     display: block;
-    width: 35px;
-    height: 35px;
     background: transparent;
     border: 0;
     opacity: 0;
@@ -778,22 +719,7 @@ body {
     opacity: 0.6;
 }
 
-.card__read i {
-    font-size: 24px;
-    color: var(--DisabledColor);
-    cursor: pointer;
-    -webkit-transition: all var(--speed) ease;
-    transition: all var(--speed) ease;
-}
 
-.card__read:hover i {
-    color: var(--color-green)
-}
-
-.card__read:active i,
-.card__read.active i {
-    color: var(--color-green)
-}
 
 .card__play {
     position: absolute;
@@ -820,27 +746,12 @@ body {
     opacity: 0.6;
 }
 
-.card__play i {
-    font-size: 40px;
-    color: var(--DisabledColor);
-    cursor: pointer;
-    -webkit-transition: all var(--speed) ease;
-    transition: all var(--speed) ease;
-}
-
-.card__play:hover i {
-    color: var(--DisabledColor)
-}
 
 .card__play:active,
 .card__play.active {
     opacity: 1 !important;
 }
 
-.card__play:active i,
-.card__play.active i {
-    color: var(--text);
-}
 
 .card__image {
     position: absolute;
@@ -1102,15 +1013,15 @@ label{
 }
 
 .pointR {
-    position: relative;
-    left: 229px;
+    position: absolute;
+    right: -25px;
     max-width: fit-content;
     color: var(--text);
     background-color: var(--color-red);
     padding: 19px;
     border-radius: 20px;
     margin-top: 10px;
-    top: -280px;
+    top: -25px;
 }
 
 .pointY {

@@ -2,7 +2,7 @@ import Profile from "./Profile";
 
 const domain = "localhost";
 const port = 4696;
-const isHttps =false;
+const isHttps = false;
 const protocol = isHttps ? "https://" : "http://";
 
 /**
@@ -13,14 +13,14 @@ const PDP = protocol + domain + (port ? ":" + port : "");
 /**
  * The current profile in use by the user
  */
-// let currentProfile = new Profile(getCookie("selectedProfile",document));
+const currentProfile = new Profile(getCookie("selectedProfile", document));
 
 /**
  * Get the browser cookies
  * @param {string} cName The name of the cookie
  * @param document The document to use
  */
-function getCookie(cName: string,document: any) {
+function getCookie(cName: string, document: any) {
 	const name = cName + "=";
 	const cDecoded = decodeURIComponent(document.cookie); //to be careful
 	const cArr = cDecoded.split('; ');
@@ -38,4 +38,4 @@ function setCookie(cName: string, cValue: string, expHours: number, document: an
 	document.cookie = cName + "=" + cValue + "; " + expires + "; path=/";
 }
 
-export { PDP, getCookie, setCookie };
+export { PDP, currentProfile, getCookie, setCookie };
