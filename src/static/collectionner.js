@@ -241,20 +241,7 @@ const animateCSS = (element, animation, prefix = "animate__") =>
 
 
 
-/**
- * Insert values in a specific table of the DB
- * @param {string} dbname The name of the DB
- * @param {string} dbinfo The attributes of the table
- * @param {string} values The values to insert
- */
-async function InsertIntoDB(dbname, dbinfo, values) {
-    const option = {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-            "into": dbinfo, "val": values
-        }, null, 2)
-    };
-    return fetch(PDP + '/DB/insert/' + currentProfile.getToken + "/" + dbname, option);
-}
+
 
 /**
  * Delete the library
@@ -429,23 +416,7 @@ function summonSearch() {
     }
 }
 
-/**
- * Scan for folders in the library
- * @param {string} result The path to the library
- * @returns {Promise<string[]>} The list of folders
- */
-async function DetectFolderInLibrary(result) {
-    result = result.replaceAll("\\", "/");
-    result = result.replaceAll("//", "/");
-    result = result.replaceAll("/", "ù");
-    return fetch(PDP + "/getListOfFolder/" + result).then(function (response) {
-        return response.text();
-    }).then(function (data) {
-        return data;
-    }).catch(function (error) {
-        console.log(error);
-    });
-}
+
 
 /**
  * Open the library
@@ -488,69 +459,7 @@ function openLibrary(folder, provider = 0) {
 }
 
 
-/**
- * Generation of the Book Object for not yet DB inserted items
- * @param NOM The name of the item
- * @param ID The ID of the item
- * @param COVER The cover of the item
- * @param DESCRIPTION The description of the item
- * @param STAFF The staff of the item
- * @param CHARACTERS The characters of the item
- * @param SITEURL The site URL of the item
- * @param NOTE The note of the item
- * @param READ The read status of the item
- * @param READING The reading status of the item
- * @param UNREAD  The unread status of the item
- * @param FAVORITE The favorite status of the item
- * @param LAST_PAGE The last page of the item
- * @param FOLDER The folder of the item
- * @param PATH The path of the item
- * @param ISSUENUMBER The issue number of the item
- * @param FORMAT The format of the item
- * @param PAGECOUNT The page count of the item
- * @param SERIES The series of the item
- * @param PRICES The prices of the item
- * @param DATES The dates of the item
- * @param COLLECTEDISSUES The collected issues of the item
- * @param COLLECTIONS The collections of the item
- * @param VARIANTS The variants of the item
- * @param LOCK The lock status of the item
- * @return {{PATH: null, note: null, unread: null, creators: null, issueNumber: null, description: null, variants: null, characters: null, collections: null, lock: null, id: null, prices: null, collectedIssues: null, pageCount: null, read: null, URLs: null, last_page: null, format: null, reading: null, dates: null, NOM: null, folder: null, series: null, favorite: null, URLCover: null}} The Book Object
- */
-function generateBookTemplate(NOM = null, ID = null, NOTE = null, READ = null, READING = null,
-    UNREAD = null, FAVORITE = null, LAST_PAGE = null, FOLDER = null,
-    PATH = null, COVER = null, ISSUENUMBER = null, DESCRIPTION = null,
-    FORMAT = null, PAGECOUNT = null, SITEURL = null, SERIES = null,
-    STAFF = null, CHARACTERS = null, PRICES = null, DATES = null,
-    COLLECTEDISSUES = null, COLLECTIONS = null, VARIANTS = null, LOCK = null) {
-    return {
-        "NOM": NOM,
-        "id": ID,
-        "note": NOTE,
-        "read": READ,
-        "reading": READING,
-        "unread": UNREAD,
-        "favorite": FAVORITE,
-        "last_page": LAST_PAGE,
-        "folder": FOLDER,
-        "PATH": PATH,
-        "URLCover": COVER,
-        "issueNumber": ISSUENUMBER,
-        "description": DESCRIPTION,
-        "format": FORMAT,
-        "pageCount": PAGECOUNT,
-        "URLs": SITEURL,
-        "series": SERIES,
-        "creators": STAFF,
-        "characters": CHARACTERS,
-        "prices": PRICES,
-        "dates": DATES,
-        "collectedIssues": COLLECTEDISSUES,
-        "collections": COLLECTIONS,
-        "variants": VARIANTS,
-        "lock": LOCK
-    };
-}
+
 
 /**
  * Load the content of the element
@@ -895,10 +804,7 @@ function openInViewer() {
     };
 }
 
-//Open a book in the bookmarks
-function openBOOKM(path, page) {
-    window.location.href = "viewer.html?" + encodeURIComponent(path.replaceAll("/", "%C3%B9")) + "&page=" + page;
-}
+
 
 //List of Bookmarked folder
 function listBM() {
@@ -1010,144 +916,6 @@ async function downloader() {
 function OpenDownloadDir() {
     window.location.href = "viewer.html?" + CosmicComicsTemp + "/downloaded_book/";
 }
-
-/**
- * Add a new library
- * @param {{form: HTMLElement[]}} forma The form to get the data (The HTML element)
- */
-async function addLibrary(forma) {
-    await InsertIntoDB("Libraries", "(NAME,PATH,API_ID)", `('${forma.form[0].value}','${forma.form[1].value}','${forma.form[2].value}')`).then(() => {
-        window.location.href = window.location.href.split("?")[0];
-    });
-}
-
-
-
-/**
- * Update the library
- * @param {{form: HTMLElement}} forma The form to get the data (The HTML element)
- * @param {string} id The id of the library
- */
-async function updateLibrary(forma, id) {
-    const option = {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-            "name": forma.form[0].value, "path": forma.form[1].value, "api_id": forma.form[2].value
-        }, null, 2)
-    };
-    await fetch(PDP + '/DB/lib/update/' + currentProfile.getToken + "/" + id, option).then(() => {
-        window.location.href = window.location.href.split("?")[0];
-    });
-}
-
-function HomeRoutine() {
-    getFromDB("Books", "* FROM Books WHERE reading = 1").then(async (resa) => {
-        let TheBookun = JSON.parse(resa);
-        console.log(TheBookun);
-        for (let i = 0; i < TheBookun.length; i++) {
-            let TheBook = TheBookun[i];
-            let card = new Card(TheBook["unread"], TheBook["read"], TheBook["reading"], TheBook["ID_book"], TheBook["URLCover"], TheBook["NOM"], TheBook["favorite"])
-            let carddiv = card.card
-            card.addPlayButtonListener();
-
-            let brook = TheBook;
-            carddiv.addEventListener("click", function () {
-                //TODO implement API HERE
-                let provider = ((brook.series.includes("marvel")) ? (providerEnum.Marvel) : ((brook.series.includes("Anilist")) ? (providerEnum.Anilist) : ((brook.series.includes("OL")) ? (providerEnum.OL) : ((brook.URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
-                createDetails(brook, provider);
-            });
-            const element = document.getElementById("continueReadingHome");
-            const divrating = document.createElement("div");
-            carddiv.appendChild(divrating);
-            element.appendChild(carddiv);
-        }
-        if (TheBookun.length === 0) {
-            const element = document.getElementById("continueReadingHome");
-            let node = document.createElement("p");
-            node.innerHTML = language["nothingHere"];
-            element.appendChild(node);
-        }
-    });
-    getFromDB("Books", "* FROM Books ORDER BY ID_book DESC LIMIT 10").then(async (resa) => {
-        let TheBookun = JSON.parse(resa);
-        console.log(TheBookun);
-        const element = document.getElementById("recentlyAdded");
-        for (let i = 0; i < TheBookun.length; i++) {
-            let TheBook = TheBookun[i];
-            let card = new Card(TheBook["unread"], TheBook["read"], TheBook["reading"], TheBook["ID_book"], TheBook["URLCover"], TheBook["NOM"], TheBook["favorite"])
-            let carddiv = card.card
-            card.addPlayButtonListener();
-
-            let brook = TheBook;
-            carddiv.addEventListener("click", function () {
-                //TODO Implement API HERE
-                let provider = ((brook.series.includes("marvel")) ? (providerEnum.Marvel) : ((brook.series.includes("Anilist")) ? (providerEnum.Anilist) : ((brook.series.includes("OL")) ? (providerEnum.OL) : ((brook.URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
-                createDetails(brook, provider);
-            });
-            element.appendChild(carddiv);
-        }
-        if (TheBookun.length === 0) {
-            const element = document.getElementById("recentlyAdded");
-            let node = document.createElement("p");
-            node.innerText = language["nothingHere"]
-            element.appendChild(node);
-        }
-    });
-    getFromDB("Books", "* FROM Books WHERE unread = 1").then(async (resa) => {
-        let TheBookun = JSON.parse(resa);
-        for (let i = 0; i < TheBookun.length; i++) {
-            let TheBook = TheBookun[i];
-            let card = new Card(TheBook["unread"], TheBook["read"], TheBook["reading"], TheBook["ID_book"], TheBook["URLCover"], TheBook["NOM"], TheBook["favorite"])
-            let carddiv = card.card
-            card.addPlayButtonListener();
-
-            let brook = TheBook;
-            carddiv.addEventListener("click", function () {
-                //TODO Implement API HERE
-                let provider = ((brook.series.includes("marvel")) ? (providerEnum.Marvel) : ((brook.series.includes("Anilist")) ? (providerEnum.Anilist) : ((brook.series.includes("OL")) ? (providerEnum.OL) : ((brook.URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
-                createDetails(brook, provider);
-            });
-            const element = document.getElementById("toRead");
-            const divrating = document.createElement("div");
-            carddiv.appendChild(divrating);
-            element.appendChild(carddiv);
-        }
-        if (TheBookun.length === 0) {
-            const element = document.getElementById("toRead");
-            let node = document.createElement("p");
-            node.innerHTML = language["nothingHere"];
-            element.appendChild(node);
-        }
-    });
-    getFromDB("Books", "* FROM Books WHERE favorite = 1").then(async (resa) => {
-        let TheBookun = JSON.parse(resa);
-        console.log(TheBookun);
-        for (let i = 0; i < TheBookun.length; i++) {
-            let TheBook = TheBookun[i];
-            let card = new Card(TheBook["unread"], TheBook["read"], TheBook["reading"], TheBook["ID_book"], TheBook["URLCover"], TheBook["NOM"], TheBook["favorite"])
-            let carddiv = card.card
-            card.addPlayButtonListener();
-
-            let brook = TheBook;
-            carddiv.addEventListener("click", function () {
-                //TODO Implement API HERE
-                let provider = ((brook.series.includes("marvel")) ? (providerEnum.Marvel) : ((brook.series.includes("Anilist")) ? (providerEnum.Anilist) : ((brook.series.includes("OL")) ? (providerEnum.OL) : ((brook.URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
-                createDetails(brook, provider);
-            });
-            const element = document.getElementById("myfavoriteHome");
-            const divrating = document.createElement("div");
-            carddiv.appendChild(divrating);
-            element.appendChild(carddiv);
-        }
-        if (TheBookun.length === 0) {
-            const element = document.getElementById("myfavoriteHome");
-            let node = document.createElement("p");
-            node.innerHTML = language["nothingHere"];
-            element.appendChild(node);
-        }
-    });
-}
-
-HomeRoutine();
 
 function returnToHome() {
     let e = document.getElementById("libHome");
@@ -2042,56 +1810,7 @@ async function createSeries(provider, path, libraryPath, res) {
     }
 }
 
-function OneForAll(W1, W2, A, title) {
-    fetch(PDP + "/DB/update/OneForAll", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            "W1": W1,
-            "W2": W2,
-            "A": A,
-            "title": title,
-            "token": currentProfile.getToken,
-        })
-    })
-}
 
-/**
- *
- * @param W1
- * @param W2
- * @param A
- * @param ID
- * @constructor
- */
-function AllForOne(W1, W2, A, ID) {
-    let asso = {}
-    asso[A] = true;
-    asso[W1] = false
-    asso[W2] = false;
-    let columns = [];
-    let values = [];
-    for (let key in asso) {
-        columns.push(key);
-        values.push(asso[key]);
-    }
-    let options = {
-        method: "POST", headers: {
-            "Content-Type": "application/json"
-        }, body: JSON.stringify({
-            "token": currentProfile.getToken,
-            "table": "Books",
-            "type": "edit",
-            "column": columns,
-            "whereEl": ID,
-            "value": values,
-            "where": "ID_book"
-        }, null, 2)
-    };
-    fetch(PDP + "/DB/update", options);
-}
 
 addToBreadCrumb(language["HOME"], () => {
     returnToHome();
@@ -2099,9 +1818,7 @@ addToBreadCrumb(language["HOME"], () => {
 
 
 
-async function TrueDeleteFromDB(dbName, id, option = "") {
-    return fetch(PDP + '/DB/truedelete/' + currentProfile.getToken + "/" + dbName + "/" + id);
-}
+
 
 document.getElementById("rematch").setAttribute("data-bs-toggle", "modal");
 document.getElementById("rematch").setAttribute("data-bs-target", "#rematchModal");
@@ -2906,35 +2623,9 @@ function listenerClickSearch() {
     document.removeEventListener('click', listenerClickSearch);
 }
 
-/**
- * Download a book from the server
- * @param path the path of the book
- * @return {Promise<void>} the promise
- */
-async function downloadBook(path) {
-    const option = {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-            path: path
-        }, null, 2)
-    };
-    console.log(option);
-    await fetch(PDP + '/DL', option).then(() => {
-        window.open(PDP + "/getDLBook", "_blank");
-    });
-}
 
-/**
- * Logout the user
- * @return {Promise<void>}
- */
-async function logout() {
-    const option = {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }
-    };
-    await fetch(PDP + '/profile/logout/' + currentProfile.getToken, option).then(() => {
-        window.location.href = 'login.html';
-    });
-}
+
+
 
 /**
  * Template for the context menu
@@ -3018,27 +2709,7 @@ function AccountMenu() {
     });
 }
 
-fetch(PDP + "/profile/custo/getNumber").then((res) => {
-    return res.json();
-}).then((data) => {
-    data = data.length;
-    let temp = document.getElementsByTagName("template")[0];
-    let item = temp.content.querySelector("img");
-    for (let i = 1; i < data + 1; i++) {
-        const newone = document.importNode(item, true);
-        newone.src = "Images/account_default/" + i + ".jpg";
-        newone.addEventListener("click", () => {
-            console.log(document.getElementById(newone.id));
-            if (document.getElementById("newImage") == null) {
-                newone.id = "newImage";
-            } else {
-                document.getElementById("newImage").removeAttribute("id");
-                newone.id = "newImage";
-            }
-        });
-        document.getElementById("AMImages").appendChild(newone);
-    }
-});
+
 
 
 
@@ -3047,45 +2718,7 @@ document.getElementById("sendbdd").onclick = () => { currentProfile.DownloadBDD(
 document.getElementById("sendaccount").onclick = () => { currentProfile.modifyAccount({ 'form': [document.getElementById('usernameManager').value, document.getElementById('passwordManager').value, document.getElementById('newImage')] }); };
 
 
-/**
- * Change the element rating
- * @param table the table to update
- * @param where the where clause
- * @param value the new value
- */
-function changeRating(table, where, value) {
-    if (table === "Books") {
-        console.log(table, value + " from Book");
-        const options = {
-            method: "POST", headers: {
-                "Content-Type": "application/json"
-            }, body: JSON.stringify({
-                "token": currentProfile.getToken,
-                "table": table,
-                "column": "note",
-                "whereEl": where,
-                "value": value,
-                "where": "ID_book"
-            }, null, 2)
-        };
-        fetch(PDP + "/DB/update", options);
-    } else if (table === "Series") {
-        console.log(table, value);
-        const options = {
-            method: "POST", headers: {
-                "Content-Type": "application/json"
-            }, body: JSON.stringify({
-                "token": currentProfile.getToken,
-                "table": table,
-                "column": "note",
-                "where": "ID_Series",
-                "whereEl": where,
-                "value": value
-            }, null, 2)
-        };
-        fetch(PDP + "/DB/update", options);
-    }
-}
+
 
 document.getElementById("id_firstOfAll").addEventListener("click", function (e) {
     fetch(PDP + "/fillBlankImage", {

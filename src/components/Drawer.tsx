@@ -26,6 +26,7 @@ import { getFromDB } from '@/utils/Fetchers.ts';
 import { providerEnum } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
 import { currentProfile } from '@/utils/Common.ts';
+import UserAccountDialog from './Dialogs/UserAccountDialog.tsx';
 
 
 const drawerWidth = 240;
@@ -211,8 +212,8 @@ export default function MiniDrawer() {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={handleMenuClose}>{t("Modifyyouraccount")}</MenuItem>
-            <MenuItem onClick={handleMenuClose}>{t("Createanewuser")}</MenuItem>
+            <MenuItem onClick={() => { setUserAccountOpen(true); setDialogFor("edit"); }}>{t("Modifyyouraccount")}</MenuItem>
+            <MenuItem onClick={() => { setUserAccountOpen(true); setDialogFor("create"); }}>{t("Createanewuser")}</MenuItem>
             <MenuItem onClick={handleMenuClose}>{t("logout")}</MenuItem>
         </Menu>
     );
@@ -254,9 +255,15 @@ export default function MiniDrawer() {
         </Menu>
     );
 
+    const [userAccountOpen, setUserAccountOpen] = React.useState(false);
+    const [dialogFor, setDialogFor] = React.useState<'edit' | 'create'>('edit');
+    const handleCloseUserAccount = () => {
+        setUserAccountOpen(false);
+    };
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
+            <UserAccountDialog forWhat={dialogFor} onClose={handleCloseUserAccount} openModal={userAccountOpen} />
             <AppBar position="fixed" open={open}>
                 <Toolbar>
                     <IconButton

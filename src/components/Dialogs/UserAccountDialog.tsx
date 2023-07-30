@@ -8,8 +8,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
+import { Divider, Grid, Stack } from '@mui/material';
+import { PDP } from '@/utils/Common.ts';
 
-export default function UserAccountDialog({ onClose, openModal }: {
+export default function UserAccountDialog({ forWhat, onClose, openModal }: {
+	forWhat: 'edit' | 'create',
 	onClose: any,
 	openModal: boolean,
 }) {
@@ -24,59 +27,76 @@ export default function UserAccountDialog({ onClose, openModal }: {
 		setOpen(false);
 		onClose();
 	};
+	const [nbImages, setNbImages] = React.useState<number[]>([]);
+	useEffect(() => {
+		fetch(PDP + "/profile/custo/getNumber").then((res) => {
+			return res.json();
+		}).then((data) => {
+			setNbImages(Array.from({ length: data.length }, (_, i) => i));
+		});
+	}, []);
 
 	return (
 		<div>
-			<Dialog open={open} onClose={handleClose}>
-				<DialogTitle>{t("EDIT")}</DialogTitle>
+			<Dialog open={open} onClose={handleClose}
+				maxWidth="md"
+				fullWidth
+			>
+				<DialogTitle>{forWhat == 'edit' ? t("EDIT") : t("Createanewuser")}</DialogTitle>
 				<DialogContent>
-					<DialogContentText>
-						<div className="input-field col s6">
-							<input className="form-control" type="text" id="usernameManager" name="usernameManager"
-								autoComplete="off" />
-							<label htmlFor="usernameManager" id="usernamemanagerLabel">Username : </label>
-						</div>
-						<br />
-						<div className="input-field col s6">
+					<Stack spacing={1}>
+						<TextField
+							autoFocus
+							margin="dense"
+							id="usernameEdit"
+							label={t("theUserNameLabel")}
+							type="text"
+							fullWidth
+							variant="standard"
+						/>
+						<TextField
+							margin="dense"
+							id="passwordEdit"
+							label={t("ThePassToWorLabel")}
+							type="password"
+							fullWidth
+							variant="standard"
+						/>
+						<div id="AMImages" style={{ textAlign: "center" }}>
+							{
+								nbImages.map((_, index) => {
+									if (index === 0) return;
+									return (<img src={"Images/account_default/" + index + ".jpg"}
+										onClick={(e) => {
+											const oldone = document.getElementById("newImage");
+											if (oldone == null) {
+												e.currentTarget.id = "newImage";
+											} else {
+												oldone.removeAttribute("id");
+												e.currentTarget.id = "newImage";
+											}
+										}
+										}
+										style={{ width: "60px", height: "60px", marginLeft: "5px" }}
+										alt="Account profile picture" />);
+								})
 
-							<input className="form-control" type="text" id="passwordManager" name="passwordManager"
-								autoComplete="off" />
-							<label htmlFor="passwordManager" id="passwmanagerLabel">Password : </label>
+							}
 						</div>
-						<br />
-						<div id="AMImages">
-							<template id="template_AMI">
-								<img src="Images/account_default/1.jpg" style="width: 60px;height:60px;margin-left:5px;"
-									alt="Account profile picture" />
-							</template>
 
-						</div>
-						<br />
-						<button id="delaccount" className="btn btns pure-material-button-contained">
-							Delete the Account (THERE IS NO GOING BACK)
-						</button>
-						<button id="sendbdd" className="btn btns pure-material-button-contained">
-							Download a copy of your database
-						</button>
-						<button id="sendaccount" className="btn btns pure-material-button-contained">
-							Apply changes (You will need to reconnect)
-						</button>
-					</DialogContentText>
-					<TextField
-						autoFocus
-						margin="dense"
-						id="passwordLogin"
-						label={t("ThePassToWorLabel")}
-						type="password"
-						fullWidth
-						variant="standard"
-					/>
+						<Button variant="contained" id="delaccount">
+							{t("delAccount")}
+						</Button>
+						<Button variant="contained" id="sendbdd">
+							{t("downloadCopyBDD")}
+						</Button>
+					</Stack>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleClose}>{t("send")}</Button>
-					<Button onClick={ }>{t("cancel")}</Button>
+					<Button onClick={handleClose}>{t("applyChanges")}</Button>
+					<Button onClick={handleClose}>{t("cancel")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>
 	);
-};
+}

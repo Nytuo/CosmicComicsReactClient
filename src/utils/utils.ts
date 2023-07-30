@@ -47,4 +47,74 @@ const providerEnum = {
     "GBooks": 4,
     "OL": 3
 };
-export { convertDate, providerEnum, resolveTitle, _01toBool, ValidatedExtension, coolanimations };
+
+/**
+ * Generation of the Book Object for not yet DB inserted items
+ * @param NOM The name of the item
+ * @param ID The ID of the item
+ * @param COVER The cover of the item
+ * @param DESCRIPTION The description of the item
+ * @param STAFF The staff of the item
+ * @param CHARACTERS The characters of the item
+ * @param SITEURL The site URL of the item
+ * @param NOTE The note of the item
+ * @param READ The read status of the item
+ * @param READING The reading status of the item
+ * @param UNREAD  The unread status of the item
+ * @param FAVORITE The favorite status of the item
+ * @param LAST_PAGE The last page of the item
+ * @param FOLDER The folder of the item
+ * @param PATH The path of the item
+ * @param ISSUENUMBER The issue number of the item
+ * @param FORMAT The format of the item
+ * @param PAGECOUNT The page count of the item
+ * @param SERIES The series of the item
+ * @param PRICES The prices of the item
+ * @param DATES The dates of the item
+ * @param COLLECTEDISSUES The collected issues of the item
+ * @param COLLECTIONS The collections of the item
+ * @param VARIANTS The variants of the item
+ * @param LOCK The lock status of the item
+ * @return {{PATH: null, note: null, unread: null, creators: null, issueNumber: null, description: null, variants: null, characters: null, collections: null, lock: null, id: null, prices: null, collectedIssues: null, pageCount: null, read: null, URLs: null, last_page: null, format: null, reading: null, dates: null, NOM: null, folder: null, series: null, favorite: null, URLCover: null}} The Book Object
+ */
+function generateBookTemplate(NOM = null, ID = null, NOTE = null, READ = null, READING = null,
+    UNREAD = null, FAVORITE = null, LAST_PAGE = null, FOLDER = null,
+    PATH = null, COVER = null, ISSUENUMBER = null, DESCRIPTION = null,
+    FORMAT = null, PAGECOUNT = null, SITEURL = null, SERIES = null,
+    STAFF = null, CHARACTERS = null, PRICES = null, DATES = null,
+    COLLECTEDISSUES = null, COLLECTIONS = null, VARIANTS = null, LOCK = null) {
+    return {
+        "NOM": NOM,
+        "id": ID,
+        "note": NOTE,
+        "read": READ,
+        "reading": READING,
+        "unread": UNREAD,
+        "favorite": FAVORITE,
+        "last_page": LAST_PAGE,
+        "folder": FOLDER,
+        "PATH": PATH,
+        "URLCover": COVER,
+        "issueNumber": ISSUENUMBER,
+        "description": DESCRIPTION,
+        "format": FORMAT,
+        "pageCount": PAGECOUNT,
+        "URLs": SITEURL,
+        "series": SERIES,
+        "creators": STAFF,
+        "characters": CHARACTERS,
+        "prices": PRICES,
+        "dates": DATES,
+        "collectedIssues": COLLECTEDISSUES,
+        "collections": COLLECTIONS,
+        "variants": VARIANTS,
+        "lock": LOCK
+    };
+}
+//Open a book in the bookmarks
+function openBOOKM(path: string, page: string) {
+    window.location.href = "viewer.html?" + encodeURIComponent(path.replaceAll("/", "%C3%B9")) + "&page=" + page;
+}
+
+
+export { convertDate, providerEnum, resolveTitle, _01toBool, ValidatedExtension, coolanimations, generateBookTemplate, openBOOKM };

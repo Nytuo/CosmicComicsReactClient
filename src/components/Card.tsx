@@ -27,7 +27,7 @@ function Card({ book }: { book: IBook; }) {
                 <img width={"100%"} id={"card_img_id_" + book.ID_book} src={book.URLCover} alt="" />
             </div>
             <div className="card__body">
-                <button className="card__play js-play"
+                <span className="card__play js-play"
                     onClick={() => {
                         //AllForOne("unread", "read", "reading", this._ID);
                         // const encoded = encodeURIComponent(path.replaceAll("/", "%C3%B9"));
@@ -38,7 +38,7 @@ function Card({ book }: { book: IBook; }) {
                 ><IconButton>
                         <PlayArrow />
                     </IconButton>
-                </button>
+                </span>
                 <p className="card__bio" style={{ textAlign: "center" }}>{book.NOM}</p>
             </div>
             <Grid2 container spacing={5}>
