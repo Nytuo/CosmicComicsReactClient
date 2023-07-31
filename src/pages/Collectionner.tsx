@@ -34,6 +34,7 @@ function Collectionner() {
     return (
         <>
             <MiniDrawer />
+
         </>
     );
 }

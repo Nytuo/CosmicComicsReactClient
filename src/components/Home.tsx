@@ -1,10 +1,10 @@
 import { getFromDB } from "@/utils/Fetchers.ts";
 import Card from "@/components/Card.tsx";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IBook } from "@/utils/IBook";
 
-function Home() {
+function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
     const [readingBooks, setReadingBooks] = useState([]);
     const [recentlyAdded, setRecentlyAdded] = useState([]);
     const [toRead, setToRead] = useState([]);
@@ -45,26 +45,26 @@ function Home() {
         {
             readingBooks.length === 0 ? <p>{t("nothingHere")}</p> :
                 readingBooks.map((book: IBook, index) => {
-                    return <Card book={book} key={index} />;
+                    return <Card handleOpenDetails={handleOpenDetails} book={book} key={index} />;
                 })
         }
         <p id="myfav">My favorites : </p>
 
         {myFavorite.length === 0 ? <p>{t("nothingHere")}</p> :
             myFavorite.map((book: IBook, index) => {
-                return <Card book={book} key={index} />;
+                return <Card handleOpenDetails={handleOpenDetails} book={book} key={index} />;
             })
         }
         <p id="recentlyAddedLabel">Recently added : </p>
         {recentlyAdded.length === 0 ? <p>{t("nothingHere")}</p> :
             recentlyAdded.map((book: IBook, index) => {
-                return <Card book={book} key={index} />;
+                return <Card handleOpenDetails={handleOpenDetails} book={book} key={index} />;
             })
         }
         <p id="toReadd">To read : </p>
         {toRead.length === 0 ? <p>{t("nothingHere")}</p> :
             toRead.map((book: IBook, index) => {
-                return <Card book={book} key={index} />;
+                return <Card handleOpenDetails={handleOpenDetails} book={book} key={index} />;
             })
         }
     </div>);

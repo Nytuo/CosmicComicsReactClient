@@ -27,6 +27,9 @@ import { providerEnum } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
 import { currentProfile } from '@/utils/Common.ts';
 import UserAccountDialog from './Dialogs/UserAccountDialog.tsx';
+import { IBook } from '@/utils/IBook.ts';
+import Book from '@/utils/Book.ts';
+import Details from './Details.tsx';
 
 
 const drawerWidth = 240;
@@ -259,6 +262,10 @@ export default function MiniDrawer() {
 
     const [userAccountOpen, setUserAccountOpen] = React.useState(false);
     const [dialogFor, setDialogFor] = React.useState<'edit' | 'create'>('edit');
+    const [openDetails, setOpenDetails] = React.useState<{ open: boolean, book: IBook, provider: any; } | null>(null);
+    const handleOpenDetails = (open: boolean, book: IBook, provider: any) => {
+        setOpenDetails({ open: open, book: book, provider: provider });
+    };
     const handleCloseUserAccount = () => {
         setUserAccountOpen(false);
     };
@@ -564,7 +571,10 @@ export default function MiniDrawer() {
             </Drawer>
             <Box component="main" sx={{ flexGrow: 1, p: 3 }} style={{}}>
                 <DrawerHeader />
-                <HomeContainer />
+
+                {
+                    openDetails && openDetails.open ? <Details stateDetails={openDetails} /> : <HomeContainer handleOpenDetails={handleOpenDetails} />
+                }
             </Box>
         </Box >
     );

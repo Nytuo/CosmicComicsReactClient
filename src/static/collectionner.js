@@ -2011,10 +2011,6 @@ async function createDetails(TheBook, provider) {
         title: language["rematch"],
         placement: "bottom"
     });
-
-    console.log(provider);
-    document.getElementById('bookEdit').style.display = "block";
-    document.getElementById('seriesEdit').style.display = "none";
     document.querySelectorAll("#commonEdit>label>input").forEach((e) => {
         e.value = TheBook[e.id.replaceAll("edit_", "")];
     })
@@ -2148,7 +2144,6 @@ async function createDetails(TheBook, provider) {
     addToBreadCrumb(TheBook.NOM, () => {
         return createDetails(TheBook, provider);
     });
-    document.getElementById("provider_text").innerText = ((provider === providerEnum.Marvel) ? (language["providedBy"] + " Marvel. © 2014 Marvel") : ((provider === providerEnum.Anilist) ? (language["providedBy"] + " Anilist.") : ((provider === providerEnum.MANUAL) ? (language["notFromAPI"]) : ((provider === providerEnum.OL) ? (language["providedBy"] + " OpenLibrary.") : ((provider === providerEnum.GBooks) ? (language["providedBy"] + " Google Books.") : "")))));
     document.getElementById("contentViewer").style.display = "block";
     document.getElementById("DLBOOK").addEventListener("click", function (e) {
         let path = TheBook.PATH;
@@ -2174,9 +2169,6 @@ async function createDetails(TheBook, provider) {
     if (TheBook.note != null) {
         document.getElementById("rating-" + TheBook.note).setAttribute("checked", "true");
     }
-    document.getElementById("readingbtndetails").style.display = "inline";
-    document.getElementById("OtherTitles").innerText = "";
-    document.getElementById("relations").innerText = "";
     if (TheBook.characters !== "null" && providerEnum.Marvel) {
         document.getElementById("id").innerText = language["thisisa"] + TheBook.format + " " + language["of"] + " " + TheBook.pageCount + " " + language["pages"] + "<br/>" + language["Thisispartofthe"] + JSON.parse(TheBook.series).name + "' " + language["series"];
     } else {
@@ -2194,30 +2186,6 @@ async function createDetails(TheBook, provider) {
         }
     }
 
-    document.getElementById("averageProgress").style.display = "none";
-    document.getElementById("ContentView").innerText = "";
-    try {
-        if (provider === providerEnum.Marvel) {
-            document.getElementById("ColTitle").innerHTML = "<a target='_blank' href='" + ((TheBook.URLs == null) ? ("#") : (JSON.parse(TheBook.URLs)[0].url)) + "' style='color:white'>" + TheBook.NOM + "<i style='font-size: 18px;top: -10px;position: relative' class='material-icons'>open_in_new</i></a>";
-        } else if (provider === providerEnum.Anilist) {
-            document.getElementById("ColTitle").innerHTML = "<a target='_blank' style='color:white'>" + TheBook.NOM + "</a>";
-        } else {
-            document.getElementById("ColTitle").innerHTML = "<a target='_blank' style='color:white'>" + TheBook.NOM + "</a>";
-        }
-    } catch (e) {
-        document.getElementById("ColTitle").innerHTML = "<a target='_blank' style='color:white'>" + TheBook.NOM + "</a>";
-    }
-    if (TheBook.URLCover.includes("public/FirstImagesOfAll")) {
-        document.getElementById("ImgColCover").src = TheBook.URLCover.split("public/")[1];
-    } else {
-        document.getElementById("ImgColCover").src = TheBook.URLCover;
-    }
-    document.getElementById("Status").innerText = "";
-    if (TheBook.description != null && TheBook.description !== "null") {
-        document.getElementById("description").innerText = TheBook.description;
-    } else {
-        document.getElementById("description").innerText = "";
-    }
     document.getElementById("checkbtn").addEventListener("click", function (e) {
         AllForOne("unread", "reading", "read", TheBook.ID_book);
         Toastifycation(language["mkread"], "#00C33C");
@@ -2230,21 +2198,7 @@ async function createDetails(TheBook, provider) {
         AllForOne("read", "reading", "unread", TheBook.ID_book);
         Toastifycation(language["mkunread"], "#00C33C");
     });
-    if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
-        const options = {
-            method: "GET", headers: {
-                "Content-Type": "application/json", "img": TheBook.URLCover
-            }
-        };
-        await fetch(PDP + "/img/getPalette/" + currentProfile.getToken, options).then(function (response) {
-            return response.text();
-        }).then(function (data) {
-            let Blurcolors = data;
-            setTimeout(function () {
-                document.documentElement.style.setProperty("--background", Blurcolors.toString());
-            }, 500);
-        });
-    }
+
     document.getElementById("favoritebtn").addEventListener("click", async function (e) {
         if (TheBook.favorite === 1) {
             TheBook.favorite = 0;
@@ -2622,77 +2576,31 @@ function listenerClickSearch() {
     document.getElementById("searchResults").style.display = "none";
     document.removeEventListener('click', listenerClickSearch);
 }
-
-
-
-
-
-/**
- * Template for the context menu
- * @param {{}} elements
- *
- */
-function createContextMenu(elements = [{}]) {
-    let ul = document.createElement("ul");
-    for (let i = 0; i < elements.length; i++) {
-        let el = elements[i];
-        let liTemp = document.createElement("li")
-        liTemp.innerText = el.nom;
-        for (let elo in el.attribs) {
-            liTemp.setAttribute(elo, el.attribs[elo]);
-        }
-        for (let elo in el.listeners) {
-            liTemp.addEventListener(elo, el.listeners[elo]);
-        }
-        ul.appendChild(liTemp);
-    }
-    ul.className = "contextMenu";
-    ul.style.right = "0.4vw";
-    ul.style.display = "block";
-    return ul;
-}
-
 /**
  * Spawn a context menu for account management
  *
  */
 function AccountMenu() {
     let menu = createContextMenu(
-        [{
-            "nom": language["Modifyyouraccount"],
-            "attribs": {
-                "data-bs-toggle": "modal",
-                "data-bs-target": "#modifAccount"
-            },
-            "listeners": {}
-        },
-        {
-            "nom": language["Createanewuser"],
-            "attribs": {
-                "data-bs-toggle": "modal",
-                "data-bs-target": "#modifAccount"
-            },
-            "listeners": {
-                "click": function () {
-                    document.getElementById("id_modifAccount").innerText = language["Createanewuser"];
-                    document.getElementById("delaccount").style.display = "none";
-                    document.getElementById("sendbdd").style.display = "none";
-                    document.getElementById("sendaccount").onclick = async function () {
-                        console.log("sendaccount");
-                        await currentProfile.createAccount();
-                    };
+        [
+            {
+                "nom": language["Createanewuser"],
+                "attribs": {
+                    "data-bs-toggle": "modal",
+                    "data-bs-target": "#modifAccount"
+                },
+                "listeners": {
+                    "click": function () {
+                        document.getElementById("id_modifAccount").innerText = language["Createanewuser"];
+                        document.getElementById("delaccount").style.display = "none";
+                        document.getElementById("sendbdd").style.display = "none";
+                        document.getElementById("sendaccount").onclick = async function () {
+                            console.log("sendaccount");
+                            await currentProfile.createAccount();
+                        };
+                    }
                 }
-            }
-        },
-        {
-            "nom": language["logout"],
-            "attribs": {},
-            "listeners": {
-                "click": function () {
-                    logout();
-                }
-            }
-        },
+            },
         ])
     document.body.appendChild(menu);
     menu.style.top = 70 + "px";

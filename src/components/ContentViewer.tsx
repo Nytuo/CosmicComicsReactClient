@@ -1,17 +1,57 @@
+import { PDP, currentProfile } from "@/utils/Common.ts";
+import { IBook } from "@/utils/IBook";
+import { providerEnum } from "@/utils/utils.ts";
 import Rating from "@mui/material/Rating/Rating";
-import { useState } from "react";
-
-function ContentViewer() {
+import { useLayoutEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+//providerEnum to type
+type TProvider = providerEnum.Marvel | providerEnum.Anilist | providerEnum.MANUAL | providerEnum.OL | providerEnum.GBooks;
+function ContentViewer({ provider, TheBook, type }: {
+    provider: TProvider;
+    TheBook: IBook;
+    type: 'series' | 'volume';
+}) {
     const [rating, setRating] = useState<number | null>(null);
+    const { t } = useTranslation();
+
+    useLayoutEffect(() => {
+        const handleAsyncBG = async () => {
+            if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
+                console.log("TheBook.URLCover", TheBook.URLCover);
+                const options = {
+                    method: "GET", headers: {
+                        "Content-Type": "application/json", "img": TheBook.URLCover
+                    }
+                };
+                await fetch(PDP + "/img/getPalette/" + currentProfile.getToken, options).then(function (response) {
+                    return response.text();
+                }).then(function (data) {
+                    const Blurcolors = data;
+                    setTimeout(function () {
+                        document.documentElement.style.setProperty("--background", Blurcolors.toString());
+                    }, 500);
+                });
+            }
+        };
+        handleAsyncBG();
+    }, [TheBook.URLCover]);
     return (<>
 
         <div className="contentViewer contentFade" id="contentViewer">
             <img id="imageBGOV2" src="#" alt="#" style={{ width: "100vw", height: "auto" }} />
             <div className="onContentViewer">
                 <div id="ColCover">
-                    <img src="" id="ImgColCover" alt="#" />
+                    <img src={
+                        TheBook.URLCover.includes("public/FirstImagesOfAll") ? TheBook.URLCover.split("public/")[1] : TheBook.URLCover
+                    } id="ImgColCover" alt="#" />
                 </div>
-                <div id="ColTitle"></div>
+                <div id="ColTitle">{
+                    (provider === providerEnum.Marvel) ?
+                        <a target='_blank' href={((TheBook.URLs == null) ? ("#") : (JSON.parse(TheBook.URLs)[0].url))} style={{ color: 'white' }}>{TheBook.NOM}<i style={{ fontSize: '18px', top: '-10px', position: 'relative' }} className='material-icons'>open_in_new</i></a>
+                        : (provider === providerEnum.Anilist) ?
+                            <a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}</a> :
+                            <a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}</a>
+                }</div>
                 <div id="ColContent">
                     <p id="Status"></p>
                     <div id="startDate"></div>
@@ -40,20 +80,27 @@ function ContentViewer() {
                     </div>
                     <div id="price"></div>
 
-                    <div id="description"></div>
-                    <div id="averageProgress">
-
-                        <div className="circle-small">
-                            <div className="text">
-                                <div id="averageScore"></div>
-                            </div>
-                            <svg>
-                                <circle className="bg" cx="40" cy="40" r="37"></circle>
-                                <circle className="progress one" cx="40" cy="40" r="37"></circle>
-                            </svg>
-                        </div>
-
+                    <div id="description">
+                        {
+                            (TheBook.description != null && TheBook.description !== "null") ? TheBook.description : ""
+                        }
                     </div>
+                    {
+                        type === 'series' ? <div id="averageProgress">
+
+                            <div className="circle-small">
+                                <div className="text">
+                                    <div id="averageScore"></div>
+                                </div>
+                                <svg>
+                                    <circle className="bg" cx="40" cy="40" r="37"></circle>
+                                    <circle className="progress one" cx="40" cy="40" r="37"></circle>
+                                </svg>
+                            </div>
+
+                        </div> : <></>
+                    }
+
 
                     <div id="genres"></div>
                     <div id="chapters"></div>
@@ -72,13 +119,11 @@ function ContentViewer() {
                     <div id="SiteURL"></div>
                     <div id="OtherTitles"></div>
                     <div id="relations" className="relationsDiv"></div>
-                    <div style={{ textAlign: "center" }}><p id="provider_text"></p></div>
-
-
+                    <div style={{ textAlign: "center" }}><p id="provider_text">{((provider === providerEnum.Marvel) ? (t("providedBy") + " Marvel. © 2014 Marvel") : ((provider === providerEnum.Anilist) ? (t("providedBy") + " Anilist.") : ((provider === providerEnum.MANUAL) ? (t("notFromAPI")) : ((provider === providerEnum.OL) ? (t("providedBy") + " OpenLibrary.") : ((provider === providerEnum.GBooks) ? (t("providedBy") + " Google Books.") : "")))))}</p></div>
                 </div>
 
             </div>
-        </div>
+        </div >
     </>);
 }
 

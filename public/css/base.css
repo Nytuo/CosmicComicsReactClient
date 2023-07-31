@@ -877,7 +877,7 @@ body {
 #contentViewer {
     position: fixed;
     /* Sit on top of the page content */
-    display: none;
+    display: block;
     /* Hidden by default */
     width: 100%;
     /* Full width (cover the whole page) */
