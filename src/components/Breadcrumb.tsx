@@ -5,26 +5,22 @@ import Link from '@mui/material/Link';
 
 function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     event.preventDefault();
-    console.info('You clicked a breadcrumb.');
+    console.info('You clicked the breadcrumb ' + event.target);
 }
 
-export default function CollapsedBreadcrumbs() {
+export default function CollapsedBreadcrumbs({ breadcrumbs }: { breadcrumbs: { text: string; onClick: () => void; }[]; }) {
     return (
         <div role="presentation" onClick={handleClick} style={{ marginLeft: "15px" }}>
             <Breadcrumbs maxItems={2} aria-label="breadcrumb">
-                <Link underline="hover" color="inherit" href="#">
-                    Home
-                </Link>
-                <Link underline="hover" color="inherit" href="#">
-                    Catalog
-                </Link>
-                <Link underline="hover" color="inherit" href="#">
-                    Accessories
-                </Link>
-                <Link underline="hover" color="inherit" href="#">
-                    New Collection
-                </Link>
-                <Typography color="text.primary">Belts</Typography>
+                {
+                    breadcrumbs.map(({ text, onClick }, index) => {
+                        if (index === breadcrumbs.length - 1) return [];
+                        return <Link key={index} underline="hover" color="inherit" href="#" onClick={onClick}>
+                            {text}
+                        </Link>;
+                    })
+                }
+                <Typography color="text.primary">{breadcrumbs[breadcrumbs.length - 1]?.text}</Typography>
             </Breadcrumbs>
         </div>
     );

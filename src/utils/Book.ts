@@ -5,7 +5,7 @@ import { IBook } from "./IBook.ts";
  */
 
 class Book implements IBook {
-  private _ID_book: number;
+  private _ID_book: string;
   private _NOM: string;
   private _URLCover: any;
   private _description: string;
@@ -31,7 +31,7 @@ class Book implements IBook {
   private _variants: any;
   private _lock: number;
   private _API_ID: string;
-  constructor(ID_book: number, NOM: string, URLCover: any, description: string, creators: any, characters: any, URLs: any, note: number, read: number, reading: number, unread: number, favorite: number, last_page: number, folder: any, PATH: string, issueNumber: string, format: any, pageCount: number, series: any, prices: any, dates: any, collectedIssues: any, collections: any, variants: any, lock: number, API_ID: string) {
+  constructor(ID_book: string, NOM: string, URLCover: any, description: string, creators: any, characters: any, URLs: any, note: number, read: number, reading: number, unread: number, favorite: number, last_page: number, folder: any, PATH: string, issueNumber: string, format: any, pageCount: number, series: any, prices: any, dates: any, collectedIssues: any, collections: any, variants: any, lock: number, API_ID: string) {
     this._ID_book = ID_book;
     this._NOM = NOM;
     this._URLCover = URLCover;

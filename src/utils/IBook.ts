@@ -1,5 +1,5 @@
 interface IBook {
-    ID_book: number;
+    ID_book: string;
     API_ID: string;
     NOM: string;
     note?: any;

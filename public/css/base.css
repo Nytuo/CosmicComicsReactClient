@@ -944,25 +944,12 @@ body {
     font-weight: bold;
 }
 
-#id, #averageProgress, #OriginCountry, #startDate, #description, #endDate, #Trending, #genres, #chapters, #btnsActions, .Ratecontainer, #price, #Volumes, #readstat, #readAdd {
+#id, #averageProgress, #OriginCountry, #startDate, #description, #endDate, #Trending, #genres, #chapters, #btnsActions, .Ratecontainer, #price, #Volumes, #readstat, #readAdd, #ratingContainer {
     color: var(--text);
     margin-left: 45vw;
     margin-right: 2vw;
     margin-top: 2vh;
     transition: margin-left .5s ease;
-}
-
-#btnsActions > a > i {
-    color: var(--text);
-    margin-right: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 10px;
-    border-radius: 50%;
-    transition: background-color .2s linear;
-}
-
-#btnsActions > a > i:hover {
-    background-color: rgba(0, 0, 0, 0.4);
 }
 
 #readAddInput {

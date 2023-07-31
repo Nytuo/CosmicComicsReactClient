@@ -168,7 +168,7 @@ async function logout() {
  * @param where the where clause
  * @param value the new value
  */
-function changeRating(table: string, where: string, value: string) {
+function changeRating(table: string, where: string, value: number) {
     if (table === "Books") {
         console.log(table, value + " from Book");
         const options = {

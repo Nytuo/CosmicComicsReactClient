@@ -1,9 +1,9 @@
 import { IBook } from "@/utils/IBook";
 import ContentViewer from "./ContentViewer";
 
-function Details({ stateDetails }: { stateDetails: { open: boolean; book: IBook; provider: any; } | null; }) {
+function Details({ stateDetails, handleAddBreadcrumbs }: { stateDetails: { open: boolean; book: IBook; provider: any; } | null; handleAddBreadcrumbs: any; }) {
     return (<>
-        {stateDetails && stateDetails.open ? <ContentViewer type={"volume"} provider={stateDetails.provider} TheBook={stateDetails.book} /> : <></>}
+        {stateDetails && stateDetails.open ? <ContentViewer type={"volume"} provider={stateDetails.provider} TheBook={stateDetails.book} handleAddBreadcrumbs={handleAddBreadcrumbs} /> : <></>}
     </>);
 }
 

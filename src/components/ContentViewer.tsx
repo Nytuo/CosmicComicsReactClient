@@ -1,19 +1,26 @@
 import { PDP, currentProfile } from "@/utils/Common.ts";
-import { IBook } from "@/utils/IBook";
+import { AllForOne, changeRating, downloadBook } from "@/utils/Fetchers.ts";
+import { IBook } from "@/utils/IBook.ts";
 import { providerEnum } from "@/utils/utils.ts";
+import { AutoStories, Check, Close, Download, Edit, Favorite, PlayArrow, Refresh, YoutubeSearchedFor } from "@mui/icons-material";
+import { IconButton, Stack } from "@mui/material";
 import Rating from "@mui/material/Rating/Rating";
-import { useLayoutEffect, useState } from "react";
+import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 //providerEnum to type
 type TProvider = providerEnum.Marvel | providerEnum.Anilist | providerEnum.MANUAL | providerEnum.OL | providerEnum.GBooks;
-function ContentViewer({ provider, TheBook, type }: {
+function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
     provider: TProvider;
     TheBook: IBook;
     type: 'series' | 'volume';
+    handleAddBreadcrumbs: any;
 }) {
-    const [rating, setRating] = useState<number | null>(null);
+    const [rating, setRating] = useState<number | null>(TheBook.note === null ? null : parseInt(TheBook.note));
     const { t } = useTranslation();
-
+    useEffect(() => {
+        handleAddBreadcrumbs(TheBook.NOM, () => { });
+    }, []);
     useLayoutEffect(() => {
         const handleAsyncBG = async () => {
             if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
@@ -35,6 +42,7 @@ function ContentViewer({ provider, TheBook, type }: {
         };
         handleAsyncBG();
     }, [TheBook.URLCover]);
+    console.log("TheBook", TheBook);
     return (<>
 
         <div className="contentViewer contentFade" id="contentViewer">
@@ -55,30 +63,56 @@ function ContentViewer({ provider, TheBook, type }: {
                 <div id="ColContent">
                     <p id="Status"></p>
                     <div id="startDate"></div>
+                    <Stack spacing={5}>                        <Grid2 container spacing={2} id='btnsActions'>
+                        <IconButton id="playbutton" onClick={
+                            () => {
+                                AllForOne("unread", "read", "reading", TheBook.ID_book);
+                                const encoded = encodeURIComponent(TheBook.PATH.replaceAll("/", "%C3%B9"));
+                                window.location.href = "viewer.html?" + encoded;
+                            }
+                        }><PlayArrow /></IconButton>
+                        <IconButton><Check /></IconButton>
+                        <IconButton id="readingbtndetails"> <AutoStories /></IconButton>
+                        <IconButton id="decheckbtn"><Close /></IconButton>
+                        <IconButton id="favoritebtn"> <Favorite /></IconButton>
+                        <IconButton data-bs-target="#editmodal" data-bs-toggle="modal" id="editmodalBtn"> <Edit /></IconButton>
+                        <IconButton id="DLBOOK" onClick={
+                            () => {
+                                downloadBook(TheBook.PATH);
+                            }
+                        }> <Download /></IconButton>
+                        <IconButton id="refreshBtn"> <Refresh /></IconButton>
+                        <IconButton id="rematchBtn"> <YoutubeSearchedFor /></IconButton>
 
-                    <div id="btnsActions">
-                        <a href="#" id="playbutton"><i className="material-icons">play_arrow</i></a>
-                        <a href="#" id="checkbtn"> <i className="material-icons">check</i></a>
-                        <a href="#" id="readingbtndetails"> <i className="material-icons">auto_stories</i></a>
-                        <a href="#" id="decheckbtn"> <i className="material-icons" >close</i></a>
-                        <a href="#" id="favoritebtn"> <i className="material-icons" >favorite</i></a>
-                        <a href="#" data-bs-target="#editmodal" data-bs-toggle="modal" id="editmodalBtn"> <i
-                            className="material-icons"
-                        >edit</i></a>
-                        <a href="#" id="DLBOOK"> <i className="material-icons">download</i></a>
-                        <a href="#" id="refreshBtn"> <i className="material-icons" id="refresh">refresh</i></a>
-                        <a href="#" id="rematchBtn"> <i className="material-icons" id="rematch"
-                        >youtube_searched_for</i></a>
-                        <div className="rating">
+                    </Grid2>
+                        <div id="ratingContainer" className="rating">
                             <Rating name="no-value" value={rating} onChange={
                                 (event, newValue) => {
                                     setRating(newValue);
-                                    // changeRating('Series', newValue);
+                                    if (newValue === null) return;
+                                    if (type === 'volume') {
+                                        changeRating("Books", TheBook.ID_book, newValue);
+                                    } else {
+                                        // changeRating('Series', newValue);
+                                    }
                                 }
                             } />
                         </div>
+                    </Stack>
+                    <div id="price">{TheBook.prices === 'null' ? "" : TheBook.prices}{
+                        ((TheBook.prices !== "null" && TheBook.prices !== "" && TheBook.prices != null) ?
+                            ((provider === providerEnum.Marvel) ?
+                                t("prices") : "") : "")}
+                        <br />
+                        {
+                            ((TheBook.prices !== "null" && TheBook.prices !== "" && TheBook.prices != null) ?
+                                ((provider === providerEnum.Marvel) ?
+
+                                    JSON.parse(TheBook.prices).map((price: { type: string; price: string; }, index: number) => {
+                                        return <p key={index}>{price.type.replace(/([A-Z])/g, ' $1').trim() + " : " + price.price}</p>;
+                                    }) : "") : "")
+                        }
                     </div>
-                    <div id="price"></div>
 
                     <div id="description">
                         {

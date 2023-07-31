@@ -266,6 +266,20 @@ export default function MiniDrawer() {
     const handleOpenDetails = (open: boolean, book: IBook, provider: any) => {
         setOpenDetails({ open: open, book: book, provider: provider });
     };
+    const [breadcrumbs, setBreadcrumbs] = React.useState<{ text: string; onClick: () => void; }[]>([{
+        text: t("HOME"), onClick: () => {
+            setOpenDetails(null);
+            // TODO setOpenSeries(null);
+            handleRemoveBreadcrumbsTo(1);
+        }
+    }]);
+    const handleAddBreadcrumbs = (text: string, onClick: () => void) => {
+        setBreadcrumbs([...breadcrumbs, { text: text, onClick: onClick }]);
+    };
+    const handleRemoveBreadcrumbsTo = (index: number) => {
+        setBreadcrumbs(breadcrumbs.slice(0, index));
+    };
+
     const handleCloseUserAccount = () => {
         setUserAccountOpen(false);
     };
@@ -302,7 +316,7 @@ export default function MiniDrawer() {
                         className="navbar-brand"
                         height="40px"
                     />
-                    <CollapsedBreadcrumbs />
+                    <CollapsedBreadcrumbs breadcrumbs={breadcrumbs} />
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
 
                         <Search>
@@ -573,7 +587,7 @@ export default function MiniDrawer() {
                 <DrawerHeader />
 
                 {
-                    openDetails && openDetails.open ? <Details stateDetails={openDetails} /> : <HomeContainer handleOpenDetails={handleOpenDetails} />
+                    openDetails && openDetails.open ? <Details stateDetails={openDetails} handleAddBreadcrumbs={handleAddBreadcrumbs} /> : <HomeContainer handleOpenDetails={handleOpenDetails} />
                 }
             </Box>
         </Box >

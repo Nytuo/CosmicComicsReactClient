@@ -342,42 +342,6 @@ function resetLibModal() {
     };
 }
 
-
-
-/**
- * Adding a step to the breadcrumb
- * @param {string} title The title of the step
- * @param {(function(): void)|(function(): Promise<void>)} ListenerF The function to call when the step is clicked
- */
-function addToBreadCrumb(title, ListenerF) {
-    let breadCrumb = document.querySelector(".breadcrumb");
-    let newElement = document.createElement("li");
-    newElement.addEventListener('click', (e) => {
-        removeBreadCrumb(breadCrumb, newElement);
-        document.getElementById("ContainerExplorer").innerText = "";
-        document.getElementById("overlay").style.display = "none";
-        document.getElementById("overlay2").style.display = "none";
-        document.getElementById("contentViewer").style.display = "none";
-        resetOverlay();
-        ListenerF();
-    });
-    newElement.innerText = title;
-    newElement.setAttribute("class", "breadcrumb-item");
-    newElement.setAttribute("aria-current", "page");
-    breadCrumb.appendChild(newElement);
-}
-
-/**
- * Remove steps from the breadcrumb to the selected step
- * @param {Element} breadcrumb The breadcrumb element
- * @param {ChildNode} element The element to remove to
- */
-function removeBreadCrumb(breadcrumb, element) {
-    while (breadcrumb.lastChild !== element) {
-        breadcrumb.removeChild(breadcrumb.lastChild);
-    }
-}
-
 /**
  * Modify user's profile configuration JSON file
  * @param {string|number} tomod The key to modify
@@ -2141,34 +2105,6 @@ async function createDetails(TheBook, provider) {
             }, null, 2)
         })
     }
-    addToBreadCrumb(TheBook.NOM, () => {
-        return createDetails(TheBook, provider);
-    });
-    document.getElementById("contentViewer").style.display = "block";
-    document.getElementById("DLBOOK").addEventListener("click", function (e) {
-        let path = TheBook.PATH;
-        console.log(path);
-        downloadBook(path);
-    });
-    document.getElementById("playbutton").addEventListener("click", function (e) {
-        AllForOne("unread", "read", "reading", TheBook.ID_book);
-
-        let encoded = encodeURIComponent(TheBook.PATH.replaceAll("/", "%C3%B9"));
-        window.location.href = "viewer.html?" + encoded;
-    });
-    for (let i = 1; i <= 5; i++) {
-        document.getElementById("rating-" + i).onclick = function () {
-            changeRating("Books", TheBook.ID_book, i);
-        };
-        try {
-            document.getElementById("rating-" + i).removeAttribute("checked");
-        } catch (e) {
-            console.log(e);
-        }
-    }
-    if (TheBook.note != null) {
-        document.getElementById("rating-" + TheBook.note).setAttribute("checked", "true");
-    }
     if (TheBook.characters !== "null" && providerEnum.Marvel) {
         document.getElementById("id").innerText = language["thisisa"] + TheBook.format + " " + language["of"] + " " + TheBook.pageCount + " " + language["pages"] + "<br/>" + language["Thisispartofthe"] + JSON.parse(TheBook.series).name + "' " + language["series"];
     } else {
@@ -2480,15 +2416,6 @@ async function createDetails(TheBook, provider) {
         document.getElementById("chapters").innerText = language["Numberofthisvolumewithintheseries"] + TheBook.issueNumber;
     } else {
         document.getElementById("chapters").innerText = "";
-    }
-    if (TheBook.prices !== "null" && TheBook.prices !== "" && TheBook.prices != null) {
-        if (provider === providerEnum.Marvel) {
-            document.getElementById("price").innerHTML += language["prices"] + "<br/>";
-            for (let a = 0; a < JSON.parse(TheBook.prices).length; a++) {
-                console.log(JSON.parse(TheBook.prices)[a]);
-                document.getElementById("price").innerHTML += JSON.parse(TheBook.prices)[a].type.replace(/([A-Z])/g, ' $1').trim() + " : " + JSON.parse(TheBook.prices)[a].price + "<br/>";
-            }
-        }
     }
     if (TheBook.dates !== "null") {
         document.getElementById("startDate").innerHTML = language["dates"] + "<br/>";
