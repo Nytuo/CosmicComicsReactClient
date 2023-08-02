@@ -1975,12 +1975,7 @@ async function createDetails(TheBook, provider) {
         title: language["rematch"],
         placement: "bottom"
     });
-    document.querySelectorAll("#commonEdit>label>input").forEach((e) => {
-        e.value = TheBook[e.id.replaceAll("edit_", "")];
-    })
-    document.querySelectorAll("#bookEdit>label>input").forEach((e) => {
-        e.value = TheBook[e.id.replaceAll("edit_", "")];
-    })
+    
     let isLocked = () => {
         return TheBook.lock === 1 || TheBook.lock === true;
     }
@@ -2076,116 +2071,6 @@ async function createDetails(TheBook, provider) {
             }
         }
     }
-    document.getElementById("sendEdit").onclick = async () => {
-        let values = [];
-        let columns = [];
-        document.querySelectorAll("#commonEdit>label>input").forEach((e) => {
-            values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
-            columns.push(e.id.replaceAll("edit_", ""))
-        })
-        document.querySelectorAll("#bookEdit>label>input").forEach((e) => {
-            values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"))
-            columns.push(e.id.replaceAll("edit_", ""))
-        })
-        values.push(document.getElementById("lockCheck").checked);
-        console.log(values);
-
-        columns.push("lock");
-        await fetch(PDP + "/DB/update", {
-            method: "POST", headers: {
-                "Content-Type": "application/json"
-            }, body: JSON.stringify({
-                "token": currentProfile.getToken,
-                "table": "Books",
-                "type": "edit",
-                "column": columns,
-                "whereEl": TheBook.PATH,
-                "value": values,
-                "where": "PATH"
-            }, null, 2)
-        })
-    }
-    if (TheBook.characters !== "null" && providerEnum.Marvel) {
-        document.getElementById("id").innerText = language["thisisa"] + TheBook.format + " " + language["of"] + " " + TheBook.pageCount + " " + language["pages"] + "<br/>" + language["Thisispartofthe"] + JSON.parse(TheBook.series).name + "' " + language["series"];
-    } else {
-        if (provider === providerEnum.Anilist) {
-            document.getElementById("id").innerText = language["Thisispartofthe"] + TheBook.series.split("_")[2].replaceAll("$", " ") + "' series.";
-        } else if (provider === providerEnum.Marvel) {
-            document.getElementById("id").innerText = language["Thisispartofthe"] + JSON.parse(TheBook.series).name + "' series.";
-        } else if (provider === providerEnum.MANUAL) {
-            document.getElementById("id").innerText = language["Thisispartofthe"] + TheBook.series + "' series.";
-        } else if (provider === providerEnum.OL) {
-            document.getElementById("id").innerText = language["Thisispartofthe"] + TheBook.series + "' series.";
-        } else if (provider === providerEnum.GBooks) {
-            document.getElementById("id").innerText = language["this is a"] + TheBook.format + " " + language["of"] + " " + TheBook.pageCount + " " + language["pages"] + "<br/>" + language["Thisispartofthe"] + TheBook.series + "' " + language["series"];
-
-        }
-    }
-
-    document.getElementById("checkbtn").addEventListener("click", function (e) {
-        AllForOne("unread", "reading", "read", TheBook.ID_book);
-        Toastifycation(language["mkread"], "#00C33C");
-    });
-    document.getElementById("readingbtndetails").addEventListener("click", function (e) {
-        AllForOne("unread", "read", "reading", TheBook.ID_book);
-        Toastifycation(language["mkreading"], "#00C33C");
-    });
-    document.getElementById("decheckbtn").addEventListener("click", function (e) {
-        AllForOne("read", "reading", "unread", TheBook.ID_book);
-        Toastifycation(language["mkunread"], "#00C33C");
-    });
-
-    document.getElementById("favoritebtn").addEventListener("click", async function (e) {
-        if (TheBook.favorite === 1) {
-            TheBook.favorite = 0;
-            Toastifycation(language["remove_fav"], "#00C33C");
-            await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
-                let bookList = JSON.parse(resa);
-                console.log(bookList);
-                for (let i = 0; i < bookList.length; i++) {
-                    if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
-                        let options = {
-                            method: "POST", headers: {
-                                "Content-Type": "application/json"
-                            }, body: JSON.stringify({
-                                "token": currentProfile.getToken,
-                                "table": "Books",
-                                "column": "favorite",
-                                "whereEl": bookList[i].PATH,
-                                "value": false,
-                                "where": "PATH"
-                            }, null, 2)
-                        };
-                        await fetch(PDP + "/DB/update", options);
-                    }
-                }
-            });
-        } else {
-            TheBook.favorite = 1;
-            Toastifycation(language["add_fav"], "#00C33C");
-            await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
-                let bookList = JSON.parse(resa);
-                console.log(bookList);
-                for (let i = 0; i < bookList.length; i++) {
-                    if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
-                        let options = {
-                            method: "POST", headers: {
-                                "Content-Type": "application/json"
-                            }, body: JSON.stringify({
-                                "token": currentProfile.getToken,
-                                "table": "Books",
-                                "column": "favorite",
-                                "whereEl": bookList[i].PATH,
-                                "value": true,
-                                "where": "PATH"
-                            }, null, 2)
-                        };
-                        await fetch(PDP + "/DB/update", options);
-                    }
-                }
-            });
-        }
-    });
     if (TheBook.characters !== "null") {
         let NameToFetchList = [];
         if (provider === providerEnum.Marvel) {
@@ -2247,39 +2132,6 @@ async function createDetails(TheBook, provider) {
                 divs2.style.textAlign = "center";
                 divs.style.marginLeft = "10px";
                 container.appendChild(divs);
-            });
-        });
-        if (TheBook.read === 1 || TheBook.read === "true") {
-            document.getElementById("Status").innerText = language["READ"];
-            document.getElementById("Status").className = "released";
-        } else if (TheBook.unread === 1 || TheBook.unread === "true") {
-            document.getElementById("Status").innerText = language["UNREAD"];
-            document.getElementById("Status").className = "NotYet";
-        } else if (TheBook.reading === 1 || TheBook.reading === "true") {
-            document.getElementById("Status").innerText = language["READING"];
-            document.getElementById("Status").className = "releasing";
-        }
-        if (TheBook.favorite === 1) {
-            document.getElementById("Status").innerText += language["favoriteParenthesis"];
-        }
-        document.getElementById("readstat").innerHTML = "<input type=\"number\" step=\"1\" min=\"0\" id=\"readAddInput\">" + " / " + TheBook.pageCount + " " + language["pagesRead"];
-        document.getElementById("readAddInput").value = TheBook.last_page;
-        document.getElementById("readAddInput").max = TheBook.pageCount;
-        document.getElementById("readAddInput").addEventListener("change", async function (e) {
-            let options = {
-                method: "POST", headers: {
-                    "Content-Type": "application/json"
-                }, body: JSON.stringify({
-                    "token": currentProfile.getToken,
-                    "table": "Books",
-                    "column": "last_page",
-                    "whereEl": TheBook.ID_book,
-                    "value": e.target.value,
-                    "where": "ID_book"
-                }, null, 2)
-            };
-            await fetch(PDP + "/DB/update", options).catch((err) => {
-                Toastifycation("Error", "#d92027");
             });
         });
         document.getElementById("characters").innerHTML = "<h1>" + language["characters"] + ":</h1> " + language["Numberofcharacters"] + ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.characters)["available"]) : ((TheBook.characters !== "null") ? (JSON.parse(TheBook.characters).length) : (0))) + "<br/>";
@@ -2401,33 +2253,6 @@ async function createDetails(TheBook, provider) {
         document.getElementById("Staff").appendChild(moveLeft2);
         document.getElementById("Staff").appendChild(moveRight2);
         document.getElementById("Staff").appendChild(container2);
-    }
-    if (TheBook.collectedIssues !== "null") {
-        for (let a = 0; a < JSON.parse(TheBook.collectedIssues).length; a++) {
-            document.getElementById("colissue").innerHTML += JSON.parse(TheBook.collectedIssues)[a].name + "<br/>";
-        }
-    }
-    if (TheBook.collections !== "null") {
-        for (let a = 0; a < JSON.parse(TheBook.collections).length; a++) {
-            document.getElementById("col").innerHTML += JSON.parse(TheBook.collections)[a].name + "<br/>";
-        }
-    }
-    if (TheBook.issueNumber !== "null" && TheBook.issueNumber !== "" && TheBook.issueNumber != null) {
-        document.getElementById("chapters").innerText = language["Numberofthisvolumewithintheseries"] + TheBook.issueNumber;
-    } else {
-        document.getElementById("chapters").innerText = "";
-    }
-    if (TheBook.dates !== "null") {
-        document.getElementById("startDate").innerHTML = language["dates"] + "<br/>";
-        try {
-
-            for (let b = 0; b < JSON.parse(TheBook.dates).length; b++) {
-                document.getElementById("startDate").innerHTML += JSON.parse(TheBook.dates)[b].type.replace(/([A-Z])/g, ' $1').trim() + " : " + convertDate(JSON.parse(TheBook.dates)[b].date) + "<br/>";
-            }
-        } catch (e) {
-            document.getElementById("startDate").innerHTML += TheBook.dates + "<br/>";
-
-        }
     }
     if (TheBook.variants !== "null" && TheBook.variants !== "" && TheBook.variants != null) {
         if (provider === providerEnum.Marvel) {
