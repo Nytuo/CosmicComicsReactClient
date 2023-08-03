@@ -8,7 +8,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect, useLayoutEffect } from "react";
 import { useTranslation } from 'react-i18next';
-import { IBook } from '@/utils/IBook.ts';
+import { IBook } from '@/interfaces/IBook';
 import { PDP, currentProfile } from '@/utils/Common.ts';
 import { Checkbox, FormControlLabel } from '@mui/material';
 

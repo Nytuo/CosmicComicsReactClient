@@ -1,5 +1,5 @@
 import React from 'react';
-import IProfile from '@/utils/IProfile.ts';
+import IProfile from '@/interfaces/IProfile';
 import { setCookie } from '@/utils/Common.ts';
 export function LoginCard({ profile, key, setOpenLogin, setSelectedProfile }: { profile: IProfile, key: number, setOpenLogin: React.Dispatch<React.SetStateAction<boolean>>, setSelectedProfile: React.Dispatch<React.SetStateAction<IProfile | undefined>>; }) {
 	return (

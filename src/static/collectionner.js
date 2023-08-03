@@ -1938,127 +1938,11 @@ document.getElementById("id_addTrackedBook").addEventListener("click", () => {
  */
 async function createDetails(TheBook, provider) {
     resetOverlay();
-    document.documentElement.style.overflow = "hidden";
-    new bootstrap.Tooltip(document.getElementById("playbutton"), {
-        title: language["PLAY"],
-        placement: "bottom",
-    });
-    new bootstrap.Tooltip(document.getElementById("checkbtn"), {
-        title: language["mkread"],
-        placement: "bottom"
-    });
-    new bootstrap.Tooltip(document.getElementById("readingbtndetails"), {
-        title: language["mkreading"],
-        placement: "bottom"
-    });
-    new bootstrap.Tooltip(document.getElementById("decheckbtn"), {
-        title: language["mkunread"],
-        placement: "bottom"
-    });
-    new bootstrap.Tooltip(document.getElementById("favoritebtn"), {
-        title: language["toogle_fav"],
-        placement: "bottom"
-    });
-    new bootstrap.Tooltip(document.getElementById("editmodalBtn"), {
-        title: language["EDIT"],
-        placement: "bottom"
-    });
-    new bootstrap.Tooltip(document.getElementById("DLBOOK"), {
-        title: language["downloadBook"],
-        placement: "bottom"
-    });
-    new bootstrap.Tooltip(document.getElementById("refreshBtn"), {
-        title: language["refreshMetadata"],
-        placement: "bottom"
-    });
-    new bootstrap.Tooltip(document.getElementById("rematchBtn"), {
-        title: language["rematch"],
-        placement: "bottom"
-    });
-    
+
     let isLocked = () => {
         return TheBook.lock === 1 || TheBook.lock === true;
     }
-    document.getElementById("rematchSearchSender").onclick = () => {
-        let rematchResult = document.getElementById("resultRematch")
-        let search = document.getElementById("rematchSearch");
-        let year = document.getElementById('rematchYearSearch')
-        if (provider === providerEnum.Marvel) {
-            new Marvel().GetComics(search.value, year.value).then((cdata) => {
-                if (cdata["data"]["total"] > 0) {
-                    for (let i = 0; i < cdata["data"]["total"]; i++) {
-                        let cdataI = cdata["data"]["results"][i];
-                        let l = new Card(null, null, null, cdataI["id"], cdataI["thumbnail"].path + "/detail." + cdataI["thumbnail"].extension, cdataI['title']).card;
-                        l.addEventListener("click", () => {
-                            new API().rematch(cdataI.id + "_" + provider, provider, "book", TheBook.ID_book, false)
-                        })
-                        rematchResult.appendChild(l);
-                    }
-                }
-            })
-        } else if (provider === providerEnum.Anilist) {
-            //Anilist cannot update the book from the API
-            alert(language["providerCannotRematch"]);
-        } else if (provider === providerEnum.MANUAL) {
-            alert(language["providerCannotRematch"])
-        } else if (provider === providerEnum.OL) {
-            new OpenLibrary().GetComics(search.value).then((cdata) => {
-                if (cdata.hasOwnProperty("num_found")) {
-                    for (let i = 0; i < cdata["num_found"]; i++) {
-                        let cdataI = cdata["docs"][i];
-                        let l = new Card(null, null, null, cdataI["seed"][0], cdataI["cover_i"] !== undefined ? "https://covers.openlibrary.org/b/id/" + cdataI["cover_i"] + "-L.jpg" : null, cdataI['title']).card;
-                        l.addEventListener("click", () => {
-                            new API().rematch(cdataI.seed[0].split("/")[2] + "_" + provider, provider, "book", TheBook.ID_book, false)
-                        })
-                        rematchResult.appendChild(l);
-                    }
-                }
 
-
-            })
-        } else if (provider === providerEnum.GBooks) {
-            new GoogleBooks().GetComics(search.value).then((cdata) => {
-                console.log(cdata);
-                if (cdata === undefined) {
-                    throw new Error("no data");
-                }
-                if (cdata["totalItems"] > 0) {
-                    for (let i = 0; i < cdata["totalItems"]; i++) {
-                        let cdata = cdata["items"][i];
-                        let cover;
-                        if (cdata["volumeInfo"]["imageLinks"] !== undefined) {
-
-                            cover = cdata["volumeInfo"]["imageLinks"]
-                            if (cover["large"] !== undefined) {
-                                cover = cover["large"]
-                            } else if (cover["thumbnail"] !== undefined) {
-                                cover = cover["thumbnail"]
-                            } else {
-                                cover = null
-                            }
-                        } else {
-                            cover = null;
-                        }
-                        let price;
-                        if (cdata["saleInfo"]["retailPrice"] !== undefined) {
-                            price = cdata["saleInfo"]["retailPrice"]["amount"]
-                        } else {
-                            price = null;
-                        }
-                        let l = new Card(null, null, null, cdata["id"], cover, cdata['title']).card;
-                        l.addEventListener("click", () => {
-                            new API().rematch(cdata.id + "_" + provider, provider, "book", TheBook.ID_book, false)
-                        })
-                        rematchResult.appendChild(l);
-                    }
-                }
-            })
-        } else {
-        }
-        //fetch API
-        //return results to DIV#Result
-        //Chaque result to conduire vers rematch()
-    }
     document.getElementById("lockCheck").checked = isLocked();
     document.getElementById('refresh').onclick = async () => {
         if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL) {
@@ -2254,28 +2138,6 @@ async function createDetails(TheBook, provider) {
         document.getElementById("Staff").appendChild(moveRight2);
         document.getElementById("Staff").appendChild(container2);
     }
-    if (TheBook.variants !== "null" && TheBook.variants !== "" && TheBook.variants != null) {
-        if (provider === providerEnum.Marvel) {
-            createVariants(TheBook);
-        }
-    }
-}
-
-
-/* TODO ↑ CODE VERIFICATION ↑ */
-/**
- * Create variants list
- * @param TheBook The book (Object from DB) to retrieve variants from
- */
-function createVariants(TheBook) {
-    console.log(TheBook);
-    let variants = JSON.parse(TheBook.variants);
-    document.getElementById("relations").appendChild(document.createTextNode(language["variantsList"] + " : "));
-    document.getElementById("relations").appendChild(document.createElement("br"));
-    variants.forEach((el, index) => {
-        document.getElementById("relations").appendChild(document.createTextNode(el.name));
-        document.getElementById("relations").appendChild(document.createElement("br"));
-    });
 }
 
 

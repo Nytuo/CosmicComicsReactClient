@@ -1,11 +1,10 @@
-import { IBook } from "@/utils/IBook.ts";
+import { IBook } from "@/interfaces/IBook";
 import { providerEnum } from "@/utils/utils.ts";
 import { AutoStories, Close, Done, Favorite, PlayArrow } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-import { Dispatch, SetStateAction } from "react";
 
-function Card({ book, handleOpenDetails }: { book: IBook; handleOpenDetails: any; }) {
+function Card({ book, handleOpenDetails, onClick }: { book: IBook; handleOpenDetails?: any; onClick?: () => void; }) {
 
     if (book.URLCover === "null" || book.URLCover === "" || book.URLCover == null) {
         book.URLCover = "Images/fileDefault.png";
@@ -19,7 +18,11 @@ function Card({ book, handleOpenDetails }: { book: IBook; handleOpenDetails: any
             data-effect="zoom"
             onClick={() => {
                 const provider = ((book.series.includes("marvel")) ? (providerEnum.Marvel) : ((book.series.includes("Anilist")) ? (providerEnum.Anilist) : ((book.series.includes("OL")) ? (providerEnum.OL) : ((book.URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
-                handleOpenDetails(true, book, provider);
+                if (onClick) {
+                    onClick();
+                } else {
+                    handleOpenDetails(true, book, provider);
+                }
             }
             }
         >

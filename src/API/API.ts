@@ -1,19 +1,25 @@
+import { Toaster } from "@/components/Toaster.tsx";
+import { PDP, currentProfile } from "@/utils/Common.ts";
+import { DetectFolderInLibrary, getFromDB } from "@/utils/Fetchers.ts";
+
 class API {
     /**
      * Trigger the metadata refresh for the selected library
      * @param elElement The library to refresh
      */
-    refreshMetadata(elElement) {
-        let path = elElement["PATH"];
-        DetectFolderInLibrary(path).then(async function (data) {
-            data = JSON.parse(data);
+    refreshMetadata(elElement: any) {
+        const path = elElement["PATH"];
+        DetectFolderInLibrary(path).then(async (data) => {
+            if (!data) return;
+            const parsedData = JSON.parse(data);
             await getFromDB("Series", "ID_Series,PATH FROM Series").then(async (res) => {
-                res = JSON.parse(res);
-                for (let index = 0; index < res.length; index++) {
-                    let el = res[index]["PATH"];
-                    for (let i = 0; i < data.length; i++) {
-                        if (el === data[i]) {
-                            await this.refreshMeta(res[index]["ID_Series"], elElement["API_ID"], "Series");
+                if (!res) return;
+                const parsedRes = JSON.parse(res) as Array<any>;
+                for (let index = 0; index < parsedRes.length; index++) {
+                    const el = parsedRes[index]["PATH"];
+                    for (let i = 0; i < parsedData.length; i++) {
+                        if (el === parsedData[i]) {
+                            await this.refreshMeta(parsedRes[index]["ID_Series"], elElement["API_ID"], "Series");
                             break;
                         }
                     }
@@ -29,7 +35,7 @@ class API {
      * @param {string} old_id The old id
      * @param {boolean} isSeries Is the element a series
      */
-    async rematch(new_id, provider, type, old_id, isSeries = false) {
+    async rematch(new_id: string, provider:number, type:string, old_id:string, isSeries = false) {
         if (isSeries) {
             await fetch(PDP + "/DB/update", {
                 method: "POST", headers: {
@@ -65,12 +71,12 @@ class API {
     /**API_ID
      * Launch the metadata refresh
      * @param {*} id The ID in the DB of the element to refresh
-     * @param {int} provider The provider of the element to refresh
+     * @param {number} provider The provider of the element to refresh
      * @param {string} type The type of the element to refresh
      */
-    async refreshMeta(id, provider, type) {
+    async refreshMeta(id: string, provider:number, type: string) {
         console.log("Refreshing metadata for " + id + " from " + provider + " (" + type + ")");
-        Toastifycation("Refreshing metadata...");
+        Toaster("Refreshing metadata for " + id + " from " + provider + " (" + type + ")", "info");
         fetch(PDP + "/refreshMeta", {
             method: "POST",
             headers: {
@@ -82,8 +88,10 @@ class API {
                 "type": type,
                 "token": currentProfile.getToken
             })
-        }).then((res) => {
-            Toastifycation("Metadata updated");
+        }).then(() => {
+            Toaster("Metadata refreshed", "success");
         })
     }
 }
+
+export { API }

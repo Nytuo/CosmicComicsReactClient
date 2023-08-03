@@ -27,7 +27,7 @@ import { providerEnum } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
 import { currentProfile } from '@/utils/Common.ts';
 import UserAccountDialog from './Dialogs/UserAccountDialog.tsx';
-import { IBook } from '@/utils/IBook.ts';
+import { IBook } from '@/interfaces/IBook.ts';
 import Book from '@/utils/Book.ts';
 import Details from './Details.tsx';
 

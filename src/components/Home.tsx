@@ -2,7 +2,7 @@ import { getFromDB } from "@/utils/Fetchers.ts";
 import Card from "@/components/Card.tsx";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IBook } from "@/utils/IBook";
+import { IBook } from "@/interfaces/IBook";
 
 function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
     const [readingBooks, setReadingBooks] = useState([]);

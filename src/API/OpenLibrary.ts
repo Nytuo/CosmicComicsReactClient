@@ -1,6 +1,8 @@
-class GoogleBooks {
-    async InsertBook(name = "", path) {
-        return fetch(PDP + "/insert/googlebooks/book/", {
+import { PDP, currentProfile } from "@/utils/Common.ts";
+
+class OpenLibrary {
+    async InsertBook(name = "", path:string) {
+        return fetch(PDP + "/insert/ol/book/", {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -21,7 +23,7 @@ class GoogleBooks {
 
     async GetComics(name = "") {
         name = encodeURIComponent(name);
-        return fetch(PDP + "/api/googlebooks/getComics/" + name).then(function (response) {
+        return fetch(PDP + "/api/ol/getComics/" + name).then(function (response) {
             return response.text();
         }).then(function (data) {
             data = JSON.parse(data);
@@ -31,3 +33,5 @@ class GoogleBooks {
         });
     }
 }
+
+export { OpenLibrary }

@@ -8,10 +8,19 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
+import { providerEnum } from '@/utils/utils.ts';
+import { Marvel } from '@/API/Marvel.ts';
+import { Toaster } from '../Toaster';
+import { OpenLibrary } from '@/API/OpenLibrary';
+import { GoogleBooks } from '@/API/GoogleBooks';
+import { API } from '@/API/API';
+import Card from '../Card';
+import Book from '@/utils/Book';
 
-export default function RematchDialog({ onClose, openModal }: {
+export default function RematchDialog({ onClose, openModal, provider }: {
 	onClose: any,
 	openModal: boolean,
+	provider: any,
 }) {
 	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
@@ -25,6 +34,8 @@ export default function RematchDialog({ onClose, openModal }: {
 		onClose();
 	};
 
+	const [rematchResult, setRematchResult] = React.useState<any[]>([]);
+
 	return (
 		<div>
 			<Dialog open={open} onClose={handleClose}>
@@ -33,9 +44,85 @@ export default function RematchDialog({ onClose, openModal }: {
 					<DialogContentText>
 						<input type="text" id="rematchSearch" placeholder="Search title in the library's API" />
 						<input type="text" id="rematchYearSearch" placeholder="Year (optional)" />
-						<button class="btn pure-material-button-contained" id="rematchSearchSender">Search</button>
-						<div id="resultRematch">
+						<button id="rematchSearchSender"
+							onClick={
+								() => {
+									const rematchResult = document.getElementById("resultRematch");
+									const search = document.getElementById("rematchSearch") as HTMLInputElement;
+									const year = document.getElementById('rematchYearSearch') as HTMLInputElement;
+									if (provider === providerEnum.Marvel) {
+										new Marvel().GetComics(search.value, year.value).then((cdata) => {
+											if (!cdata) return;
+											const parsedData = JSON.parse(cdata);
+											if (parsedData["data"]["total"] > 0) {
+												for (let i = 0; i < parsedData["data"]["total"]; i++) {
+													const cdataI = parsedData["data"]["results"][i];
+													const TheBook = new Book(cdataI["id"], cdataI["title"], cdataI["thumbnail"].path + "/detail." + cdataI["thumbnail"].extension, "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, '0');
+													setRematchResult((prev) => [...prev, {
+														book: TheBook.book, onclick:
+															() => {
+																new API().rematch(cdataI.id + "_" + provider, provider, "book", value.ID_book, false);
+															}
+													}]);
+												}
+											}
+										});
+									} else if (provider === providerEnum.Anilist) {
+										Toaster(t("providerCannotRematch"), "error");
+									} else if (provider === providerEnum.MANUAL) {
+										Toaster(t("providerCannotRematch"), "error");
+									} else if (provider === providerEnum.OL) {
+										new OpenLibrary().GetComics(search.value).then((cdata) => {
+											if (!cdata) return;
+											const parsedData = JSON.parse(cdata);
+											if (Object.prototype.hasOwnProperty.call(parsedData, "num_found")) {
+												for (let i = 0; i < parsedData["num_found"]; i++) {
+													const cdataI = parsedData["docs"][i];
+													const TheBook = new Book(cdataI["seed"][0].split("/")[2], cdataI["title"], cdataI["cover_i"] !== undefined ? "https://covers.openlibrary.org/b/id/" + cdataI["cover_i"] + "-L.jpg" : null, "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, '0');
+													setRematchResult((prev) => [...prev, { book: TheBook.book, onclick: () => { new API().rematch(cdataI.seed[0].split("/")[2] + "_" + provider, provider, "book", TheBook.ID_book, false); } }]);
+												}
+											}
 
+
+										});
+									} else if (provider === providerEnum.GBooks) {
+										new GoogleBooks().GetComics(search.value).then((cdata) => {
+											if (!cdata) return;
+											const parsedData = JSON.parse(cdata);
+											if (parsedData["totalItems"] > 0) {
+												for (let i = 0; i < parsedData["totalItems"]; i++) {
+													const parsedDataI = parsedData["items"][i];
+													let cover;
+													if (parsedDataI["volumeInfo"]["imageLinks"] !== undefined) {
+
+														cover = parsedDataI["volumeInfo"]["imageLinks"];
+														if (cover["large"] !== undefined) {
+															cover = cover["large"];
+														} else if (cover["thumbnail"] !== undefined) {
+															cover = cover["thumbnail"];
+														} else {
+															cover = null;
+														}
+													} else {
+														cover = null;
+													}
+													const TheBook = new Book(parsedDataI["id"], parsedDataI["title"], cover, "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, '0');
+													setRematchResult((prev) => [...prev, {
+														book: TheBook.book, onclick: () => {
+															new API().rematch(parsedDataI.id + "_" + provider, provider, "book", TheBook.ID_book, false);
+														}
+													}]);
+												}
+											}
+										});
+									}
+								}
+							}
+						>Search</button>
+						<div id="resultRematch">
+							{
+								rematchResult.map(({ book, onclick }, index) => { return <Card key={index} book={book} onClick={onclick} />; })
+							}
 						</div>
 					</DialogContentText>
 					<TextField
@@ -50,7 +137,7 @@ export default function RematchDialog({ onClose, openModal }: {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("send")}</Button>
-					<Button onClick={ }>{t("cancel")}</Button>
+					<Button onClick={handleClose}>{t("cancel")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>

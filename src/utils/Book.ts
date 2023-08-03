@@ -1,5 +1,5 @@
 import { PDP } from "../utils/Common.ts";
-import { IBook } from "./IBook.ts";
+import { IBook } from "../interfaces/IBook.ts";
 /**
  * Class representing a book
  */

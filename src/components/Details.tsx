@@ -1,4 +1,4 @@
-import { IBook } from "@/utils/IBook";
+import { IBook } from "@/interfaces/IBook";
 import ContentViewer from "./ContentViewer";
 
 function Details({ stateDetails, handleAddBreadcrumbs }: { stateDetails: { open: boolean; book: IBook; provider: any; } | null; handleAddBreadcrumbs: any; }) {

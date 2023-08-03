@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import LoginDialog from "@/components/Dialogs/LoginDialog.tsx";
 import CreateAccountDialog from "@/components/Dialogs/CreateAccountDialog.tsx";
-import IProfile from "@/utils/IProfile.ts";
+import IProfile from "@/interfaces/IProfile";
 import { PDP } from "@/utils/Common.ts";
 import { LoginCard } from "@/components/LoginCard.tsx";
 import StarBackground from "@/components/StarBackground.tsx";

@@ -1,3 +1,6 @@
+import { Toaster } from "@/components/Toaster.tsx";
+import { PDP, currentProfile } from "@/utils/Common.ts";
+
 class Marvel {
     constructor() {
 
@@ -27,7 +30,7 @@ class Marvel {
         });
     }
 
-    async InsertBook(name = "", date = "", path) {
+    async InsertBook(name = "", date = "", path:string) {
         return fetch(PDP + "/insert/marvel/book/", {
             method: "GET",
             headers: {
@@ -47,7 +50,7 @@ class Marvel {
             console.log(error);
         });
     }
-    InsertSeries(name = "", path) {
+    InsertSeries(name = "", path:string) {
     fetch(PDP+ '/api/marvel/', {
         method: 'POST',
         headers: {
@@ -59,7 +62,11 @@ class Marvel {
             "path": path,
         })
     }).then(function (response) {
-        Toastifycation("Marvel API : " + response.status);
-    })
+        Toaster("Marvel API : " + response.status, "success");
+    }).catch(function (error) {
+        Toaster("Marvel API : An error occured", "error");
+        console.log(error);
+    });
 }
 }
+export { Marvel }

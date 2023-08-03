@@ -7,7 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
-import IProfile from "../../utils/IProfile";
+import IProfile from "../../interfaces/IProfile";
 import { PDP, setCookie } from "../../utils/Common";
 import { Toaster } from "../Toaster";
 import { useTranslation } from 'react-i18next';
