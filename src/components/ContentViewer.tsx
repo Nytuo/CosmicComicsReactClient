@@ -1,6 +1,6 @@
 import { PDP, currentProfile } from "@/utils/Common.ts";
 import { AllForOne, changeRating, downloadBook, getFromDB } from "@/utils/Fetchers.ts";
-import { IBook } from "@/interfaces/IBook";
+import { IBook } from "@/interfaces/IBook.ts";
 import { providerEnum } from "@/utils/utils.ts";
 import { AutoStories, Check, Close, Done, Download, Edit, Favorite, PlayArrow, Refresh, YoutubeSearchedFor } from "@mui/icons-material";
 import { Chip, IconButton, Stack, Tooltip } from "@mui/material";
@@ -8,8 +8,9 @@ import Rating from "@mui/material/Rating/Rating";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Toaster } from "./Toaster";
-import DatabaseEditorDialog from "./Dialogs/DatabaseEditorDialog";
+import { Toaster } from "./Toaster.tsx";
+import DatabaseEditorDialog from "./Dialogs/DatabaseEditorDialog.tsx";
+import { API } from "@/API/API.ts";
 //providerEnum to type
 type TProvider = providerEnum.Marvel | providerEnum.Anilist | providerEnum.MANUAL | providerEnum.OL | providerEnum.GBooks;
 function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
@@ -19,11 +20,35 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
     handleAddBreadcrumbs: any;
 }) {
     const [rating, setRating] = useState<number | null>(TheBook.note === null ? null : parseInt(TheBook.note));
+    const [characters, setCharacters] = useState<any[]>([]);
+    const handleOpenMoreInfo = (name: string, desc: string, image: string, href: string) => {
+    };
+    const fetchCharacters = async () => {
+        if (TheBook.characters !== "null") {
+            const NameToFetchList: string[] = [];
+            if (provider === providerEnum.Marvel) {
+                JSON.parse(TheBook.characters)["items"].forEach((el: any) => {
+                    NameToFetchList.push("'" + el.name + "'");
+                });
+            } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                JSON.parse(TheBook.characters).forEach((el: any) => {
+                    NameToFetchList.push("'" + el.name + "'");
+                });
+            }
+            const NameToFetch = NameToFetchList.join(",");
+            await getFromDB("Characters", "* FROM Characters WHERE name IN (" + NameToFetch + ")").then((clres) => {
+                if (!clres) return;
+                const parsedClres = JSON.parse(clres);
+                setCharacters(parsedClres);
+            });
+        }
+    };
     const { t } = useTranslation();
     useEffect(() => {
         handleAddBreadcrumbs(TheBook.NOM, () => { });
     }, []);
     useLayoutEffect(() => {
+        fetchCharacters();
         const handleAsyncBG = async () => {
             if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
                 console.log("TheBook.URLCover", TheBook.URLCover);
@@ -220,7 +245,21 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                             }> <Download /></IconButton>
                         </Tooltip>
                         <Tooltip title={t('refreshMetadata')}>
-                            <IconButton id="refreshBtn"> <Refresh /></IconButton>
+                            <IconButton id="refreshBtn"
+                                onClick={
+                                    async () => {
+                                        if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL) {
+                                            Toaster(t("providerCannotRematch"), "error");
+                                        } else {
+                                            if (TheBook.lock !== 1) {
+                                                await new API().refreshMeta(TheBook.ID_book, provider, "book");
+                                            } else {
+                                                Toaster(t("bookLocked"), "error");
+                                            }
+                                        }
+                                    }
+                                }
+                            > <Refresh /></IconButton>
                         </Tooltip>
                         <Tooltip title={t('rematch')}>
                             <IconButton id="rematchBtn"> <YoutubeSearchedFor /></IconButton>
@@ -339,13 +378,48 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                     <div id="ContentView">
                         <h2 id="volumesLabel">Volumes : </h2>
                     </div>
-                    <div id="characters"></div>
+                    <div id="characters">
+                        <h1>{t("characters")}</h1>
+                        {t("Numberofcharacters")}
+                        {((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.characters)["available"]) : ((TheBook.characters !== "null") ? (JSON.parse(TheBook.characters).length) : (0)))
+                        }
+                        {
+                            <div className="item-list">
+                                <div>
+
+                                    {
+                                        characters.map((el: any) => {
+                                            return <div id="characters_div2"
+                                                onClick={
+                                                    () => {
+                                                        if (provider === providerEnum.Marvel) {
+                                                            handleOpenMoreInfo(el.name, el.description, JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension, JSON.parse(el.url)[0].url);
+                                                        } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                                                            handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
+                                                        }
+                                                    }
+                                                }
+                                            >
+                                                {
+                                                    (provider === providerEnum.Marvel) ? <>
+                                                        <img alt='a character' src={JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension} className='img-charac' /><br /><span>{el.name}</span></> :
+                                                        (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ? <>
+                                                            <img alt='a character' src={el.image.replaceAll('"', '')} className='img-charac' /><br /><span>{el.name}</span></> : ""
+                                                }
+                                            </div>;
+                                        })
+                                    }
+
+                                </div>
+                            </div>
+                        }
+                    </div>
                     <div id="Staff"></div>
                     <div id="SiteURL"></div>
                     <div id="OtherTitles"></div>
                     <div id="relations" className="relationsDiv">
                         {
-                            (TheBook.variants !== "null" && TheBook.variants !== "" && TheBook.variants != null) ? (provider === providerEnum.Marvel) ? t("variantsList") +' : ' + JSON.parse(TheBook.variants).map((variant: { name: string; }, index: number) => {
+                            (TheBook.variants !== "null" && TheBook.variants !== "" && TheBook.variants != null) ? (provider === providerEnum.Marvel) ? t("variantsList") + ' : ' + JSON.parse(TheBook.variants).map((variant: { name: string; }, index: number) => {
                                 return <p key={index}>{variant.name}</p>;
                             }) : "" : ""
                         }
@@ -356,6 +430,6 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
             </div>
         </div >
     </>);
-}
+};
 
 export default ContentViewer;

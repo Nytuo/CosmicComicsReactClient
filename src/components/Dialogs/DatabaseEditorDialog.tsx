@@ -12,11 +12,11 @@ import { IBook } from '@/interfaces/IBook';
 import { PDP, currentProfile } from '@/utils/Common.ts';
 import { Checkbox, FormControlLabel } from '@mui/material';
 
-export default function DatabaseEditorDialog({ onClose, openModal, TheBook,type }: {
+export default function DatabaseEditorDialog({ onClose, openModal, TheBook, type }: {
 	onClose: any,
 	openModal: boolean,
 	TheBook: IBook,
-	type : 'series' | 'book'
+	type: 'series' | 'book';
 }) {
 	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
@@ -32,14 +32,14 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook,type 
 
 	useLayoutEffect(() => {
 		if (TheBook) {
-			document.querySelectorAll("#commonEdit>label>input").forEach((e:any) => {
+			document.querySelectorAll("#commonEdit>label>input").forEach((e: any) => {
 				e.value = TheBook[e.id.replaceAll("edit_", "")];
-			});	
-			document.querySelectorAll("#bookEdit>label>input").forEach((e:any) => {
+			});
+			document.querySelectorAll("#bookEdit>label>input").forEach((e: any) => {
 				e.value = TheBook[e.id.replaceAll("edit_", "")];
 			});
 		}
-		},[]);
+	}, []);
 
 	const handleSend = async () => {
 		const values = [];
@@ -48,7 +48,7 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook,type 
 			values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
 			columns.push(e.id.replaceAll("edit_", ""));
 		});
-		document.querySelectorAll("#bookEdit>label>input").forEach((e:any) => {
+		document.querySelectorAll("#bookEdit>label>input").forEach((e: any) => {
 			values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
 			columns.push(e.id.replaceAll("edit_", ""));
 		});
@@ -77,14 +77,16 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook,type 
 				<DialogContent>
 					<DialogContentText>
 						Warning : Be careful when you modify those fields, DO NOT change the way they are written. If an item
-							have '"', { } or [] at the beginning and at the end DO NOT remove them change only the
-							content. The required fields have to respect this
-							pattern.
-						
+						have '"', { } or [] at the beginning and at the end DO NOT remove them change only the
+						content. The required fields have to respect this
+						pattern.
+
 					</DialogContentText>
 					<div id="commonEdit">
-						<FormControlLabel control={<Checkbox id='lockCheck' />} label="Lock this item ? (That prevent the metadata to be overwritten when refresh and disable rematch)" />
-						
+						<FormControlLabel control={<Checkbox id='lockCheck'
+							defaultChecked={TheBook.lock === 1}
+						/>} label="Lock this item ? (That prevent the metadata to be overwritten when refresh and disable rematch)" />
+
 						<TextField
 							autoFocus
 							required
@@ -106,210 +108,210 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook,type 
 							variant="outlined"
 						/>
 					</div>
-					{type === 'series' ? 
-					<div id="seriesEdit">
-						<TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_title"
-							label={'Title'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_cover"
-							label={'Cover'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_SOURCE"
-							label={'Source'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_BG"
-							label={'Link BG'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_statut"
-							label={'Status'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/>
-						<TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_start_date"
-							label={'Start Date'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_end_date"
-							label={'End Date'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/>
-						<TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_Score"
-							label={'Score'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/>
-						<TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_genres"
-							label={'Genres'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/>
-						<TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_volumes"
-							label={'Volumes'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/>	<TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_TRENDING"
-							label={'Trending'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/>	<TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_chapters"
-							label={'Chapters'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/>
+					{type === 'series' ?
+						<div id="seriesEdit">
+							<TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_title"
+								label={'Title'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/><TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_cover"
+								label={'Cover'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/><TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_SOURCE"
+								label={'Source'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/><TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_BG"
+								label={'Link BG'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/><TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_statut"
+								label={'Status'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/>
+							<TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_start_date"
+								label={'Start Date'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/><TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_end_date"
+								label={'End Date'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/>
+							<TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_Score"
+								label={'Score'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/>
+							<TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_genres"
+								label={'Genres'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/>
+							<TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_volumes"
+								label={'Volumes'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/>	<TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_TRENDING"
+								label={'Trending'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/>	<TextField
+								autoFocus
+								required
+								margin="dense"
+								id="edit_chapters"
+								label={'Chapters'}
+								type="text"
+								fullWidth
+								variant="outlined"
+							/>
 						</div> : type === 'book' ?
-						<div id="bookEdit">
-						<TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_NOM"
-							label={'Title'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_URLCover"
-							label={'URL Cover'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_issueNumber"
-							label={'Issue Number'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_format"
-							label={'Format'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_pageCount"
-							label={'Page count'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_URLs"
-							label={'URLs'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_series"
-							label={'Series'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="prices"
-							label={'Prices'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/><TextField
-							autoFocus
-							required
-							margin="dense"
-							id="dates"
-							label={'Dates'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/>
-						</div> : <></>}
+							<div id="bookEdit">
+								<TextField
+									autoFocus
+									required
+									margin="dense"
+									id="edit_NOM"
+									label={'Title'}
+									type="text"
+									fullWidth
+									variant="outlined"
+								/><TextField
+									autoFocus
+									required
+									margin="dense"
+									id="edit_URLCover"
+									label={'URL Cover'}
+									type="text"
+									fullWidth
+									variant="outlined"
+								/><TextField
+									autoFocus
+									required
+									margin="dense"
+									id="edit_issueNumber"
+									label={'Issue Number'}
+									type="text"
+									fullWidth
+									variant="outlined"
+								/><TextField
+									autoFocus
+									required
+									margin="dense"
+									id="edit_format"
+									label={'Format'}
+									type="text"
+									fullWidth
+									variant="outlined"
+								/><TextField
+									autoFocus
+									required
+									margin="dense"
+									id="edit_pageCount"
+									label={'Page count'}
+									type="text"
+									fullWidth
+									variant="outlined"
+								/><TextField
+									autoFocus
+									required
+									margin="dense"
+									id="edit_URLs"
+									label={'URLs'}
+									type="text"
+									fullWidth
+									variant="outlined"
+								/><TextField
+									autoFocus
+									required
+									margin="dense"
+									id="edit_series"
+									label={'Series'}
+									type="text"
+									fullWidth
+									variant="outlined"
+								/><TextField
+									autoFocus
+									required
+									margin="dense"
+									id="prices"
+									label={'Prices'}
+									type="text"
+									fullWidth
+									variant="outlined"
+								/><TextField
+									autoFocus
+									required
+									margin="dense"
+									id="dates"
+									label={'Dates'}
+									type="text"
+									fullWidth
+									variant="outlined"
+								/>
+							</div> : <></>}
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("cancel")}</Button>
-					<Button onClick={() => { handleSend }}>{t("send")}</Button>
+					<Button onClick={() => { handleSend; }}>{t("send")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div >

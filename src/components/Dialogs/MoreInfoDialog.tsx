@@ -9,9 +9,13 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 
-export default function MoreInfoDialog({ onClose, openModal }: {
+export default function MoreInfoDialog({ onClose, openModal, desc, name, hrefURL, image }: {
 	onClose: any,
 	openModal: boolean,
+	desc?: string,
+	name?: string;
+	hrefURL?: string;
+	image?: string;
 }) {
 	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
@@ -31,9 +35,19 @@ export default function MoreInfoDialog({ onClose, openModal }: {
 				<DialogTitle>{t("EDIT")}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						<img id="moreinfo_img" class="img-charac" src="#" alt="" />
-						<p id="moreinfo_txt"></p>
-						<a class="btn pure-material-button-contained" style="cursor: pointer" id="moreinfo_btn"></a>
+						<img id="moreinfo_img" className="img-charac" src={
+							image
+						} alt="" />
+						<p id="moreinfo_txt">
+							{desc == null ?
+								name : (typeof desc === "object" && Object.keys(desc).length > 0) ? name + "<br/>" + JSON.parse(desc) : name + "<br/>" + desc
+							}
+						</p>
+						<a target='_blank' href={
+							hrefURL
+						} style={{ cursor: "pointer" }} id="moreinfo_btn">
+							{t("seeMore")}
+						</a>
 					</DialogContentText>
 					<TextField
 						autoFocus
@@ -47,7 +61,7 @@ export default function MoreInfoDialog({ onClose, openModal }: {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("send")}</Button>
-					<Button onClick={ }>{t("cancel")}</Button>
+					<Button onClick={handleClose}>{t("cancel")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>
