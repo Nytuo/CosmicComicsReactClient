@@ -429,7 +429,9 @@ export default function MiniDrawer() {
                     <ListItem key={t('HOME') + Math.random()} disablePadding sx={{ display: 'block' }}>
                         <ListItemButton
                             onClick={() => {
-                                //
+                                setOpenDetails(null);
+                                // TODO setOpenSeries(null);
+                                handleRemoveBreadcrumbsTo(1);
                             }}
                             sx={{
                                 minHeight: 48,

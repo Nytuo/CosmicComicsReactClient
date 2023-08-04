@@ -8,6 +8,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
+import { PDP } from '@/utils/Common.ts';
 
 export default function AboutDialog({ onClose, openModal }: {
 	onClose: any,
@@ -20,6 +21,20 @@ export default function AboutDialog({ onClose, openModal }: {
 			setOpen(openModal);
 		}
 	}, [openModal]);
+	const [version, setVersion] = React.useState("");
+
+	useEffect(() => {
+		/**
+ * Get the version and display it on the info
+ */
+		fetch(PDP + "/getVersion").then(function (response) {
+			return response.text();
+		}).then(function (data) {
+			setVersion(t("version") + data);
+		}).catch(function (error) {
+			console.log(error);
+		});
+	}, []);
 	const handleClose = () => {
 		setOpen(false);
 		onClose();
@@ -35,7 +50,7 @@ export default function AboutDialog({ onClose, openModal }: {
 						<img src="Images/Logo.png" alt="" width="auto" height="80px"
 							class="navbar-brand rotate linear infinite" /><img src="Images/LogoTxt.png" alt=""
 								class="navbar-brand" height="80px" />
-						<p id="version">Version : </p>
+						<p id="version">{version}</p>
 						<p id="createdby">Created by Nytuo (Arnaud BEUX)</p>
 						<p id="usewhat">This application is a web server based Comics & Manga reader & Collectionner.</p>
 						<p id="seewhere">See the project on <a style='cursor: pointer' target='seemore'
@@ -65,7 +80,7 @@ export default function AboutDialog({ onClose, openModal }: {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("send")}</Button>
-					<Button onClick={ }>{t("cancel")}</Button>
+					<Button onClick={handleClose}>{t("cancel")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>

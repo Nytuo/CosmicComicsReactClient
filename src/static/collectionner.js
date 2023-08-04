@@ -204,20 +204,6 @@ function setTheme(theme) {
 }
 
 
-
-/**
- * Get the version and display it on the info
- */
-fetch(PDP + "/getVersion").then(function (response) {
-    return response.text();
-}).then(function (data) {
-    document.getElementById("version").innerText = language["version"] + data;
-}).catch(function (error) {
-    console.log(error);
-});
-
-
-
 /**
  * Add or remove AnimateCSS animation
  * @param {HTMLElement} element The element to animate
@@ -240,26 +226,6 @@ const animateCSS = (element, animation, prefix = "animate__") =>
     });
 
 
-
-
-
-/**
- * Delete the library
- * @param elElement The element to delete
- * @returns {Promise<void>} The response
- */
-async function deleteLib(elElement) {
-    let confirmDelete = confirm(language["deleteaccount"] + elElement["NAME"] + " ?");
-    if (confirmDelete) {
-        await fetch(PDP + '/DB/lib/delete/' + currentProfile.getToken + "/" + elElement["ID_LIBRARY"]).then(() => {
-            alert(language["libraryDeleted"]);
-            location.reload();
-        });
-    }
-}
-
-
-
 /**
  * Change the Lib modal to modify the library
  * @param elElement The element to modify
@@ -277,48 +243,6 @@ function modifyLib(elElement) {
 }
 
 let defaultBG = document.documentElement.style.getPropertyValue('--background');
-
-/**
- * Reset the detail overlay to default
- */
-function resetOverlay() {
-    document.documentElement.style.overflow = "auto";
-    document.getElementById("ColTitle").innerText = "";
-    document.getElementById("startDate").innerText = "";
-    document.getElementById("Status").innerText = "";
-    document.getElementById("price").innerText = "";
-    document.getElementById("genres").innerText = "";
-    document.getElementById("chapters").innerText = "";
-    document.getElementById("id").innerText = "";
-    document.getElementById("characters").innerText = "";
-    document.getElementById("colissue").innerText = "";
-    document.getElementById("col").innerText = "";
-    document.getElementById("Volumes").innerText = "";
-    document.getElementById("Trending").innerText = "";
-    document.getElementById("Staff").innerText = "";
-    document.getElementById("SiteURL").innerText = "";
-    document.getElementById("OtherTitles").innerText = "";
-    document.getElementById("relations").innerText = "";
-    document.getElementById("provider_text").innerText = "";
-    document.getElementById("description").innerText = "";
-    document.getElementById("ImgColCover").src = "null";
-    document.getElementById("readstat").innerText = "";
-    document.documentElement.style.setProperty('--background', defaultBG);
-    for (let childrenKey in document.querySelector("#btnsActions").children) {
-        document.querySelector("#btnsActions").children[childrenKey].outerHTML = document.querySelector("#btnsActions").children[childrenKey].outerHTML;
-    }
-    for (let i = 1; i <= 5; i++) {
-        document.getElementById("rating-" + i).onclick = "";
-        try {
-            document.getElementById("rating-" + i).removeAttribute("checked");
-        } catch (e) {
-            console.log(e);
-        }
-    }
-    document.getElementById("ContentView").innerHTML = "<h2>" + language["volumes"] + "</h2>";
-}
-
-
 
 /**
  * Reset the lib modal to default (adding a library)
@@ -342,28 +266,7 @@ function resetLibModal() {
     };
 }
 
-/**
- * Modify user's profile configuration JSON file
- * @param {string|number} tomod The key to modify
- * @param {*} mod the new value
- */
-function modifyConfigJson(tomod, mod) {
-    //check si obj exist pour remplacer valeur
-    fetch(PDP + "/config/getConfig/" + currentProfile.getToken).then(function (response) {
-        return response.text();
-    }).then(function (data) {
-        let config = JSON.parse(data);
-        for (let i in config) {
-            config[tomod] = mod;
-        }
-        const option = {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config, null, 2)
-        };
-        fetch('/config/writeConfig/' + currentProfile.getToken, option);
-    }).catch(function (error) {
-        console.log(error);
-    });
-}
+
 
 document.getElementById("searchField").style.display = "none";
 
@@ -879,28 +782,6 @@ async function downloader() {
 
 function OpenDownloadDir() {
     window.location.href = "viewer.html?" + CosmicComicsTemp + "/downloaded_book/";
-}
-
-function returnToHome() {
-    let e = document.getElementById("libHome");
-    document.querySelectorAll(".selectLib").forEach((el) => {
-        el.classList.remove("selectLib");
-    });
-    e.classList.add("selectLib");
-    document.getElementById("ContainerExplorer").innerText = "";
-    document.getElementById("overlay").style.display = "none";
-    document.getElementById("overlay2").style.display = "none";
-    document.getElementById("contentViewer").style.display = "none";
-    document.getElementById('home').innerHTML = "    <p>" + language["continue_reading"] + "</p>\n" + "    <div id=\"continueReadingHome\"></div>\n" + "    <p>" + language["favorite"] + "</p>\n" + "    <div id=\"myfavoriteHome\"></div>\n" + "    <p>" + language["recentlyAdded"] + "</p>\n" + "    <div id=\"recentlyAdded\"></div>\n" + "    <p>" + language["toRead"] + "</p>\n" + "    <div id=\"toRead\"></div>\n";
-    HomeRoutine();
-    document.getElementById('home').style.display = 'block';
-    document.getElementById('home').style.fontSize = '16px';
-    resetOverlay();
-    let breadCrumb = document.querySelector(".breadcrumb");
-    /* Delete all childs after this one */
-    while (breadCrumb.lastChild !== breadCrumb.childNodes[1]) {
-        breadCrumb.removeChild(breadCrumb.lastChild);
-    }
 }
 
 async function AllBooks(filters = "") {
@@ -1776,12 +1657,6 @@ async function createSeries(provider, path, libraryPath, res) {
 
 
 
-addToBreadCrumb(language["HOME"], () => {
-    returnToHome();
-});
-
-
-
 
 
 document.getElementById("rematch").setAttribute("data-bs-toggle", "modal");
@@ -1929,115 +1804,6 @@ document.getElementById("id_addTrackedBook").addEventListener("click", () => {
     }
 
 })
-
-/**
- *
- * @param {{}} TheBook
- * @param provider
- * @return {Promise<void>}
- */
-async function createDetails(TheBook, provider) {
-    resetOverlay();
-
-
-    //Genres
-    if (TheBook.creators !== "null" && TheBook.creators !== null && TheBook.creators !== undefined && TheBook.creators !== "") {
-        let tmpstaff = language["Numberofpeople"] + ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (JSON.parse(TheBook["creators"]).length) : ("0"))) + "<br/>";
-        let StaffToFetchList = [];
-        if (provider === providerEnum.Marvel) {
-            JSON.parse(TheBook.creators)["items"].forEach((el) => {
-                StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
-            });
-        } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL) {
-            JSON.parse(TheBook.creators).forEach((el) => {
-                StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
-            });
-        } else if (provider === providerEnum.GBooks) {
-            JSON.parse(TheBook.creators).forEach((el) => {
-                StaffToFetchList.push("'" + el.replaceAll("'", "''") + "'");
-            });
-        }
-        let StaffToFetch = StaffToFetchList.join(",");
-        let container2 = document.createElement("div");
-        await getFromDB("Creators", "* FROM Creators WHERE name IN (" + StaffToFetch + ")").then((clres) => {
-            clres = JSON.parse(clres);
-            container2.className = "item-list";
-            for (let i = 0; i < clres.length; i++) {
-                let el = clres[i];
-                const divs = document.createElement("div");
-                const divs2 = document.createElement("div");
-                for (let j = 0; j < clres.length; j++) {
-                    if (provider === providerEnum.Marvel) {
-                        if (el.name === JSON.parse(TheBook.creators)["items"][j].name) {
-                            divs2.innerHTML = "<img src='" + JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension + "' class='img-charac'/><br><span>" + el.name + "</span><br/><span style='font-size: 14px;color: #a8a8a8a8'>" + JSON.parse(TheBook.creators)["items"][j]["role"] + "</span>";
-                        }
-                    } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                        if (el.name === JSON.parse(TheBook.creators)[j].name) {
-                            divs2.innerHTML = "<img src='" + el.image.replaceAll('"', "") + "' class='img-charac'/><br><span>" + el.name + "</span>";
-                        }
-                    }
-                    let desc = el.description;
-                    let image = el.image;
-                    let urlo = el.url;
-                    let name = el.name;
-                    divs2.setAttribute("data-bs-toggle", "modal");
-                    divs2.setAttribute("data-bs-target", "#moreinfo");
-                    divs2.addEventListener("click", function (e) {
-                        if (provider === providerEnum.Marvel) {
-                            document.getElementById("moreinfo_img").src = JSON.parse(image).path + "/detail." + JSON.parse(image).extension;
-                            document.getElementById("moreinfo_btn").href = JSON.parse(urlo)[0].url;
-                            if (desc == null) {
-                                document.getElementById("moreinfo_txt").innerText = name;
-                            } else {
-                                document.getElementById("moreinfo_txt").innerHTML = name + "<br/>" + desc;
-                            }
-                        } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                            document.getElementById("moreinfo_img").src = image.replaceAll('"', "");
-                            document.getElementById("moreinfo_btn").href = urlo;
-                            if (desc == null) {
-                                document.getElementById("moreinfo_txt").innerText = name;
-                            } else {
-                                try {
-                                    document.getElementById("moreinfo_txt").innerHTML = name + "<br/>" + JSON.parse(desc);
-                                } catch (e) {
-                                    document.getElementById("moreinfo_txt").innerHTML = name + "<br/>" + desc;
-                                }
-                            }
-                        }
-                        document.getElementById("moreinfo_btn").target = "_blank";
-                        document.getElementById("moreinfo_btn").innerText = language["seeMore"]
-                    });
-                    divs.appendChild(divs2);
-                    divs2.style.marginTop = "10px";
-                    divs2.style.textAlign = "center";
-                    divs.style.marginLeft = "10px";
-                    container2.appendChild(divs);
-                }
-            }
-        });
-        document.getElementById("Staff").innerHTML = "<h1>" + language["Staff"] + ":</h1> " + "<br/>" + tmpstaff;
-        let scrollStaffAmount = 0;
-        let moveRight2 = document.createElement("button");
-        moveRight2.className = "scrollBtnR";
-        moveRight2.onclick = function () {
-            container2.scrollTo({
-                left: Math.max(scrollStaffAmount += 140, container2.clientWidth), behavior: "smooth"
-            });
-        };
-        moveRight2.innerHTML = "<i class='material-icons'>keyboard_arrow_right</i>";
-        let moveLeft2 = document.createElement("button");
-        moveLeft2.className = "scrollBtnL";
-        moveLeft2.onclick = function () {
-            container2.scrollTo({
-                left: Math.min(scrollStaffAmount += 140, 0), behavior: "smooth"
-            });
-        };
-        moveLeft2.innerHTML = "<i class='material-icons'>keyboard_arrow_left</i>";
-        document.getElementById("Staff").appendChild(moveLeft2);
-        document.getElementById("Staff").appendChild(moveRight2);
-        document.getElementById("Staff").appendChild(container2);
-    }
-}
 
 
 /**

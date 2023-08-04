@@ -21,6 +21,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
 }) {
     const [rating, setRating] = useState<number | null>(TheBook.note === null ? null : parseInt(TheBook.note));
     const [characters, setCharacters] = useState<any[]>([]);
+    const [staff, setStaff] = useState<any[]>([]);
     const handleOpenMoreInfo = (name: string, desc: string, image: string, href: string) => {
     };
     const fetchCharacters = async () => {
@@ -43,12 +44,38 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
             });
         }
     };
+
+    const fetchCreators = async () => {
+        if (TheBook.creators !== "null" && TheBook.creators !== null && TheBook.creators !== undefined && TheBook.creators !== "") {
+            const StaffToFetchList: string[] = [];
+            if (provider === providerEnum.Marvel) {
+                JSON.parse(TheBook.creators)["items"].forEach((el) => {
+                    StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
+                });
+            } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL) {
+                JSON.parse(TheBook.creators).forEach((el) => {
+                    StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
+                });
+            } else if (provider === providerEnum.GBooks) {
+                JSON.parse(TheBook.creators).forEach((el) => {
+                    StaffToFetchList.push("'" + el.replaceAll("'", "''") + "'");
+                });
+            }
+            const StaffToFetch = StaffToFetchList.join(",");
+            await getFromDB("Creators", "* FROM Creators WHERE name IN (" + StaffToFetch + ")").then((clres) => {
+                if (!clres) return;
+                const parsedClres = JSON.parse(clres);
+                setStaff(parsedClres);
+            });
+        }
+    };
     const { t } = useTranslation();
     useEffect(() => {
         handleAddBreadcrumbs(TheBook.NOM, () => { });
     }, []);
     useLayoutEffect(() => {
         fetchCharacters();
+        fetchCreators();
         const handleAsyncBG = async () => {
             if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
                 console.log("TheBook.URLCover", TheBook.URLCover);
@@ -414,7 +441,44 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                             </div>
                         }
                     </div>
-                    <div id="Staff"></div>
+                    <div id="Staff">
+                        <h1>{t('Staff')}</h1>
+                        {t("Numberofpeople")}
+                        {
+                            ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (JSON.parse(TheBook["creators"]).length) : ("0")))
+                        }
+                        {
+                            <div className="item-list">
+                                <div
+                                >
+                                    {
+                                        staff.map((el: any, index: number) => {
+                                            return <div id="characters_div2"
+                                                onClick={
+                                                    () => {
+                                                        if (provider === providerEnum.Marvel) {
+                                                            handleOpenMoreInfo(el.name, el.description, JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension, JSON.parse(el.url)[0].url);
+                                                        } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                                                            handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
+                                                        }
+                                                    }
+                                                }
+                                            >
+                                                {
+                                                    (provider === providerEnum.Marvel) ?
+                                                        (el.name === JSON.parse(TheBook.creators)["items"][index].name) ?
+                                                            <><img src={JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension} className='img-charac' /><br /><span>{el.name}</span><br /><span style={{ fontSize: "14px", color: "#a8a8a8a8" }}>{JSON.parse(TheBook.creators)["items"][index]["role"]}</span></> : ""
+                                                        : (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ?
+                                                            (el.name === JSON.parse(TheBook.creators)[index].name) ?
+                                                                <><img src={el.image.replaceAll('"', "")} className='img-charac' /><br /><span>{el.name}</span></>
+                                                                : "" : ""
+                                                }
+                                            </div>;
+                                        })}
+                                </div>
+                            </div>
+                        }
+                    </div>
                     <div id="SiteURL"></div>
                     <div id="OtherTitles"></div>
                     <div id="relations" className="relationsDiv">
@@ -430,6 +494,6 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
             </div>
         </div >
     </>);
-};
+}
 
 export default ContentViewer;

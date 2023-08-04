@@ -1,3 +1,4 @@
+import { translateString } from "@/i18n.ts";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 
 /**
@@ -201,4 +202,46 @@ function changeRating(table: string, where: string, value: number) {
         fetch(PDP + "/DB/update", options);
     }
 }
-export { getFromDB, InsertIntoDB, DetectFolderInLibrary, addLibrary, updateLibrary, OneForAll, AllForOne, TrueDeleteFromDB, downloadBook, logout, changeRating };
+
+/**
+ * Modify user's profile configuration JSON file
+ * @param {string|number} tomod The key to modify
+ * @param {*} mod the new value
+ */
+function modifyConfigJson(tomod: string | number, mod: any) {
+    //check si obj exist pour remplacer valeur
+    fetch(PDP + "/config/getConfig/" + currentProfile.getToken).then(function (response) {
+        return response.text();
+    }).then(function (data) {
+        const config = JSON.parse(data);
+        const keys = Object.keys(config);
+        for (let i = 0; i < keys.length; i++) {
+            if (keys[i] === tomod) {
+                config[tomod] = mod;
+                break;
+            }
+        }
+        const option = {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config, null, 2)
+        };
+        fetch('/config/writeConfig/' + currentProfile.getToken, option);
+    }).catch(function (error) {
+        console.log(error);
+    });
+}
+
+/**
+ * Delete the library
+ * @param elElement The element to delete
+ * @returns {Promise<void>} The response
+ */
+async function deleteLib(elElement: any) {
+    const confirmDelete = confirm(translateString("deleteaccount") + elElement["NAME"] + " ?");
+    if (confirmDelete) {
+        await fetch(PDP + '/DB/lib/delete/' + currentProfile.getToken + "/" + elElement["ID_LIBRARY"]).then(() => {
+            alert(translateString("libraryDeleted"));
+            location.reload();
+        });
+    }
+}
+export { getFromDB, InsertIntoDB, DetectFolderInLibrary, addLibrary, updateLibrary, OneForAll, AllForOne, TrueDeleteFromDB, downloadBook, logout, changeRating, modifyConfigJson, deleteLib };

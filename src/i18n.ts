@@ -15,4 +15,8 @@ i18n.use(Backend).use(LanguageDetector).use(initReactI18next).init({
     }
 });
 
+const translateString = (key: string) => {
+    return i18n.t(key);
+};
+export { translateString };
 export default i18n;
