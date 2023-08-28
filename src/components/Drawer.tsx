@@ -18,18 +18,25 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import { AccountCircle, Download, FileOpen, GpsFixed, Home, LibraryAdd, LibraryBooks, LocalLibrary, MoreHoriz, MoreVert } from '@mui/icons-material';
-import { Avatar, InputBase, Menu, MenuItem } from '@mui/material';
+import { Avatar, CircularProgress, InputBase, Menu, MenuItem } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CollapsedBreadcrumbs from './Breadcrumb.tsx';
 import { useTranslation } from 'react-i18next';
-import { getFromDB, logout } from '@/utils/Fetchers.ts';
-import { providerEnum } from '@/utils/utils.ts';
+import { DetectFolderInLibrary, InsertIntoDB, getFromDB, logout } from '@/utils/Fetchers.ts';
+import { ValidatedExtension, providerEnum } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
 import { currentProfile } from '@/utils/Common.ts';
 import UserAccountDialog from './Dialogs/UserAccountDialog.tsx';
 import { IBook } from '@/interfaces/IBook.ts';
 import Book from '@/utils/Book.ts';
 import Details from './Details.tsx';
+import Series from './Series.tsx';
+import Overlay from './Overlay.tsx';
+import { Marvel } from '@/API/Marvel.ts';
+import { Anilist } from '@/API/Anilist.ts';
+import Card from './Card.tsx';
+import ContainerExplorer from './ContainerExplorer.tsx';
+import { Toaster } from './Toaster.tsx';
 
 
 const drawerWidth = 240;
@@ -140,7 +147,6 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
         }),
     }),
 );
-
 
 
 export default function MiniDrawer() {
@@ -263,16 +269,30 @@ export default function MiniDrawer() {
     const [userAccountOpen, setUserAccountOpen] = React.useState(false);
     const [dialogFor, setDialogFor] = React.useState<'edit' | 'create'>('edit');
     const [openDetails, setOpenDetails] = React.useState<{ open: boolean, book: IBook, provider: any; } | null>(null);
+    const [openSeries, setOpenSeries] = React.useState<{ open: boolean, series: IBook[], provider: any; }>({ open: false, series: [], provider: null });
+    const [openExplorer, setOpenExplorer] = React.useState<{ open: boolean, explorer: IBook[], provider: any, booksNumber: number; }>(({ open: false, explorer: [], provider: null, booksNumber: 0 }));
+    const [openError, setOpenError] = React.useState(false);
     const handleOpenDetails = (open: boolean, book: IBook, provider: any) => {
+        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0 });
+        setOpenSeries({ open: false, series: [], provider: null });
         setOpenDetails({ open: open, book: book, provider: provider });
+    };
+
+    const handleOpenSeries = (open: boolean, series: IBook[], provider: any) => {
+        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0 });
+        setOpenDetails(null);
+        setOpenSeries({ open: open, series: series, provider: provider });
     };
     const [breadcrumbs, setBreadcrumbs] = React.useState<{ text: string; onClick: () => void; }[]>([{
         text: t("HOME"), onClick: () => {
             setOpenDetails(null);
-            // TODO setOpenSeries(null);
+            setOpenSeries({ open: false, series: [], provider: null });
+            setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0 });
             handleRemoveBreadcrumbsTo(1);
         }
     }]);
+
+    const [isLoading, setIsLoading] = React.useState(false);
     const handleAddBreadcrumbs = (text: string, onClick: () => void) => {
         setBreadcrumbs([...breadcrumbs, { text: text, onClick: onClick }]);
     };
@@ -283,6 +303,173 @@ export default function MiniDrawer() {
     const handleCloseUserAccount = () => {
         setUserAccountOpen(false);
     };
+
+    const [cardMode, setCardMode] = React.useState(false);
+
+    /**
+     * 
+     * @param provider The provider of the library
+     * @param FolderRes The folder result
+     * @param libraryPath The path to the library
+     */
+    async function loadContent(provider: number, FolderRes: string, libraryPath: string) {
+        let n = 0;
+        const listOfImages = [];
+        FolderRes = JSON.parse(FolderRes);
+        const divlist = document.createElement("div");
+        divlist.className = "list-group";
+
+        await getFromDB("Series", "PATH FROM Series").then(async (res) => {
+            if (!res) return;
+            for (let index = 0; index < FolderRes.length; index++) {
+                const path = FolderRes[index];
+                const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "").replace("/", "");
+                const path_without_file = path.replace(name, "");
+                const realname = name;
+                console.log(realname);
+                let found = false;
+                const titlesList = [];
+                const returnedPath = JSON.parse(res);
+                let foundPATH = "";
+                for (let i = 0; i < returnedPath.length; i++) {
+                    titlesList.push(returnedPath[i].PATH);
+                }
+                titlesList.forEach((el) => {
+                    console.log(el);
+                    if (el === path) {
+                        found = true;
+                        foundPATH = el;
+                    }
+                });
+                if (found === false) {
+                    if (provider === providerEnum.Anilist) {
+                        console.log("provider Anilist");
+                        new Anilist().POST_SEARCH(name, path);
+                    } else if (provider === providerEnum.Marvel) {
+                        console.log("Provider: Marvel Comics");
+                        new Marvel().InsertSeries(name, path);
+                    } else if (provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                        const randID = Math.floor(Math.random() * 1000000);
+                        await InsertIntoDB("Series", "(ID_Series,title,note,statut,start_date,end_date,description,Score,genres,cover,BG,CHARACTERS,TRENDING,STAFF,SOURCE,volumes,chapters,favorite,PATH,lock)", "('" + randID + "U_0" + "','" + JSON.stringify(name.replaceAll("'", "''")) + "',null,null,null,null,null,'0',null,null,null,null,null,null,null,null,null,0,'" + path + "',false)");
+                    }
+                    //TODO implement API HERE
+                } else {
+                    await getFromDB("Series", "* FROM Series where PATH = '" + foundPATH + "'").then((resa) => {
+                        if (!resa) return;
+                        console.log(foundPATH);
+                        const res = JSON.parse(resa);
+                        console.log(res);
+                        let node;
+                        if (cardMode === true) {
+                            if (provider === providerEnum.Marvel) {
+                                node = JSON.parse(res[0].title);
+                            } else if (provider == providerEnum.Anilist) {
+                                if (JSON.parse(res[0].title)["english"] !== undefined && JSON.parse(res[0].title)["english"] !== null) {
+                                    node = JSON.parse(res[0].title)["english"];
+                                } else if (JSON.parse(res[0].title)["romaji"] !== undefined && JSON.parse(res[0].title)["romaji"] !== null) {
+                                    node = JSON.parse(res[0].title)["romaji"];
+                                } else {
+                                    node = JSON.parse(res[0].title);
+                                }
+                            } else if (provider == providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                                node = res[0].title;
+                            }
+                        } else {
+                            node = JSON.parse(res[0].title)["english"];
+                        }
+                        let invertedPath = path.replaceAll("\\", "/");
+                        let imagelink;
+                        if (provider === providerEnum.Marvel) {
+                            try {
+                                imagelink = JSON.parse(res[0].cover).path + "/detail." + JSON.parse(res[0].cover).extension;
+                            } catch (e) {
+                                imagelink = "null";
+                            }
+                        } else {
+                            imagelink = res[0].cover;
+                        }
+                        listOfImages.push(imagelink);
+                        //Setting Card Div
+                        if (openExplorer === null) return;
+                        const OSprovider = openExplorer.provider;
+                        const OSseries = openExplorer.explorer;
+                        const OSopen = openExplorer.open;
+                        const OSBooksNumber = openExplorer.booksNumber;
+                        OSseries.push({
+                            API_ID: provider.toString(),
+                            unread: 0,
+                            read: 0,
+                            reading: 0,
+                            ID_book: n.toString(),
+                            URLCover: imagelink.toString(),
+                            NOM: node,
+                            favorite: res[0]["favorite"],
+                            PATH: invertedPath,
+                            folder: 0,
+                            last_page: 0,
+                            issueNumber: "0",
+                            description: "",
+                            format: "",
+                            URLs: "",
+                            series: "",
+                            creators: "",
+                            characters: "",
+                            prices: "0",
+                            dates: "01-01-1970",
+                            collectedIssues: "0",
+                            collections: "0",
+                            variants: "",
+                            lock: 0,
+                        });
+                        setOpenExplorer({ open: true, explorer: OSseries, provider: OSprovider, booksNumber: FolderRes.length });
+                        // onclick on the cover : await createSeries(provider, path, libraryPath, res);
+                        n++;
+
+
+                    });
+                }
+            }
+        });
+        if (!cardMode) if (n === 0) Toaster(t("empty_notSupported"), "error");
+    }
+
+    /**
+     * Open the library
+     * @param {string} folder The path to the library
+     * @param {*} provider The provider of the library (default to MANUAL)
+     */
+    function openLibrary(folder: string, provider = 0) {
+        setTimeout(() => {
+            const result = folder.toString();
+            if (result) {
+                console.log(result);
+                DetectFolderInLibrary(result).then((data) => {
+                    console.log(data);
+                    const dataParsed: any = data;
+                    if (dataParsed.length <= 0) throw new Error(t("Folderemptyornotfound"));
+                    //Ajouter a la DB les dossiers trouvés en tant que Collection
+                    if (provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                        //inserer une series OL
+                        //aller directement dedans
+                        //TODO loadView(result, result, "", provider);
+                    } else {
+                        loadContent(provider, dataParsed, result);
+                    }
+                });
+            } else {
+                setOpenSeries({ open: true, series: [], provider: provider });
+            }
+        }, 500);
+    }
+
+    React.useEffect(() => {
+        if (openExplorer !== null && openExplorer.explorer.length === openExplorer.booksNumber) {
+            setIsLoading(false);
+        } else {
+            setIsLoading(true);
+        }
+    }, [openExplorer]);
+
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
@@ -430,7 +617,9 @@ export default function MiniDrawer() {
                         <ListItemButton
                             onClick={() => {
                                 setOpenDetails(null);
-                                // TODO setOpenSeries(null);
+                                setOpenSeries({ open: false, series: [], provider: null });
+                                setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0 });
+
                                 handleRemoveBreadcrumbsTo(1);
                             }}
                             sx={{
@@ -455,7 +644,7 @@ export default function MiniDrawer() {
                         <ListItemButton
                             onClick={() => {
                                 // TODO breadcrumb logic
-                                //TODO openLibrary(CosmicComicsTemp + "/downloads", 2);
+                                //openLibrary(CosmicComicsTemp + "/downloads", 2);
                             }}
                             sx={{
                                 minHeight: 48,
@@ -531,9 +720,13 @@ export default function MiniDrawer() {
                             return <ListItem key={el["NAME"]} disablePadding sx={{ display: 'block' }}>
                                 <ListItemButton
                                     onClick={() => {
+                                        setIsLoading(true);
                                         //TODO Breadcrumb logic
-                                        //                 openLibrary(el["PATH"], el["API_ID"]);
-
+                                        setOpenDetails(null);
+                                        setOpenSeries({ open: false, series: [], provider: null });
+                                        if (openExplorer && openExplorer.open)
+                                            openExplorer.explorer = [];
+                                        openLibrary(el["PATH"], el["API_ID"]);
                                     }}
                                     sx={{
                                         minHeight: 48,
@@ -587,9 +780,19 @@ export default function MiniDrawer() {
             </Drawer>
             <Box component="main" sx={{ flexGrow: 1, p: 3 }} style={{}}>
                 <DrawerHeader />
-
+                {isLoading ? <div id="overlay">
+                    <div style={{ textAlign: "center", marginTop: "25%" }}>
+                        <CircularProgress />
+                        <p id="decompressfilename" style={{ marginTop: "10px" }}></p>
+                        <p id="overlaymsg" style={{ marginTop: "10px" }}>
+                            We take care of your comics
+                        </p>
+                    </div>
+                </div> : <></>}
                 {
-                    openDetails && openDetails.open ? <Details stateDetails={openDetails} handleAddBreadcrumbs={handleAddBreadcrumbs} /> : <HomeContainer handleOpenDetails={handleOpenDetails} />
+                    openExplorer && openExplorer.open ? <ContainerExplorer stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={handleOpenSeries} /> :
+                        openSeries && openSeries.open ? <Series stateSeries={openSeries} handleAddBreadcrumbs={handleAddBreadcrumbs} /> :
+                            openDetails && openDetails.open ? <Details stateDetails={openDetails} handleAddBreadcrumbs={handleAddBreadcrumbs} /> : <HomeContainer handleOpenDetails={handleOpenDetails} />
                 }
             </Box>
         </Box >

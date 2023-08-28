@@ -1,8 +1,12 @@
 import { IBook } from "@/interfaces/IBook";
+import { AllForOne, getFromDB } from "@/utils/Fetchers.ts";
 import { providerEnum } from "@/utils/utils.ts";
 import { AutoStories, Close, Done, Favorite, PlayArrow } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
+import { Toaster } from "./Toaster.tsx";
+import { PDP, currentProfile } from "@/utils/Common.ts";
+import { useTranslation } from "react-i18next";
 
 function Card({ book, handleOpenDetails, onClick }: { book: IBook; handleOpenDetails?: any; onClick?: () => void; }) {
 
@@ -11,6 +15,8 @@ function Card({ book, handleOpenDetails, onClick }: { book: IBook; handleOpenDet
     } else if (book.URLCover.includes("public/FirstImagesOfAll")) {
         book.URLCover = book.URLCover.split("public/")[1];
     }
+
+    const { t } = useTranslation();
 
     return (<>
         <div style={{ cursor: "pointer" }} className="cardcusto"
@@ -33,9 +39,9 @@ function Card({ book, handleOpenDetails, onClick }: { book: IBook; handleOpenDet
             <div className="card__body">
                 <span className="card__play js-play"
                     onClick={() => {
-                        //AllForOne("unread", "read", "reading", this._ID);
-                        // const encoded = encodeURIComponent(path.replaceAll("/", "%C3%B9"));
-                        // window.location.href = "viewer.html?" + encoded;
+                        AllForOne("unread", "read", "reading", book.ID_book);
+                        const encoded = encodeURIComponent(book.PATH.replaceAll("/", "%C3%B9"));
+                        window.location.href = "viewer.html?" + encoded;
                     }
                     }
 
@@ -51,9 +57,59 @@ function Card({ book, handleOpenDetails, onClick }: { book: IBook; handleOpenDet
                 }
                     id={"btn_id_fav_" + book.ID_book + "_" + Math.random() * 8000}
                 >
-                    <IconButton onClick={() => {
-                        //favorite();
-                    }}>
+                    <IconButton onClick={
+                        async () => {
+                            if (book.favorite === 1) {
+                                book.favorite = 0;
+                                Toaster(t("remove_fav"), "success");
+                                await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
+                                    if (!resa) return;
+                                    const bookList = JSON.parse(resa);
+                                    for (let i = 0; i < bookList.length; i++) {
+                                        if (bookList[i].PATH.toLowerCase().includes(book.NOM.toLowerCase().replaceAll('"', ''))) {
+                                            const options = {
+                                                method: "POST", headers: {
+                                                    "Content-Type": "application/json"
+                                                }, body: JSON.stringify({
+                                                    "token": currentProfile.getToken,
+                                                    "table": "Books",
+                                                    "column": "favorite",
+                                                    "whereEl": bookList[i].PATH,
+                                                    "value": false,
+                                                    "where": "PATH"
+                                                }, null, 2)
+                                            };
+                                            await fetch(PDP + "/DB/update", options);
+                                        }
+                                    }
+                                });
+                            } else {
+                                book.favorite = 1;
+                                Toaster(t("add_fav"), "success");
+                                await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
+                                    if (!resa) return;
+                                    const bookList = JSON.parse(resa);
+                                    for (let i = 0; i < bookList.length; i++) {
+                                        if (bookList[i].PATH.toLowerCase().includes(book.NOM.toLowerCase().replaceAll('"', ''))) {
+                                            const options = {
+                                                method: "POST", headers: {
+                                                    "Content-Type": "application/json"
+                                                }, body: JSON.stringify({
+                                                    "token": currentProfile.getToken,
+                                                    "table": "Books",
+                                                    "column": "favorite",
+                                                    "whereEl": bookList[i].PATH,
+                                                    "value": true,
+                                                    "where": "PATH"
+                                                }, null, 2)
+                                            };
+                                            await fetch(PDP + "/DB/update", options);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }>
                         <Favorite />
                     </IconButton>
                 </span>
@@ -63,7 +119,8 @@ function Card({ book, handleOpenDetails, onClick }: { book: IBook; handleOpenDet
                     id={"btn_id_unread_" + book.ID_book + "_" + Math.random() * 8000}
                 >
                     <IconButton onClick={() => {
-                        //markasunread();
+                        AllForOne("read", "reading", "unread", book.ID_book);
+                        Toaster(t("mkunread"), "success");
                     }}>
                         <Close />
                     </IconButton>
@@ -74,7 +131,8 @@ function Card({ book, handleOpenDetails, onClick }: { book: IBook; handleOpenDet
                     id={"btn_id_reading_" + book.ID_book + "_" + Math.random() * 8000}
                 >
                     <IconButton onClick={() => {
-                        //AllForOne("unread", "read", "reading", this._ID);
+                        AllForOne("unread", "read", "reading", book.ID_book);
+                        Toaster(t("mkreading"), "success");
                     }}>
                         <AutoStories />
                     </IconButton>
@@ -85,7 +143,8 @@ function Card({ book, handleOpenDetails, onClick }: { book: IBook; handleOpenDet
                     id={"btn_id_read_" + book.ID_book + "_" + Math.random() * 8000}
                 >
                     <IconButton onClick={() => {
-                        // markasread();
+                        AllForOne("unread", "reading", "read", book.ID_book);
+                        Toaster(t("mkread"), "success");
                     }}>
                         <Done />
                     </IconButton>

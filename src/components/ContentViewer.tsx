@@ -19,7 +19,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
     type: 'series' | 'volume';
     handleAddBreadcrumbs: any;
 }) {
-    const [rating, setRating] = useState<number | null>(TheBook.note === null ? null : parseInt(TheBook.note));
+    const [rating, setRating] = useState<number | null>(type === "volume" ? (TheBook.note === null ? null : parseInt(TheBook.note)) : null);
     const [characters, setCharacters] = useState<any[]>([]);
     const [staff, setStaff] = useState<any[]>([]);
     const handleOpenMoreInfo = (name: string, desc: string, image: string, href: string) => {
@@ -110,7 +110,8 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
             <div className="onContentViewer">
                 <div id="ColCover">
                     <img src={
-                        TheBook.URLCover.includes("public/FirstImagesOfAll") ? TheBook.URLCover.split("public/")[1] : TheBook.URLCover
+                        type === "series" ? TheBook.URLCover :
+                            TheBook.URLCover.includes("public/FirstImagesOfAll") ? TheBook.URLCover.split("public/")[1] : TheBook.URLCover
                     } id="ImgColCover" alt="#" />
                 </div>
                 <div id="ColTitle">{
@@ -158,9 +159,10 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                     </Grid2>
                     <div id="startDate">
                         {
-                            TheBook.dates !== "null" ? t("dates") + JSON.parse(TheBook.dates).map((date: { type: string; date: string; }, index: number) => {
-                                return <p key={index}>{date.type.replace(/([A-Z])/g, ' $1').trim() + " : " + date.date}</p>;
-                            }) : ""
+                            type === "volume" ?
+                                (TheBook.dates !== "null" ? t("dates") + JSON.parse(TheBook.dates).map((date: { type: string; date: string; }, index: number) => {
+                                    return <p key={index}>{date.type.replace(/([A-Z])/g, ' $1').trim() + " : " + date.date}</p>;
+                                }) : "") : ""
                         }
                     </div>
                     <Stack spacing={5}>                        <Grid2 container spacing={2} id='btnsActions'>
@@ -350,25 +352,29 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         }
                     </div>
                     <div id="id">
-                        {
+                        {type === "volume" ?
                             (TheBook.characters !== "null" && providerEnum.Marvel) ?
                                 t("thisisa") + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + t("Thisispartofthe") + " '" + JSON.parse(TheBook.series).name + "' " + t("series") : (provider === providerEnum.Anilist) ?
                                     t("Thisispartofthe") + " '" + TheBook.series.split("_")[2].replaceAll("$", " ") + "' " + t("series") : (provider === providerEnum.Marvel) ?
                                         t("Thisispartofthe") + " '" + JSON.parse(TheBook.series).name + "' " + t("series") : (provider === providerEnum.MANUAL) ?
                                             t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : (provider === providerEnum.OL) ?
-                                                t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : (provider === providerEnum.GBooks) ? t("this is a") + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : ""
+                                                t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : (provider === providerEnum.GBooks) ? t("this is a") + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : "" : ""
                         }
                     </div>
                     <div id="colissue">{
-                        TheBook.collectedIssues === 'null' ? "" : JSON.parse(TheBook.collectedIssues).map((issue: { name: string; }, index: number) => {
-                            return <p key={index}>{issue.name}</p>;
-                        })
+                        type === "volume" ?
+                            TheBook.collectedIssues === 'null' ? "" : JSON.parse(TheBook.collectedIssues).map((issue: { name: string; }, index: number) => {
+                                return <p key={index}>{issue.name}</p>;
+                            })
+                            : ""
                     }</div>
                     <div id="col">
                         {
-                            TheBook.collections === 'null' ? "" : JSON.parse(TheBook.collections).map((col: { name: string; }, index: number) => {
-                                return <p key={index}>{col.name}</p>;
-                            })
+                            type === "volume" ?
+                                TheBook.collections === 'null' ? "" : JSON.parse(TheBook.collections).map((col: { name: string; }, index: number) => {
+                                    return <p key={index}>{col.name}</p>;
+                                })
+                                : ""
                         }
                     </div>
                     <div id="Volumes"></div>
@@ -408,7 +414,9 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                     <div id="characters">
                         <h1>{t("characters")}</h1>
                         {t("Numberofcharacters")}
-                        {((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.characters)["available"]) : ((TheBook.characters !== "null") ? (JSON.parse(TheBook.characters).length) : (0)))
+                        {
+                            type === "volume" ?
+                                ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.characters)["available"]) : ((TheBook.characters !== "null") ? (JSON.parse(TheBook.characters).length) : (0))) : ""
                         }
                         {
                             <div className="item-list">
@@ -445,7 +453,8 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         <h1>{t('Staff')}</h1>
                         {t("Numberofpeople")}
                         {
-                            ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (JSON.parse(TheBook["creators"]).length) : ("0")))
+                            type === "volume" ?
+                                ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (JSON.parse(TheBook["creators"]).length) : ("0"))) : ""
                         }
                         {
                             <div className="item-list">

@@ -94,9 +94,7 @@ a {
 /* Display elements */
 .cards-list {
     z-index: 0;
-    margin-left: 15vw;
-    margin-top: 125px;
-    width: 80%;
+    width: 100%;
     display: flex;
     justify-content: space-evenly;
     flex-wrap: wrap;
@@ -306,15 +304,12 @@ img {
 
 #overlay {
     position: fixed;
-    display: none;
-    width: calc(100vw - 15vw);
-    height: calc(100vh - 62px);
-    top: 62px;
-    left: 16vw;
-    right: 0;
-    bottom: 0;
+    width: calc(100vw);
+    height: calc(100vh);
+    top: 0;
+    left: 0;
     z-index: 9;
-    background-color: var(--overlayBG);
+    background-color: rgba(0, 0, 0, 1);
     transition: left .5s ease;
 }
 
