@@ -263,77 +263,77 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         } spacing={2}>
                             <Grid2>
                                 {
-                                    type === "volume" ? <>
+                                    type === "volume" ?
                                         TheBook.read === 1 ?
-                                        <Chip color="info" sx={
-                                            { marginRight: "5px" }
-                                        } label={
-                                            t('READ')
-                                        } icon={<Done />} />
-                                        : TheBook.unread === 1 ?
-                                        <Chip color="error" sx={
-                                            { marginRight: "5px" }
-                                        } label={
-                                            t('UNREAD')
-                                        } icon={<Close />} />
-                                        : TheBook.reading === 1 ?
-                                        <Chip color="warning" sx={
-                                            { marginRight: "5px" }
-                                        } label={
-                                            t('READING')
-                                        } icon={<AutoStories />} />
-                                        : ""
-                                    </> : (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks ? TheBook.statut === "FINISHED" ?
-                                        <Chip color="info" sx={
-                                            { marginRight: "5px" }
-                                        } label={
-                                            t('FINISHED')
-                                        } icon={<Done />} />
-                                        : TheBook.statut === "RELEASING" ?
-                                            <Chip color="warning" sx={
+                                            <Chip color="info" sx={
                                                 { marginRight: "5px" }
                                             } label={
-                                                t('RELEASING')
-                                            } icon={<AutoStories />} />
-                                            : TheBook.statut === "NOT_YET_RELEASED" ?
+                                                t('READ')
+                                            } icon={<Done />} />
+                                            : TheBook.unread === 1 ?
                                                 <Chip color="error" sx={
                                                     { marginRight: "5px" }
                                                 } label={
-                                                    t('NOT_YET_RELEASED')
+                                                    t('UNREAD')
                                                 } icon={<Close />} />
-                                                : <Chip color="error" sx={
-                                                    { marginRight: "5px" }
-                                                } label={
-                                                    t('UNKNOWN')
-                                                } icon={<QuestionMark />} /> : provider === providerEnum.Marvel ?
-                                        JSON.parse(TheBook.end_date) > new Date().getFullYear() ?
-                                            <Chip color="warning" sx={
+                                                : TheBook.reading === 1 ?
+                                                    <Chip color="warning" sx={
+                                                        { marginRight: "5px" }
+                                                    } label={
+                                                        t('READING')
+                                                    } icon={<AutoStories />} />
+                                                    : ""
+                                        : (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks ? TheBook.statut === "FINISHED" ?
+                                            <Chip color="info" sx={
                                                 { marginRight: "5px" }
                                             } label={
-                                                t('RELEASING')
-                                            } icon={<AutoStories />} /> : JSON.parse(TheBook.end_date) < new Date().getFullYear() ?
-                                                <Chip color="info" sx={
+                                                t('FINISHED')
+                                            } icon={<Done />} />
+                                            : TheBook.statut === "RELEASING" ?
+                                                <Chip color="warning" sx={
                                                     { marginRight: "5px" }
                                                 } label={
-                                                    t('FINISHED')
-                                                } icon={<Done />} /> : JSON.parse(TheBook.start_date) > new Date().getFullYear() ?
+                                                    t('RELEASING')
+                                                } icon={<AutoStories />} />
+                                                : TheBook.statut === "NOT_YET_RELEASED" ?
                                                     <Chip color="error" sx={
                                                         { marginRight: "5px" }
                                                     } label={
                                                         t('NOT_YET_RELEASED')
-                                                    } icon={<Close />} /> : JSON.parse(TheBook.start_date) === new Date().getFullYear() ?
-                                                        <Chip color="warning" sx={
-                                                            { marginRight: "5px" }
-                                                        } label={
-                                                            t('ENDSOON')
-                                                        } icon={<AutoStories />} /> :
+                                                    } icon={<Close />} />
+                                                    : <Chip color="error" sx={
+                                                        { marginRight: "5px" }
+                                                    } label={
+                                                        t('UNKNOWN')
+                                                    } icon={<QuestionMark />} /> : provider === providerEnum.Marvel ?
+                                            JSON.parse(TheBook.end_date) > new Date().getFullYear() ?
+                                                <Chip color="warning" sx={
+                                                    { marginRight: "5px" }
+                                                } label={
+                                                    t('RELEASING')
+                                                } icon={<AutoStories />} /> : JSON.parse(TheBook.end_date) < new Date().getFullYear() ?
+                                                    <Chip color="info" sx={
+                                                        { marginRight: "5px" }
+                                                    } label={
+                                                        t('FINISHED')
+                                                    } icon={<Done />} /> : JSON.parse(TheBook.start_date) > new Date().getFullYear() ?
                                                         <Chip color="error" sx={
                                                             { marginRight: "5px" }
                                                         } label={
-                                                            t('UNKNOWN')
-                                                        } icon={<QuestionMark />
-                                                        } /> : <></>
-                                    )
+                                                            t('NOT_YET_RELEASED')
+                                                        } icon={<Close />} /> : JSON.parse(TheBook.start_date) === new Date().getFullYear() ?
+                                                            <Chip color="warning" sx={
+                                                                { marginRight: "5px" }
+                                                            } label={
+                                                                t('ENDSOON')
+                                                            } icon={<AutoStories />} /> :
+                                                            <Chip color="error" sx={
+                                                                { marginRight: "5px" }
+                                                            } label={
+                                                                t('UNKNOWN')
+                                                            } icon={<QuestionMark />
+                                                            } /> : <></>
+                                        )
 
 
                                 }
@@ -357,22 +357,21 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                 type === "volume" ?
                                     (TheBook.dates !== "null" ? t("dates") + JSON.parse(TheBook.dates).map((date: { type: string; date: string; }, index: number) => {
                                         return <p key={index}>{date.type.replace(/([A-Z])/g, ' $1').trim() + " : " + date.date}</p>;
-                                    }) : "") : ""
+                                    }) : "?") : ""
                             }
                             {
-                                type === "series" ? (!APINOTFOUND) ? ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.start_date)) : (JSON.parse(TheBook.start_date).year)) == null ? "?" : ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.start_date)) : (JSON.parse(TheBook.start_date).year)) : "" : ""
-                            }
-                            {
-                                type === "series" ? (APINOTFOUND) ?
-                                    (JSON.parse(TheBook.start_date) == null) ? "?" : JSON.parse(TheBook.start_date) : "" : ""
-                            }
-                            -
-                            {
-                                type === "series" ? (!APINOTFOUND) ? ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.end_date)) : (JSON.parse(TheBook.end_date).year)) == null || JSON.parse(TheBook.end_date) > new Date().getFullYear() ? "?" : ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.end_date)) : (JSON.parse(TheBook.end_date).year)) : "" : ""
+                                type === "series" ? (!APINOTFOUND) ? ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.start_date)) + " -" : (JSON.parse(TheBook.start_date).year)) == null ? "? -" : ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.start_date)) + " -" : (JSON.parse(TheBook.start_date).year)) + " -" : "" : ""
                             }
                             {
                                 type === "series" ? (APINOTFOUND) ?
-                                    (JSON.parse(TheBook.end_date) == null || JSON.parse(TheBook.end_date) > new Date().getFullYear()) ? "?" : JSON.parse(TheBook.end_date) : "" : ""
+                                    (JSON.parse(TheBook.start_date) == null) ? "? -" : JSON.parse(TheBook.start_date) + " -" : "" : ""
+                            }
+                            {
+                                type === "series" ? (!APINOTFOUND) ? ((provider === providerEnum.Marvel) ? " " + (JSON.parse(TheBook.end_date)) : (JSON.parse(TheBook.end_date).year)) == null || JSON.parse(TheBook.end_date) > new Date().getFullYear() ? " ?" : ((provider === providerEnum.Marvel) ? " " + (JSON.parse(TheBook.end_date)) : " " + (JSON.parse(TheBook.end_date).year)) : " ?" : ""
+                            }
+                            {
+                                type === "series" ? (APINOTFOUND) ?
+                                    (JSON.parse(TheBook.end_date) == null || JSON.parse(TheBook.end_date) > new Date().getFullYear()) ? " ?" : " " + JSON.parse(TheBook.end_date) : "" : ""
                             }
                         </div>
                         <Stack spacing={3}>                        <Grid2 container spacing={2} id='btnsActions'>
@@ -596,13 +595,13 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
 
                         <div id="genres">
                             {
-                                (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ? t("Genres") : ""
+                                (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ? t("Genres") + ": " : ""
                             }
-                            {": "}
                             {
-                                JSON.parse(TheBook.genres).map((el: any, index: number) => {
-                                    return (index !== JSON.parse(TheBook.genres).length - 1) ? el + " / " : el;
-                                })
+                                TheBook.genres !== undefined ?
+                                    JSON.parse(TheBook.genres).map((el: any, index: number) => {
+                                        return (index !== JSON.parse(TheBook.genres).length - 1) ? el + " / " : el;
+                                    }) : ""
                             }
                         </div>
                         <div id="chapters">
@@ -638,12 +637,12 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         </div>
                         <div id="Volumes">
                             {
-                                (TheBook.volumes != null && TheBook.volumes !== "null") ? t("numberOfVolume") + ": " + TheBook.volumes : ""
+                                (TheBook.volumes != null && TheBook.volumes !== "null" && TheBook.volumes !== undefined) ? t("numberOfVolume") + ": " + TheBook.volumes : ""
                             }
                         </div>
                         <div id="Trending">
                             {
-                                (TheBook.trending != null && TheBook.trending !== "null") ? t("trending") + ": " + TheBook.trending : ""
+                                (TheBook.trending != null && TheBook.trending !== "null" && TheBook.trending !== undefined) ? t("trending") + ": " + TheBook.trending : ""
                             }
                         </div>
                         {
