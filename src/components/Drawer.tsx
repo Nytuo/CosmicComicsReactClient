@@ -25,7 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { DetectFolderInLibrary, InsertIntoDB, getFromDB, logout } from '@/utils/Fetchers.ts';
 import { ValidatedExtension, providerEnum } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
-import { currentProfile } from '@/utils/Common.ts';
+import { PDP, currentProfile } from '@/utils/Common.ts';
 import UserAccountDialog from './Dialogs/UserAccountDialog.tsx';
 import { IBook } from '@/interfaces/IBook.ts';
 import Book from '@/utils/Book.ts';
@@ -37,6 +37,7 @@ import { Anilist } from '@/API/Anilist.ts';
 import Card from './Card.tsx';
 import ContainerExplorer from './ContainerExplorer.tsx';
 import { Toaster } from './Toaster.tsx';
+import UploadDialog from './Dialogs/UploadDialog.tsx';
 
 
 const drawerWidth = 240;
@@ -149,7 +150,12 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 
-export default function MiniDrawer() {
+export default function MiniDrawer({
+    CosmicComicsTemp
+}: {
+    CosmicComicsTemp: string;
+}
+) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
         React.useState<null | HTMLElement>(null);
@@ -267,6 +273,13 @@ export default function MiniDrawer() {
     );
 
     const [userAccountOpen, setUserAccountOpen] = React.useState(false);
+    const [uploadOpen, setUploadOpen] = React.useState(false);
+    const handleCloseUpload = () => {
+        setUploadOpen(false);
+    };
+    const handleOpenUpload = () => {
+        setUploadOpen(true);
+    };
     const [dialogFor, setDialogFor] = React.useState<'edit' | 'create'>('edit');
     const [openDetails, setOpenDetails] = React.useState<{ open: boolean, book: IBook, provider: any; } | null>(null);
     const [openSeries, setOpenSeries] = React.useState<{ open: boolean, series: IBook[], provider: any; }>({ open: false, series: [], provider: null });
@@ -471,6 +484,8 @@ export default function MiniDrawer() {
         }, 500);
     }
 
+
+
     React.useEffect(() => {
         if (openExplorer !== null && openExplorer.explorer.length === openExplorer.booksNumber) {
             setIsLoading(false);
@@ -483,6 +498,7 @@ export default function MiniDrawer() {
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
             <UserAccountDialog forWhat={dialogFor} onClose={handleCloseUserAccount} openModal={userAccountOpen} />
+            <UploadDialog openModal={uploadOpen} onClose={handleCloseUpload} cosmicComicsTemp={CosmicComicsTemp} />
             <AppBar position="fixed" open={open}>
                 <Toolbar>
                     <IconButton
@@ -602,6 +618,15 @@ export default function MiniDrawer() {
                                     justifyContent: open ? 'initial' : 'center',
                                     px: 2.5,
                                 }}
+                                onClick={() => {
+                                    if (text === t("addLib")) {
+                                        //
+                                    } else if (text === t('open_file')) {
+                                        handleOpenUpload();
+                                    } else if (text === t('TRACKER')) {
+                                        //
+                                    }
+                                }}
                             >
                                 <ListItemIcon
                                     sx={{
@@ -653,7 +678,7 @@ export default function MiniDrawer() {
                         <ListItemButton
                             onClick={() => {
                                 // TODO breadcrumb logic
-                                //openLibrary(CosmicComicsTemp + "/downloads", 2);
+                                openLibrary(CosmicComicsTemp + "/downloads", 2);
                             }}
                             sx={{
                                 minHeight: 48,

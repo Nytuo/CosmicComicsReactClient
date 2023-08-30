@@ -33,7 +33,9 @@ function Collectionner() {
     }, []);
     return (
         <>
-            <MiniDrawer />
+            <MiniDrawer CosmicComicsTemp={
+                CosmicComicsTemp
+            } />
 
         </>
     );

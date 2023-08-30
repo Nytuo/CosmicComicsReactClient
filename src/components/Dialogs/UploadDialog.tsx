@@ -8,10 +8,13 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
+import { Toaster } from '../Toaster.tsx';
+import { PDP } from '@/utils/Common.ts';
 
-export default function UploadDialog({ onClose, openModal }: {
+export default function UploadDialog({ onClose, openModal, cosmicComicsTemp }: {
 	onClose: any,
 	openModal: boolean,
+	cosmicComicsTemp: string;
 }) {
 	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
@@ -25,38 +28,52 @@ export default function UploadDialog({ onClose, openModal }: {
 		onClose();
 	};
 
+	//Open a single file
+	function openInViewer() {
+		const form = document.getElementById("uploader") as HTMLFormElement;
+		if (!form || form === null) return;
+		const formData = new FormData(form);
+		const xhr = new XMLHttpRequest();
+		xhr.open("POST", PDP + "/uploadComic", true);
+		xhr.send(formData);
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState === 4 && xhr.status === 200) {
+				const response = xhr.responseText;
+				if (response === "OK") {
+					const fileUPElement = document.getElementById("fileUp") as HTMLInputElement;
+					if (!fileUPElement || fileUPElement === null) return;
+					if (!fileUPElement.files || fileUPElement.files === null) return;
+					const url = cosmicComicsTemp + "/uploads/" + fileUPElement.files[0].name;
+					const encoded = encodeURIComponent(url.replaceAll("/", "%C3%B9"));
+					window.location.href = "viewer.html?" + encoded;
+				} else {
+					Toaster(t("Failedtoloadfile"), "error");
+				}
+			}
+		};
+	}
+
 	return (
 		<div>
 			<Dialog open={open} onClose={handleClose}>
-				<DialogTitle>{t("EDIT")}</DialogTitle>
+				<DialogTitle>{t("upload")}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						<iframe name="dummyUpload" id="dummyUpload" style="display: none" title="dummyUpload"></iframe>
-						<form action="/" target="dummyUpload" onsubmit="openInViewer()" method="post" id="uploader"
-							enctype="multipart/form-data">
-
+						<iframe name="dummyUpload" id="dummyUpload" style={{ display: "none" }} title="dummyUpload"></iframe>
+						<form action="/" target="dummyUpload" onSubmit={openInViewer} method="post" id="uploader"
+							encType="multipart/form-data">
 							<input type="file" name="ComicTemp" id="fileUp" />
-							<button class="btn pure-material-button-contained" style="margin-top: 10px;" type="submit"
+							<Button style={{ marginTop: "10px" }} type="submit"
 								id="uploadBtn">Upload
-							</button>
-							<button class="btn pure-material-button-contained-secondary" style="margin-top: 10px;" type="reset"
+							</Button>
+							<Button style={{ marginTop: "10px" }} type="reset"
 								id="resetBtn">Reset
-							</button>
+							</Button>
 						</form>
 					</DialogContentText>
-					<TextField
-						autoFocus
-						margin="dense"
-						id="passwordLogin"
-						label={t("ThePassToWorLabel")}
-						type="password"
-						fullWidth
-						variant="standard"
-					/>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleClose}>{t("send")}</Button>
-					<Button onClick={ }>{t("cancel")}</Button>
+					<Button onClick={handleClose}>{t("cancel")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>
