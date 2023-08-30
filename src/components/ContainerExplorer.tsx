@@ -6,7 +6,7 @@ function ContainerExplorer({ stateExplorer, handleAddBreadcrumbs, handleOpenDeta
         <div className="cards-list" id="ContainerExplorer">
 
             {stateExplorer && stateExplorer.open ? stateExplorer.explorer.map((book: IBook, index: number) => {
-                return <Card key={index} book={book} handleOpenDetails={handleOpenDetails} />;
+                return <Card provider={stateExplorer.provider} key={index} book={book} handleOpenDetails={handleOpenDetails} />;
             }) : <></>}
         </div>
 

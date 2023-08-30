@@ -45,26 +45,26 @@ function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
         {
             readingBooks.length === 0 ? <p>{t("nothingHere")}</p> :
                 readingBooks.map((book: IBook, index) => {
-                    return <Card handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                    return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
                 })
         }
         <p id="myfav">My favorites : </p>
 
         {myFavorite.length === 0 ? <p>{t("nothingHere")}</p> :
             myFavorite.map((book: IBook, index) => {
-                return <Card handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
             })
         }
         <p id="recentlyAddedLabel">Recently added : </p>
         {recentlyAdded.length === 0 ? <p>{t("nothingHere")}</p> :
             recentlyAdded.map((book: IBook, index) => {
-                return <Card handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
             })
         }
         <p id="toReadd">To read : </p>
         {toRead.length === 0 ? <p>{t("nothingHere")}</p> :
             toRead.map((book: IBook, index) => {
-                return <Card handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
             })
         }
     </div>);

@@ -391,37 +391,44 @@ export default function MiniDrawer() {
                         listOfImages.push(imagelink);
                         //Setting Card Div
                         if (openExplorer === null) return;
-                        const OSprovider = openExplorer.provider;
                         const OSseries = openExplorer.explorer;
-                        const OSopen = openExplorer.open;
-                        const OSBooksNumber = openExplorer.booksNumber;
+                        console.log("[RAW] Series from DB : ", res[0]);
+                        console.log("provider", provider);
                         OSseries.push({
                             API_ID: provider.toString(),
                             unread: 0,
                             read: 0,
                             reading: 0,
-                            ID_book: n.toString(),
+                            statut: res[0]["statut"],
+                            start_date: res[0]["start_date"],
+                            end_date: res[0]["end_date"],
+                            ID_book: res[0]["ID_Series"],
                             URLCover: imagelink.toString(),
                             NOM: node,
                             favorite: res[0]["favorite"],
                             PATH: invertedPath,
                             folder: 0,
                             last_page: 0,
-                            issueNumber: "0",
-                            description: "",
+                            issueNumber: res[0]["chapters"],
+                            description: res[0]["description"],
                             format: "",
-                            URLs: "",
+                            URLs: res[0]["SOURCE"],
                             series: "",
-                            creators: "",
-                            characters: "",
+                            creators: res[0]["STAFF"],
+                            characters: res[0]["CHARACTERS"],
                             prices: "0",
                             dates: "01-01-1970",
                             collectedIssues: "0",
                             collections: "0",
                             variants: "",
-                            lock: 0,
+                            score: res[0]["Score"],
+                            trending: res[0]["TRENDING"],
+                            genres: res[0]["genres"],
+                            volumes: res[0]["volumes"],
+                            lock: res[0]["lock"],
+                            note: res[0]["note"],
                         });
-                        setOpenExplorer({ open: true, explorer: OSseries, provider: OSprovider, booksNumber: FolderRes.length });
+                        setOpenExplorer({ open: true, explorer: OSseries, provider: provider, booksNumber: FolderRes.length });
                         // onclick on the cover : await createSeries(provider, path, libraryPath, res);
                         n++;
 
@@ -778,7 +785,7 @@ export default function MiniDrawer() {
                     }
                 </List>
             </Drawer>
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }} style={{}}>
+            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                 <DrawerHeader />
                 {isLoading ? <div id="overlay">
                     <div style={{ textAlign: "center", marginTop: "25%" }}>

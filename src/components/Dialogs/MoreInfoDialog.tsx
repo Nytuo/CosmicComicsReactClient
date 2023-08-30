@@ -8,14 +8,18 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
+import { Avatar, Typography } from '@mui/material';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 
-export default function MoreInfoDialog({ onClose, openModal, desc, name, hrefURL, image }: {
+export default function MoreInfoDialog({ onClose, openModal, desc, name, hrefURL, image, type }: {
 	onClose: any,
 	openModal: boolean,
 	desc?: string,
 	name?: string;
 	hrefURL?: string;
 	image?: string;
+	type?: "avatar" | "cover";
 }) {
 	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
@@ -29,41 +33,59 @@ export default function MoreInfoDialog({ onClose, openModal, desc, name, hrefURL
 		onClose();
 	};
 
+	const tryToParse = (str: string) => {
+		try {
+			return JSON.parse(str);
+		} catch (e) {
+			return str;
+		}
+	};
+
 	return (
 		<div>
 			<Dialog open={open} onClose={handleClose}>
-				<DialogTitle>{t("EDIT")}</DialogTitle>
+				<DialogTitle>{t("seeMore")}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						<img id="moreinfo_img" className="img-charac" src={
-							image
-						} alt="" />
-						<p id="moreinfo_txt">
-							{desc == null ?
-								name : (typeof desc === "object" && Object.keys(desc).length > 0) ? name + "<br/>" + JSON.parse(desc) : name + "<br/>" + desc
+						{
+							type === "cover" ? <img src={image} alt={name} style={{ margin: "auto", display: "block", height: "30rem" }} /> :
+								<Avatar src={
+									image
+								} alt={name} sx=
+									{
+										{
+											width: 100,
+											height: 100,
+											margin: "auto",
+										}
+									}
+								/>
+						}
+						<Typography variant="h5" component="div" sx={
+							{
+								marginTop: 2,
+								textAlign: "center",
+								marginBottom: 2,
 							}
-						</p>
+						}>
+							{
+								name
+							}
+						</Typography>
+
+
+						<ReactMarkdown children={(desc === null || desc === undefined) ? "" : tryToParse(desc)} rehypePlugins={[rehypeRaw]} />
 						<a target='_blank' href={
 							hrefURL
 						} style={{ cursor: "pointer" }} id="moreinfo_btn">
 							{t("seeMore")}
 						</a>
 					</DialogContentText>
-					<TextField
-						autoFocus
-						margin="dense"
-						id="passwordLogin"
-						label={t("ThePassToWorLabel")}
-						type="password"
-						fullWidth
-						variant="standard"
-					/>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleClose}>{t("send")}</Button>
-					<Button onClick={handleClose}>{t("cancel")}</Button>
+					<Button onClick={handleClose}>{t("close")}</Button>
 				</DialogActions>
 			</Dialog>
-		</div>
+		</div >
 	);
 };

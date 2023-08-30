@@ -8,7 +8,7 @@ import { Toaster } from "./Toaster.tsx";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 import { useTranslation } from "react-i18next";
 
-function Card({ book, handleOpenDetails, onClick }: { book: IBook; handleOpenDetails?: any; onClick?: () => void; }) {
+function Card({ book, provider, handleOpenDetails, onClick }: { book: IBook; provider: any; handleOpenDetails?: any; onClick?: () => void; }) {
 
     if (book.URLCover === "null" || book.URLCover === "" || book.URLCover == null) {
         book.URLCover = "Images/fileDefault.png";
@@ -23,7 +23,6 @@ function Card({ book, handleOpenDetails, onClick }: { book: IBook; handleOpenDet
             id={"id_vol" + book.ID_book + "_" + Math.floor(Math.random() * 8000)}
             data-effect="zoom"
             onClick={() => {
-                const provider = ((book.series.includes("marvel")) ? (providerEnum.Marvel) : ((book.series.includes("Anilist")) ? (providerEnum.Anilist) : ((book.series.includes("OL")) ? (providerEnum.OL) : ((book.URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
                 if (onClick) {
                     onClick();
                 } else {

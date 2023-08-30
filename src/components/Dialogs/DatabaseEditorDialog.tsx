@@ -35,9 +35,15 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook, type
 			document.querySelectorAll("#commonEdit>label>input").forEach((e: any) => {
 				e.value = TheBook[e.id.replaceAll("edit_", "")];
 			});
-			document.querySelectorAll("#bookEdit>label>input").forEach((e: any) => {
-				e.value = TheBook[e.id.replaceAll("edit_", "")];
-			});
+			if (type === 'series') {
+				document.querySelectorAll("#seriesEdit>label>input").forEach((e: any) => {
+					e.value = TheBook[e.id.replaceAll("edit_", "")];
+				});
+			} else if (type === 'book') {
+				document.querySelectorAll("#bookEdit>label>input").forEach((e: any) => {
+					e.value = TheBook[e.id.replaceAll("edit_", "")];
+				});
+			}
 		}
 	}, []);
 
@@ -48,10 +54,17 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook, type
 			values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
 			columns.push(e.id.replaceAll("edit_", ""));
 		});
-		document.querySelectorAll("#bookEdit>label>input").forEach((e: any) => {
-			values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
-			columns.push(e.id.replaceAll("edit_", ""));
-		});
+		if (type === 'series') {
+			document.querySelectorAll("#seriesEdit>label>input").forEach((e: any) => {
+				values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
+				columns.push(e.id.replaceAll("edit_", ""));
+			});
+		} else if (type === 'book') {
+			document.querySelectorAll("#bookEdit>label>input").forEach((e: any) => {
+				values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
+				columns.push(e.id.replaceAll("edit_", ""));
+			});
+		}
 		const lockCheck = document.getElementById("lockCheck") as HTMLInputElement;
 		values.push(lockCheck ? lockCheck.checked : false);
 		columns.push("lock");
@@ -60,7 +73,7 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook, type
 				"Content-Type": "application/json"
 			}, body: JSON.stringify({
 				"token": currentProfile.getToken,
-				"table": "Books",
+				"table": type === 'series' ? "Series" : "Books",
 				"type": "edit",
 				"column": columns,
 				"whereEl": TheBook.PATH,
@@ -316,4 +329,4 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook, type
 			</Dialog>
 		</div >
 	);
-};
+}

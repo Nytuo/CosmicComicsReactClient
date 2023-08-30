@@ -60,6 +60,8 @@ class Book implements IBook {
     this._API_ID = API_ID;
   }
 
+  //TODO Make a constructor that can take some of the parameters and fill the rest with null
+
   get API_ID() {
     return this._API_ID;
   }

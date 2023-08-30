@@ -79,7 +79,7 @@ along with Cosmic-Comics.  If not, see <https://www.gnu.org/licenses/>.*/
 
 body {
     transition: background-color 1s;
-     background: var(--background);
+    background: var(--background);
     background-size: var(--HTMLBGSize);
     background-attachment: fixed;
     color: var(--text);
@@ -869,30 +869,6 @@ body {
     cursor: pointer;
 }
 
-#contentViewer {
-    position: fixed;
-    /* Sit on top of the page content */
-    display: block;
-    /* Hidden by default */
-    width: 100%;
-    /* Full width (cover the whole page) */
-    height: 100%;
-    /* Full height (cover the whole page) */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    /* Black background with opacity */
-    z-index: 4;
-    /* Specify a stack order in case you're using a different order for other elements */
-    cursor: initial;
-    /* Add a pointer on hover */
-    overflow-x: hidden;
-    background: var(--background);
-    transition: background-color 1.5s linear;
-    transition-delay: 1s;
-}
-
 .contentFade {
     /*    opacity: 0;*/
 }
@@ -905,34 +881,25 @@ body {
     -moz-filter: blur(400px) brightness(0.5);
 }
 
-.onContentViewer {
-    position: absolute;
-    width: 100%;
-    height: auto;
-}
-
 #ColTitle {
     color: var(--text);
     background-color: transparent;
     font-family: 'Roboto-condensed', sans-serif;
     font-size: 2rem;
     text-align: left;
-    margin-left: 45vw;
-    margin-right: 2vw;
-    margin-top: 14vh;
+    margin-left: 20vw;
     transition: margin-left .5s ease;
 }
 
 #ColCover > img {
-    width: 20vw;
+    width: 20rem;
     height: auto;
-    margin-left: 20vw;
+    margin-left: 2vw;
     transition: margin-left .5s ease;
 }
 
 #ColCover {
     position: absolute;
-    top: 15vh;
 }
 
 #endDate, #startDate {
@@ -941,8 +908,7 @@ body {
 
 #id, #averageProgress, #OriginCountry, #startDate, #description, #endDate, #Trending, #genres, #chapters, #btnsActions, .Ratecontainer, #price, #Volumes, #readstat, #readAdd, #ratingContainer {
     color: var(--text);
-    margin-left: 45vw;
-    margin-right: 2vw;
+    margin-left: 20vw;
     margin-top: 2vh;
     transition: margin-left .5s ease;
 }
@@ -959,8 +925,8 @@ label{
 
 #SiteURL, #Staff, #OtherTitles, #characters, #relations {
     color: var(--text);
-    margin-left: 20vw;
-    margin-right: 2vw;
+    margin-left: 1vw;
+    margin-right: 1vw;
     margin-top: 2vh;
     transition: margin-left .5s ease;
 }
@@ -1059,6 +1025,9 @@ a[href^="http://marvel.com"] {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--snackBarThumbHover);
 }
+
+
+
 
 .circle-small {
     display: inline-block;
@@ -1765,4 +1734,26 @@ select{
 
 .hidden {
     display: none;
+}
+
+.react-horizontal-scrolling-menu--scroll-container {
+    display: flex;
+    height: max-content;
+    overflow-y: hidden;
+    position: relative;
+    width: 100%;
+}
+.react-horizontal-scrolling-menu--arrow-left, .react-horizontal-scrolling-menu--arrow-right {
+    display: flex;
+}
+.react-horizontal-scrolling-menu--inner-wrapper {
+    display: flex;
+    overflow-y: hidden;
+}
+.react-horizontal-scrolling-menu--footer, .react-horizontal-scrolling-menu--header {
+    width: 100%;
+}
+.react-horizontal-scrolling-menu--wrapper {
+    display: flex;
+    flex-direction: column;
 }

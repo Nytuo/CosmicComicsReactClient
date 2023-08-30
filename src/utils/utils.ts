@@ -77,13 +77,15 @@ const providerEnum = {
  * @param LOCK The lock status of the item
  * @return {{PATH: null, note: null, unread: null, creators: null, issueNumber: null, description: null, variants: null, characters: null, collections: null, lock: null, id: null, prices: null, collectedIssues: null, pageCount: null, read: null, URLs: null, last_page: null, format: null, reading: null, dates: null, NOM: null, folder: null, series: null, favorite: null, URLCover: null}} The Book Object
  */
-function generateBookTemplate(NOM = null, ID = null, NOTE = null, READ = null, READING = null,
+function generateBookTemplate(API_ID = "null", ID_book = "null", NOM = null, ID = null, NOTE = null, READ = null, READING = null,
     UNREAD = null, FAVORITE = null, LAST_PAGE = null, FOLDER = null,
     PATH = null, COVER = null, ISSUENUMBER = null, DESCRIPTION = null,
     FORMAT = null, PAGECOUNT = null, SITEURL = null, SERIES = null,
     STAFF = null, CHARACTERS = null, PRICES = null, DATES = null,
     COLLECTEDISSUES = null, COLLECTIONS = null, VARIANTS = null, LOCK = null) {
     return {
+        "API_ID": API_ID,
+        "ID_book": ID_book,
         "NOM": NOM,
         "id": ID,
         "note": NOTE,
