@@ -869,10 +869,6 @@ body {
     cursor: pointer;
 }
 
-.contentFade {
-    /*    opacity: 0;*/
-}
-
 #imageBGOV2 {
     position: fixed;
     opacity: 1;
@@ -881,36 +877,8 @@ body {
     -moz-filter: blur(400px) brightness(0.5);
 }
 
-#ColTitle {
-    color: var(--text);
-    background-color: transparent;
-    font-family: 'Roboto-condensed', sans-serif;
-    font-size: 2rem;
-    text-align: left;
-    margin-left: 20vw;
-    transition: margin-left .5s ease;
-}
-
-#ColCover > img {
-    width: 20rem;
-    height: auto;
-    margin-left: 2vw;
-    transition: margin-left .5s ease;
-}
-
-#ColCover {
-    position: absolute;
-}
-
 #endDate, #startDate {
     font-weight: bold;
-}
-
-#id, #averageProgress, #OriginCountry, #startDate, #description, #endDate, #Trending, #genres, #chapters, #btnsActions, .Ratecontainer, #price, #Volumes, #readstat, #readAdd, #ratingContainer {
-    color: var(--text);
-    margin-left: 20vw;
-    margin-top: 2vh;
-    transition: margin-left .5s ease;
 }
 
 #readAddInput {
@@ -921,19 +889,6 @@ body {
 
 label{
     width: 100%;
-}
-
-#SiteURL, #Staff, #OtherTitles, #characters, #relations {
-    color: var(--text);
-    margin-left: 1vw;
-    margin-right: 1vw;
-    margin-top: 2vh;
-    transition: margin-left .5s ease;
-}
-
-#ContentView {
-    margin-left: 20vw;
-    transition: margin-left .5s ease;
 }
 
 .releasing {

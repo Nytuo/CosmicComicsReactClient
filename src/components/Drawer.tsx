@@ -416,7 +416,7 @@ export default function MiniDrawer() {
                             series: "",
                             creators: res[0]["STAFF"],
                             characters: res[0]["CHARACTERS"],
-                            prices: "0",
+                            prices: "",
                             dates: "01-01-1970",
                             collectedIssues: "0",
                             collections: "0",
