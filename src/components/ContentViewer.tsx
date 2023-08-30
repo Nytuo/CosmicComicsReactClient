@@ -2,7 +2,7 @@ import { PDP, currentProfile } from "@/utils/Common.ts";
 import { AllForOne, changeRating, downloadBook, getFromDB } from "@/utils/Fetchers.ts";
 import { IBook } from "@/interfaces/IBook.ts";
 import { providerEnum } from "@/utils/utils.ts";
-import { ArrowBack, ArrowForward, AutoStories, Check, Close, Done, Download, Edit, Favorite, PlayArrow, QuestionMark, Refresh, YoutubeSearchedFor } from "@mui/icons-material";
+import { ArrowBack, ArrowForward, AutoStories, Check, Close, Done, Download, Edit, Favorite, OpenInNew, PlayArrow, QuestionMark, Refresh, YoutubeSearchedFor } from "@mui/icons-material";
 import { Avatar, Box, Chip, CircularProgress, Container, IconButton, Paper, Stack, Tooltip, Typography, styled } from "@mui/material";
 import Rating from "@mui/material/Rating/Rating";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
@@ -45,6 +45,8 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
         setOpenMoreInfo(false);
     };
     const APINOTFOUND = /[a-zA-Z]/g.test(TheBook.ID_book);
+
+    console.log("TheBook", TheBook);
 
     const fetchCharacters = async () => {
         if (type === "volume") {
@@ -146,22 +148,31 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
             }
         }
         const handleAsyncBG = async () => {
-            if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
-                console.log("TheBook.URLCover", TheBook.URLCover);
-                const options = {
+            let options;
+            if (TheBook.BG_cover != null && TheBook.BG_cover !== "null") {
+                options = {
+                    method: "GET", headers: {
+                        "Content-Type": "application/json", "img": TheBook.BG_cover
+                    }
+                };
+            } else if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
+                options = {
                     method: "GET", headers: {
                         "Content-Type": "application/json", "img": TheBook.URLCover
                     }
                 };
-                await fetch(PDP + "/img/getPalette/" + currentProfile.getToken, options).then(function (response) {
-                    return response.text();
-                }).then(function (data) {
-                    const Blurcolors = data;
-                    setTimeout(function () {
-                        document.getElementsByTagName("body")[0].style.backgroundColor = Blurcolors;
-                    }, 500);
-                });
+            } else {
+                return "#000000";
             }
+            await fetch(PDP + "/img/getPalette/" + currentProfile.getToken, options).then(function (response) {
+                return response.text();
+            }).then(function (data) {
+                const Blurcolors = data;
+                setTimeout(function () {
+                    document.getElementsByTagName("body")[0].style.backgroundColor = Blurcolors;
+                }, 500);
+            });
+
         };
         handleAsyncBG();
     }, [TheBook.URLCover]);
@@ -199,7 +210,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                 }
             }
         >
-            <img id="imageBGOV2" src="#" alt="#" style={{ width: "100vw", height: "auto" }} />
+            <img id="imageBGOV2" src="#" alt="#" style={{ width: "100vw", height: "auto", display: "none" }} />
             <Box sx={{
                 width: "90vw",
             }}>
@@ -234,15 +245,15 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         {
                             type === "volume" ? (
                                 (provider === providerEnum.Marvel) ?
-                                    <h1><a target='_blank' href={((TheBook.URLs === null || TheBook.URLs === "null") ? ("#") : (JSON.parse(TheBook.URLs)[0].url))} style={{ color: 'white' }}>{TheBook.NOM}<i style={{ fontSize: '18px', top: '-10px', position: 'relative' }} className='material-icons'>open_in_new</i></a></h1>
+                                    <h1><a target='_blank' href={((TheBook.URLs === null || TheBook.URLs === "null") ? ("#") : (JSON.parse(TheBook.URLs)[0].url))} style={{ color: 'white' }}>{TheBook.NOM}<OpenInNew /></a></h1>
                                     : (provider === providerEnum.Anilist) ?
                                         <h1><a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}</a></h1> :
                                         <h1><a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}</a></h1>) :
                                 (provider === providerEnum.Marvel) ?
                                     <h1><a target='_blank' href={((TheBook.URLs == "null") ? ("#") : (JSON.parse(TheBook.URLs)[0].url))} style={{ color: 'white' }}>{TheBook.NOM}<i style={{ fontSize: '18px', top: '-10px', position: 'relative' }} className='material-icons'>open_in_new</i></a></h1> :
                                     (provider === providerEnum.Anilist) ?
-                                        <h1><a target='_blank' href={(TheBook.URLs == "null") ? ("#") : (TheBook.URLs)} style={{ color: 'white' }}>{TheBook.NOM}</a></h1> :
-                                        <h1><a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}</a></h1>
+                                        <h1><a target='_blank' href={(TheBook.URLs == "null") ? ("#") : (TheBook.URLs)} style={{ color: 'white' }}>{TheBook.NOM}<OpenInNew /></a></h1> :
+                                        <h1><a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}<OpenInNew /></a></h1>
                         }
                         <Grid2 container sx={
                             {
@@ -335,7 +346,13 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                 }
                             </Grid2>
                         </Grid2>
-                        <div id="startDate">
+                        <div id="startDate"
+                            style={
+                                {
+                                    marginBottom: "10px",
+                                }
+                            }
+                        >
                             {
                                 type === "volume" ?
                                     (TheBook.dates !== "null" ? t("dates") + JSON.parse(TheBook.dates).map((date: { type: string; date: string; }, index: number) => {
@@ -358,7 +375,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                     (JSON.parse(TheBook.end_date) == null || JSON.parse(TheBook.end_date) > new Date().getFullYear()) ? "?" : JSON.parse(TheBook.end_date) : "" : ""
                             }
                         </div>
-                        <Stack spacing={5}>                        <Grid2 container spacing={2} id='btnsActions'>
+                        <Stack spacing={3}>                        <Grid2 container spacing={2} id='btnsActions'>
                             <Tooltip title={t('PLAY')}>
 
                                 <IconButton id="playbutton" onClick={
@@ -581,15 +598,16 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                             {
                                 (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ? t("Genres") : ""
                             }
+                            {": "}
                             {
                                 JSON.parse(TheBook.genres).map((el: any, index: number) => {
-                                    return (index !== JSON.parse(TheBook.genres).length - 1) ? el + ", " : el;
+                                    return (index !== JSON.parse(TheBook.genres).length - 1) ? el + " / " : el;
                                 })
                             }
                         </div>
                         <div id="chapters">
                             {
-                                type === "volume" ? TheBook.issueNumber === (null || "null" || "") ? "" : t("Numberofthisvolumewithintheseries") + TheBook.issueNumber : ((provider === providerEnum.Marvel) ? (t("NumberComics")) : (t("NumberChapter"))) + TheBook["chapters"]
+                                type === "volume" ? TheBook.issueNumber === (null || "null" || "") ? "" : t("Numberofthisvolumewithintheseries") + ": " + TheBook.issueNumber : ((provider === providerEnum.Marvel) ? (t("NumberComics")) : (t("NumberChapter"))) + ": " + TheBook.issueNumber
                             }
                         </div>
                         <div id="id">
@@ -620,40 +638,41 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         </div>
                         <div id="Volumes">
                             {
-                                (TheBook.volumes != null && TheBook.volumes !== "null") ? t("numberOfVolume") + TheBook.volumes : ""
+                                (TheBook.volumes != null && TheBook.volumes !== "null") ? t("numberOfVolume") + ": " + TheBook.volumes : ""
                             }
                         </div>
                         <div id="Trending">
                             {
-                                (TheBook.trending != null && TheBook.trending !== "null") ? t("trending") + TheBook.trending : ""
+                                (TheBook.trending != null && TheBook.trending !== "null") ? t("trending") + ": " + TheBook.trending : ""
                             }
                         </div>
                         {
-                            TheBook.characters !== "null" ? <div id="readstat"><input type="number" step="1" min="0" id="readAddInput" value={
-                                TheBook.pageCount
-                            } max={
-                                TheBook.pageCount
-                            }
-                                onBlur={
-                                    async (e) => {
-                                        const options = {
-                                            method: "POST", headers: {
-                                                "Content-Type": "application/json"
-                                            }, body: JSON.stringify({
-                                                "token": currentProfile.getToken,
-                                                "table": "Books",
-                                                "column": "last_page",
-                                                "whereEl": TheBook.ID_book,
-                                                "value": e.target.value,
-                                                "where": "ID_book"
-                                            }, null, 2)
-                                        };
-                                        await fetch(PDP + "/DB/update", options).catch((err) => {
-                                            Toaster(err, "error");
-                                        });
-                                    }
+                            type == "volume" ? (
+                                TheBook.characters !== "null" ? <div id="readstat"><input type="number" step="1" min="0" id="readAddInput" value={
+                                    TheBook.pageCount
+                                } max={
+                                    TheBook.pageCount
                                 }
-                            />/ {TheBook.pageCount} {t('pagesRead')}</div> : ""
+                                    onBlur={
+                                        async (e) => {
+                                            const options = {
+                                                method: "POST", headers: {
+                                                    "Content-Type": "application/json"
+                                                }, body: JSON.stringify({
+                                                    "token": currentProfile.getToken,
+                                                    "table": "Books",
+                                                    "column": "last_page",
+                                                    "whereEl": TheBook.ID_book,
+                                                    "value": e.target.value,
+                                                    "where": "ID_book"
+                                                }, null, 2)
+                                            };
+                                            await fetch(PDP + "/DB/update", options).catch((err) => {
+                                                Toaster(err, "error");
+                                            });
+                                        }
+                                    }
+                                />/ {TheBook.pageCount} {t('pagesRead')}</div> : "") : ""
                         }
                     </Box>
                     <Box

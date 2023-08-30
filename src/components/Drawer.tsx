@@ -304,7 +304,7 @@ export default function MiniDrawer() {
         setUserAccountOpen(false);
     };
 
-    const [cardMode, setCardMode] = React.useState(false);
+    const [cardMode, setCardMode] = React.useState(true);
 
     /**
      * 
@@ -364,13 +364,14 @@ export default function MiniDrawer() {
                             if (provider === providerEnum.Marvel) {
                                 node = JSON.parse(res[0].title);
                             } else if (provider == providerEnum.Anilist) {
-                                if (JSON.parse(res[0].title)["english"] !== undefined && JSON.parse(res[0].title)["english"] !== null) {
-                                    node = JSON.parse(res[0].title)["english"];
-                                } else if (JSON.parse(res[0].title)["romaji"] !== undefined && JSON.parse(res[0].title)["romaji"] !== null) {
-                                    node = JSON.parse(res[0].title)["romaji"];
-                                } else {
-                                    node = JSON.parse(res[0].title);
-                                }
+                                // if (JSON.parse(res[0].title)["english"] !== undefined && JSON.parse(res[0].title)["english"] !== null) {
+                                //     node = JSON.parse(res[0].title)["english"];
+                                // } else if (JSON.parse(res[0].title)["romaji"] !== undefined && JSON.parse(res[0].title)["romaji"] !== null) {
+                                //     node = JSON.parse(res[0].title)["romaji"];
+                                // } else {
+                                //     node = JSON.parse(res[0].title);
+                                // }
+                                node = (JSON.parse(res[0].title).english + " / " + JSON.parse(res[0].title).romaji + " / " + JSON.parse(res[0].title).native);
                             } else if (provider == providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                                 node = res[0].title;
                             }
@@ -427,6 +428,7 @@ export default function MiniDrawer() {
                             volumes: res[0]["volumes"],
                             lock: res[0]["lock"],
                             note: res[0]["note"],
+                            BG_cover: res[0]["BG"],
                         });
                         setOpenExplorer({ open: true, explorer: OSseries, provider: provider, booksNumber: FolderRes.length });
                         // onclick on the cover : await createSeries(provider, path, libraryPath, res);
@@ -792,7 +794,7 @@ export default function MiniDrawer() {
                         <CircularProgress />
                         <p id="decompressfilename" style={{ marginTop: "10px" }}></p>
                         <p id="overlaymsg" style={{ marginTop: "10px" }}>
-                            We take care of your comics
+                            {t("overlaymsg_takecare")}
                         </p>
                     </div>
                 </div> : <></>}
