@@ -46,10 +46,15 @@ export default function AboutDialog({ onClose, openModal }: {
 
 	return (
 		<div>
-			<Dialog open={open} onClose={handleClose}>
+			<Dialog open={open} onClose={handleClose} fullWidth={true}
+				maxWidth="md">
 				<DialogTitle>{t("about")}</DialogTitle>
 				<DialogContent>
-					<DialogContentText>
+					<DialogContentText sx={
+						{
+							textAlign: "center",
+						}
+					}>
 						<h1 style={{ textAlign: "center" }}>Cosmic Comics</h1>
 						<img src="Images/Logo.png" alt="" width="auto" height="80px"
 							className="navbar-brand rotate linear infinite" /><img src="Images/LogoTxt.png" alt=""

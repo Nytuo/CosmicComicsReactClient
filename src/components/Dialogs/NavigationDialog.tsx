@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Icon, IconButton, Tooltip } from '@mui/material';
 import { Bookmark, Download, Info, PhotoLibrary, Settings, TipsAndUpdates } from '@mui/icons-material';
 import AboutDialog from './AboutDialog';
+import BookmarksDialog from './BookmarksDialog';
 
 export default function NavigationDialog({ onClose, openModal }: {
 	onClose: any,
@@ -36,15 +37,32 @@ export default function NavigationDialog({ onClose, openModal }: {
 		setOpenAbout(false);
 	};
 
+	const [openBookmarks, setOpenBookmarks] = React.useState(false);
+	const handleOpenBookmarks = (event: React.MouseEvent<HTMLElement>) => {
+		setOpenBookmarks(true);
+	};
+
+	const handleCloseBookmarks = () => {
+		setOpenBookmarks(false);
+	};
 	return (
 		<div>
-			<Dialog open={open} onClose={handleClose}>
+			<Dialog open={open} onClose={handleClose} fullWidth={true}
+				maxWidth="md">
 				<DialogTitle>{t("navigation")}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						<div id="controller">
+						<div id="controller"
+							style={
+								{
+									display: "flex",
+									justifyContent: "space-around",
+									alignItems: "center",
+								}
+							}
+						>
 							<Tooltip title={t('Bookmark')}>
-								<IconButton>
+								<IconButton onClick={handleOpenBookmarks}>
 									<Bookmark />
 								</IconButton>
 							</Tooltip>
@@ -88,6 +106,7 @@ export default function NavigationDialog({ onClose, openModal }: {
 				</DialogActions>
 			</Dialog>
 			<AboutDialog openModal={openAbout} onClose={handleCloseAbout} />
+			<BookmarksDialog openModal={openBookmarks} onClose={handleCloseBookmarks} />
 		</div>
 	);
-};
+}

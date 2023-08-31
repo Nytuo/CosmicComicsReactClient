@@ -55,7 +55,8 @@ export default function UploadDialog({ onClose, openModal, cosmicComicsTemp }: {
 
 	return (
 		<div>
-			<Dialog open={open} onClose={handleClose}>
+			<Dialog open={open} onClose={handleClose} fullWidth={true}
+				maxWidth="md">
 				<DialogTitle>{t("upload")}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>

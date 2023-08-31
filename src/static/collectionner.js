@@ -35,55 +35,6 @@ function resetLibModal() {
     };
 }
 
-//List of Bookmarked folder
-function listBM() {
-    const option = {
-        method: 'GET', headers: {
-            'Content-Type': 'application/json', "token": currentProfile.getToken,
-        }
-    };
-    fetch(PDP + "/BM/getBM", option).then((response) => {
-        return response.json();
-    }).then(function (info) {
-        console.log(info);
-        if (info.length === 0) {
-            let iblock = document.createElement("i");
-            iblock.innerText = "block";
-            iblock.className = "material-icons";
-            if (currenttheme > 1) iblock.style.color = theme_FG;
-            document.getElementById("bookmarkContainer").appendChild(iblock);
-            return;
-        }
-        info.forEach((file) => {
-            getFromDB("Books", "URLCover FROM Books WHERE ID_BOOK = '" + file["BOOK_ID"] + "'").then(async (resa) => {
-                resa = JSON.parse(resa)
-                let res = resa[0].URLCover;
-                const btn = document.createElement("button");
-                console.log("openBOOKM('" + file["PATH"] + "&page=" + file["page"] + "');");
-                btn.addEventListener("click", function () {
-                    openBOOKM(file["PATH"], file["page"]);
-                });
-                btn.className = "btn pure-material-button-contained";
-                btn.style = "margin:5px";
-                btn.innerText = language["Seethepage"] + file["page"];
-                let image = document.createElement("img");
-                image.src = res;
-                image.style = "width:100%;height:100%;";
-                let div = document.createElement("div");
-                div.appendChild(image);
-                div.style.width = "30%";
-                div.appendChild(btn);
-                document.getElementById("bookmarkContainer").appendChild(div);
-            });
-        });
-    }).catch(function (error) {
-        console.log(error);
-    });
-}
-
-//the Bookmarked loading
-listBM();
-
 //Handle the drag and drop to open files in the app
 document.addEventListener("drop", (event) => {
     event.preventDefault();

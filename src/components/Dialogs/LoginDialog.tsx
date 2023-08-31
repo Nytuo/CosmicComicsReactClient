@@ -54,7 +54,8 @@ export default function LoginDialog({ onClose, openModal, title, text, okBtn, ca
 
 	return (
 		<div>
-			<Dialog open={open} onClose={handleClose}>
+			<Dialog open={open} onClose={handleClose} fullWidth={true}
+				maxWidth="md">
 				<DialogTitle>{title}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>

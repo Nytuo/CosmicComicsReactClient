@@ -25,7 +25,8 @@ export default function CreateAccountDialog({ openModal, title, text, okBtn, cre
 	}, [openModal]);
 	return (
 		<div>
-			<Dialog open={open}>
+			<Dialog open={open} fullWidth={true}
+				maxWidth="md">
 				<DialogTitle>{title}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>

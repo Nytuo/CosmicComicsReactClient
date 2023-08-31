@@ -37,7 +37,8 @@ export default function MoreInfoDialog({ onClose, openModal, desc, name, hrefURL
 
 	return (
 		<div>
-			<Dialog open={open} onClose={handleClose}>
+			<Dialog open={open} onClose={handleClose} fullWidth={true}
+				maxWidth="md">
 				<DialogTitle>{t("seeMore")}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>

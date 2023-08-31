@@ -40,7 +40,7 @@ export default function UserAccountDialog({ forWhat, onClose, openModal }: {
 		<div>
 			<Dialog open={open} onClose={handleClose}
 				maxWidth="md"
-				fullWidth
+				fullWidth={true}
 			>
 				<DialogTitle>{forWhat == 'edit' ? t("EDIT") : t("Createanewuser")}</DialogTitle>
 				<DialogContent>
