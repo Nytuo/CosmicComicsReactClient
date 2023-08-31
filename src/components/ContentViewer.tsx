@@ -1,5 +1,5 @@
 import { PDP, currentProfile } from "@/utils/Common.ts";
-import { AllForOne, changeRating, downloadBook, getFromDB } from "@/utils/Fetchers.ts";
+import { AllForOne, InsertIntoDB, changeRating, downloadBook, getFromDB } from "@/utils/Fetchers.ts";
 import { IBook } from "@/interfaces/IBook.ts";
 import { providerEnum, tryToParse } from "@/utils/utils.ts";
 import { ArrowBack, ArrowForward, AutoStories, Check, Close, Done, Download, Edit, Favorite, OpenInNew, PlayArrow, QuestionMark, Refresh, YoutubeSearchedFor } from "@mui/icons-material";
@@ -15,15 +15,21 @@ import Card from "./Card.tsx";
 import Book from "@/utils/Book.ts";
 import MoreInfoDialog from "./Dialogs/MoreInfoDialog.tsx";
 import { ScrollMenu, VisibilityContext } from 'react-horizontal-scrolling-menu';
+import { Anilist } from "@/API/Anilist.ts";
+import { GoogleBooks } from "@/API/GoogleBooks.ts";
+import { Marvel } from "@/API/Marvel.ts";
+import { OpenLibrary } from "@/API/OpenLibrary.ts";
+import ContainerExplorer from "./ContainerExplorer.tsx";
 
 
 //providerEnum to type
 type TProvider = providerEnum.Marvel | providerEnum.Anilist | providerEnum.MANUAL | providerEnum.OL | providerEnum.GBooks;
-function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
+function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleChangeToDetails }: {
     provider: TProvider;
     TheBook: IBook;
     type: 'series' | 'volume';
     handleAddBreadcrumbs: any;
+    handleChangeToDetails?: (open: boolean, book: IBook, provider: any) => void;
 }) {
     const [rating, setRating] = useState<number | null>(type === "volume" ? (TheBook.note === null ? null : parseInt(TheBook.note)) : null);
     const [characters, setCharacters] = useState<any[]>([]);
@@ -132,6 +138,120 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
             setRelations(parsedClres);
         });
     };
+    const [readStatSeries, setReadStatSeries] = useState("0 / 0 volumes read");
+
+    const [openExplorer, setOpenExplorer] = useState<{ open: boolean, explorer: IBook[], provider: any, booksNumber: number; type: "series" | "books"; }>(({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" }));
+
+    /**
+     * Load the content of the element
+     * @param {string} FolderRes The folder path
+     * @param {string} libraryPath The library path
+     * @param {*} date The date of the element
+     * @param {providerEnum} provider The provider of the element
+     */
+    function loadView(FolderRes: string, libraryPath: string, date = "", provider = providerEnum.MANUAL) {
+        FolderRes = FolderRes.replaceAll("\\", "/");
+        FolderRes = FolderRes.replaceAll("//", "/");
+        FolderRes = FolderRes.replaceAll("/", "ù");
+        fetch(PDP + "/getListOfFilesAndFolders/" + FolderRes).then((response) => {
+            return response.text();
+        }).then(async (data) => {
+            data = JSON.parse(data);
+            const OSBook = openExplorer.explorer;
+            for (let index = 0; index < data.length; index++) {
+                const path = data[index];
+                const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "");
+                const realnameREG = /[^\\\/]+(?=\.\w+$)|[^\\\/]+$/.exec(name);
+                if (realnameREG === null) continue;
+                const realname = realnameREG[0];
+                const readBookNB = await getFromDB("Books", "COUNT(*) FROM Books WHERE READ = 1 AND PATH = '" + path + "'");
+                setReadStatSeries(readBookNB ? JSON.parse(readBookNB)[0]["COUNT(*)"] + " / " + data.length + " volumes read" : "0 / 0 volumes read");
+                await getFromDB("Books", "* FROM Books WHERE PATH = '" + path + "'").then(async (resa) => {
+                    if (!resa) return;
+                    const bookList = JSON.parse(resa);
+                    let TheBook;
+                    if (bookList.length === 0) {
+                        if (provider === providerEnum.Marvel) {
+                            await new Marvel().InsertBook(realname, date, path).then(async (cdata: any) => {
+                                if (cdata === undefined) {
+                                    throw new Error("no data");
+                                }
+                                if (cdata["data"]["total"] > 0) {
+                                    cdata = cdata["data"]["results"][0];
+                                    TheBook = new Book(cdata["id"], realname, cdata["thumbnail"].path + "/detail." + cdata["thumbnail"].extension, cdata["description"], cdata["creators"], cdata["characters"], cdata["urls"], null, 0, 0, 1, 0, 0, 0, path, cdata["issueNumber"], cdata["format"], cdata["pageCount"], cdata["series"], cdata["prices"], cdata["dates"], cdata["collectedIssues"], cdata["collections"], cdata["variants"], 0, provider.toString());
+                                } else {
+                                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
+                                }
+                            });
+                        } else if (provider === providerEnum.Anilist) {
+                            await new Anilist().InsertBook(realname, path);
+                            TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
+                        } else if (provider === providerEnum.MANUAL) {
+                            console.log("manual");
+                            InsertIntoDB("Books", "", `(?,'${null}','${realname}',null,${0},${0},${1},${0},${0},${0},'${path}','${null}','${null}','${null}','${null}',${null},'${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}',false)`);
+                            TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
+                        } else if (provider === providerEnum.OL) {
+                            await new OpenLibrary().InsertBook(realname, path).then(async (cdata: any) => {
+                                console.log(cdata);
+                                if (cdata === undefined) {
+                                    throw new Error("no data");
+                                }
+                                if (Object.prototype.hasOwnProperty.call(cdata, "num_found")) {
+                                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
+                                } else {
+                                    const cdataD = cdata["details"];
+                                    TheBook = new Book(cdata["bib_key"], realname, cdata["thumbnail_url"], cdataD["description"], cdataD["authors"], null, cdataD["info_url"], null, 0, 0, 1, 0, 0, 0, path, "null", cdataD["physical_format"], cdataD["number_of_pages"], null, null, cdata["publish_date"], null, null, null, 0, provider.toString());
+                                }
+
+                            });
+                        } else if (provider === providerEnum.GBooks) {
+                            await new GoogleBooks().InsertBook(realname, path).then(async (cdata: any) => {
+                                console.log(cdata);
+                                if (cdata === undefined) {
+                                    throw new Error("no data");
+                                }
+                                if (cdata["totalItems"] > 0) {
+                                    cdata = cdata["items"][0];
+                                    let cover;
+                                    if (cdata["volumeInfo"]["imageLinks"] !== undefined) {
+
+                                        cover = cdata["volumeInfo"]["imageLinks"];
+                                        if (cover["large"] !== undefined) {
+                                            cover = cover["large"];
+                                        } else if (cover["thumbnail"] !== undefined) {
+                                            cover = cover["thumbnail"];
+                                        } else {
+                                            cover = null;
+                                        }
+                                    } else {
+                                        cover = null;
+                                    }
+                                    let price;
+                                    if (cdata["saleInfo"]["retailPrice"] !== undefined) {
+                                        price = cdata["saleInfo"]["retailPrice"]["amount"];
+                                    } else {
+                                        price = null;
+                                    }
+                                    TheBook = new Book(cdata["id"], realname, cover, cdata["volumeInfo"]["description"], cdata["volumeInfo"]["authors"], null, cdata["volumeInfo"]["infoLink"], null, 0, 0, 1, 0, 0, 0, path, "null", cdata["volumeInfo"]["printType"], cdata["volumeInfo"]["pageCount"], null, price, cdata["volumeInfo"]["publishedDate"], null, null, null, 0, provider.toString());
+
+                                } else {
+                                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
+                                }
+
+                            });
+                        }
+                    } else {
+                        const bookFromDB = bookList[0];
+                        TheBook = new Book(bookFromDB["ID_book"], bookFromDB["NOM"], bookFromDB["URLCover"], bookFromDB["description"], bookFromDB["creators"], bookFromDB["characters"], bookFromDB["URLs"], bookFromDB["note"], bookFromDB["read"], bookFromDB["reading"], bookFromDB["unread"], bookFromDB["favorite"], bookFromDB["last_page"], bookFromDB["folder"], bookFromDB["PATH"], bookFromDB["issueNumber"], bookFromDB["format"], bookFromDB["pageCount"], bookFromDB["series"], bookFromDB["prices"], bookFromDB["dates"], bookFromDB["collectedIssues"], bookFromDB["collections"], bookFromDB["variants"], bookFromDB["lock"], provider.toString());
+                    }
+                    if (TheBook !== undefined)
+                        OSBook.push(TheBook);
+
+                });
+            }
+            setOpenExplorer({ open: true, explorer: OSBook, provider: provider, booksNumber: 0, type: "books" });
+        });
+    }
     const { t } = useTranslation();
     useEffect(() => {
         handleAddBreadcrumbs(TheBook.NOM, () => { });
@@ -141,10 +261,13 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
         fetchCreators();
         fetchRelations();
         if (type == "series") {
+            let libraryPath = TheBook.PATH.replaceAll("\\", "/");
+            libraryPath = libraryPath.replace(/\/[^\/]+$/, "");
+            libraryPath = libraryPath.replaceAll("/", "\\");
             if (provider === providerEnum.Marvel) {
-                // loadView(path, libraryPath, tryToParse(res[0].start_date), provider);
+                loadView(TheBook.PATH, libraryPath, tryToParse(TheBook.start_date), provider);
             } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                // loadView(path, libraryPath, "", provider);
+                loadView(TheBook.PATH, libraryPath, "", provider);
             }
         }
         const handleAsyncBG = async () => {
@@ -671,7 +794,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                             });
                                         }
                                     }
-                                />/ {TheBook.pageCount} {t('pagesRead')}</div> : "") : ""
+                                />/ {TheBook.pageCount} {t('pagesRead')}</div> : "") : readStatSeries
                         }
                     </Box>
                     <Box
@@ -683,6 +806,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                     >
                         <div>
                             <h1>{t("volumes")}</h1>
+                            <ContainerExplorer stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={handleChangeToDetails} />
                         </div>
                         <div>
                             <h1>{t("characters")}</h1>

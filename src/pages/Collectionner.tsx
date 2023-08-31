@@ -13,7 +13,7 @@ function Collectionner() {
         checkLogin();
         setInterval(() => {
             checkLogin();
-        }, 1000 * 60 * 60 * 4);
+        }, 1000 * 60 * 60);
     }, []);
 
     useEffect(() => {

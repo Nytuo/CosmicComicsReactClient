@@ -41,9 +41,9 @@ function setCookie(cName: string, cValue: string, expHours: number, document: an
 
 /**
  * Set the theme on the page
- * @param theme The selected theme
+ * @param {string} theme The selected theme
  */
-function setTheme(theme) {
+function setTheme(theme: string) {
 	document.head.getElementsByTagName("link")[5].href = PDP + "/themes/" + theme;
 }
 

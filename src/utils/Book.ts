@@ -12,7 +12,7 @@ class Book implements IBook {
   private _creators: any;
   private _characters: any;
   private _URLs: any;
-  private _note: number;
+  private _note: number | null;
   private _read: number;
   private _reading: number;
   private _unread: number;
@@ -31,7 +31,7 @@ class Book implements IBook {
   private _variants: any;
   private _lock: number;
   private _API_ID: string;
-  constructor(ID_book: string, NOM: string, URLCover: any, description: string, creators: any, characters: any, URLs: any, note: number, read: number, reading: number, unread: number, favorite: number, last_page: number, folder: any, PATH: string, issueNumber: string, format: any, pageCount: number, series: any, prices: any, dates: any, collectedIssues: any, collections: any, variants: any, lock: number, API_ID: string) {
+  constructor(ID_book: string, NOM: string, URLCover: any, description: string, creators: any, characters: any, URLs: any, note: number | null, read: number, reading: number, unread: number, favorite: number, last_page: number, folder: any, PATH: string, issueNumber: string, format: any, pageCount: number, series: any, prices: any, dates: any, collectedIssues: any, collections: any, variants: any, lock: number, API_ID: string) {
     this._ID_book = ID_book;
     this._NOM = NOM;
     this._URLCover = URLCover;

@@ -71,8 +71,8 @@ const providerEnum = {
     "OL": 3
 };
 //Search element on the JSON
-function SearchInJSON(search, info) {
-    for (let i in info) {
+function SearchInJSON(search: string, info: any) {
+    for (const i in info) {
         if (i === search) {
             return info[i];
         }
