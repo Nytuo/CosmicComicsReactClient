@@ -832,7 +832,7 @@ export default function MiniDrawer({
                                 setOpenDetails(null);
                                 setOpenSeries({ open: false, series: [], provider: null });
                                 setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
-
+                                setIsLoading(false);
                                 handleRemoveBreadcrumbsTo(1);
                             }}
                             sx={{
@@ -858,6 +858,10 @@ export default function MiniDrawer({
                             onClick={() => {
                                 // TODO breadcrumb logic
                                 openLibrary(CosmicComicsTemp + "/downloads", 2);
+                                if (openExplorer && openExplorer.open)
+                                    openExplorer.explorer = [];
+                                handleRemoveBreadcrumbsTo(1);
+
                             }}
                             sx={{
                                 minHeight: 48,
@@ -879,9 +883,28 @@ export default function MiniDrawer({
                     </ListItem>
                     <ListItem key={t('ALL') + Math.random()} disablePadding sx={{ display: 'block' }}>
                         <ListItemButton
-                            onClick={() => {
-                                // TODO breadcrumb logic
-                                // AllBooks();
+                            onClick={async () => {
+                                setIsLoading(true);
+                                setOpenDetails(null);
+                                setOpenSeries({ open: false, series: [], provider: null });
+                                if (openExplorer && openExplorer.open)
+                                    openExplorer.explorer = [];
+                                await AllBooks().then((res) => {
+                                    if (!res || res === null) return;
+                                    if (openExplorer === null) return;
+                                    const parsedRes = tryToParse(res);
+                                    const OSseries = openExplorer.explorer;
+                                    for (let i = 0; i < parsedRes.length; i++) {
+                                        const res = parsedRes[i];
+                                        console.log(res);
+                                        const book = new Book(res["ID_book"], res["NOM"], res["URLCover"], res["description"], res["creators"], res["characters"], res["URLs"], res["note"], res["read"], res["reading"], res["unread"], res["favorite"], res["last_page"], res["folder"], res["PATH"], res["issueNumber"], res["format"], res["pageCount"], res["series"], res["prices"], res["dates"], res["collectedIssues"], res["collections"], res["variants"], res["lock"], '0');
+                                        OSseries.push(book.book);
+                                    }
+                                    setOpenExplorer({ open: true, explorer: OSseries, provider: 0, booksNumber: parsedRes.length, type: "books" });
+                                });
+                                setIsLoading(false);
+                                handleRemoveBreadcrumbsTo(1);
+
                             }}
                             sx={{
                                 minHeight: 48,
@@ -904,11 +927,15 @@ export default function MiniDrawer({
                     <ListItem key={t('TRACKER') + Math.random()} disablePadding sx={{ display: 'block' }}>
                         <ListItemButton
                             onClick={async () => {
+                                setIsLoading(true);
+                                setOpenDetails(null);
+                                setOpenSeries({ open: false, series: [], provider: null });
+                                if (openExplorer && openExplorer.open)
+                                    openExplorer.explorer = [];
                                 await AllBooks("PATH IS NULL OR PATH = '' OR PATH = 'null'").then((res) => {
                                     if (!res || res === null) return;
                                     if (openExplorer === null) return;
                                     const parsedRes = tryToParse(res);
-                                    console.log(parsedRes);
                                     const OSseries = openExplorer.explorer;
                                     for (let i = 0; i < parsedRes.length; i++) {
                                         const res = parsedRes[i];
@@ -918,6 +945,9 @@ export default function MiniDrawer({
                                     }
                                     setOpenExplorer({ open: true, explorer: OSseries, provider: 0, booksNumber: parsedRes.length, type: "books" });
                                 });
+                                setIsLoading(false);
+                                handleRemoveBreadcrumbsTo(1);
+
                             }}
                             sx={{
                                 minHeight: 48,
@@ -952,6 +982,8 @@ export default function MiniDrawer({
                                         if (openExplorer && openExplorer.open)
                                             openExplorer.explorer = [];
                                         openLibrary(el["PATH"], el["API_ID"]);
+                                        handleRemoveBreadcrumbsTo(1);
+
                                     }}
                                     sx={{
                                         minHeight: 48,
