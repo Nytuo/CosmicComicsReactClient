@@ -34,7 +34,30 @@ function resolveTitle(title: string) {
         return title;
     }
 }
+const tryToParse = (str: string) => {
+    try {
+        return JSON.parse(str);
+    } catch (e) {
+        return str;
+    }
+};
 
+const buildTitleFromProvider = (title: string, provider: number) => {
+    const parsedTitle = tryToParse(title);
+    if (provider === providerEnum.Marvel) {
+        return parsedTitle;
+    } else if (provider === providerEnum.Anilist) {
+        return (parsedTitle.english + " / " + parsedTitle.romaji + " / " + parsedTitle.native);
+    } else if (provider === providerEnum.MANUAL) {
+        return parsedTitle;
+    } else if (provider === providerEnum.GBooks) {
+        return parsedTitle;
+    } else if (provider === providerEnum.OL) {
+        return parsedTitle;
+    } else {
+        return parsedTitle;
+    }
+};
 function _01toBool(number: number) {
     return number === 0;
 }
@@ -119,4 +142,4 @@ function openBOOKM(path: string, page: string) {
 }
 
 
-export { convertDate, providerEnum, resolveTitle, _01toBool, ValidatedExtension, coolanimations, generateBookTemplate, openBOOKM };
+export { convertDate, providerEnum, resolveTitle, _01toBool, ValidatedExtension, coolanimations, generateBookTemplate, openBOOKM, tryToParse, buildTitleFromProvider };

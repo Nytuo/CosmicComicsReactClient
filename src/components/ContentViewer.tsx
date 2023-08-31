@@ -1,7 +1,7 @@
 import { PDP, currentProfile } from "@/utils/Common.ts";
 import { AllForOne, changeRating, downloadBook, getFromDB } from "@/utils/Fetchers.ts";
 import { IBook } from "@/interfaces/IBook.ts";
-import { providerEnum } from "@/utils/utils.ts";
+import { providerEnum, tryToParse } from "@/utils/utils.ts";
 import { ArrowBack, ArrowForward, AutoStories, Check, Close, Done, Download, Edit, Favorite, OpenInNew, PlayArrow, QuestionMark, Refresh, YoutubeSearchedFor } from "@mui/icons-material";
 import { Avatar, Box, Chip, CircularProgress, Container, IconButton, Paper, Stack, Tooltip, Typography, styled } from "@mui/material";
 import Rating from "@mui/material/Rating/Rating";
@@ -754,7 +754,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                                     (el.name === JSON.parse(TheBook.creators)["items"][index].name) ?
                                                         <><Avatar src={JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension}></Avatar><span>{el.name}</span><br /><span style={{ fontSize: "14px", color: "#a8a8a8a8" }}>{JSON.parse(TheBook.creators)["items"][index]["role"]}</span></> : ""
                                                     : (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ?
-                                                        (el.name === JSON.parse(TheBook.creators)[index].name) ?
+                                                        (tryToParse(TheBook.creators)[index] !== undefined && el.name === tryToParse(TheBook.creators)[index].name) ?
                                                             <><Avatar sx={{ width: 120, height: 120 }} src={el.image.replaceAll('"', "")}></Avatar><br /><span>{el.name}</span></>
                                                             : <><Avatar sx={{ width: 120, height: 120 }} src={el.image.replaceAll('"', "")}></Avatar><br /><span>{el.name}</span></> : ""
                                             }

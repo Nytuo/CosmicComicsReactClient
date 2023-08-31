@@ -18,12 +18,12 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import { AccountCircle, Download, FileOpen, GpsFixed, Home, LibraryAdd, LibraryBooks, LocalLibrary, MoreHoriz, MoreVert } from '@mui/icons-material';
-import { Avatar, CircularProgress, InputBase, Menu, MenuItem } from '@mui/material';
+import { Autocomplete, Avatar, CircularProgress, InputBase, Menu, MenuItem, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CollapsedBreadcrumbs from './Breadcrumb.tsx';
 import { useTranslation } from 'react-i18next';
 import { DetectFolderInLibrary, InsertIntoDB, getFromDB, logout } from '@/utils/Fetchers.ts';
-import { ValidatedExtension, providerEnum } from '@/utils/utils.ts';
+import { ValidatedExtension, buildTitleFromProvider, providerEnum, tryToParse } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
 import { PDP, currentProfile } from '@/utils/Common.ts';
 import UserAccountDialog from './Dialogs/UserAccountDialog.tsx';
@@ -67,7 +67,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
     justifyContent: 'center',
 }));
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
+const StyledInputBase = styled(TextField)(({ theme }) => ({
     color: 'inherit',
     '& .MuiInputBase-input': {
         padding: theme.spacing(1, 1, 1, 0),
@@ -494,6 +494,78 @@ export default function MiniDrawer({
         }
     }, [openExplorer]);
 
+    interface ISearchElement {
+        title: string;
+        path: string;
+        provider: any;
+        type: string;
+        series?: string;
+        rawTitle: string;
+    }
+    const [searchOpen, setSearchOpen] = React.useState(false);
+    const [searchOptions, setSearchOptions] = React.useState<ISearchElement[]>([]);
+    const searchLoading = searchOpen && searchOptions.length === 0;
+
+    React.useEffect(() => {
+        let active = true;
+
+        if (!searchLoading) {
+            return undefined;
+        }
+
+        (async () => {
+            await getFromDB("Books", "NOM,PATH,URLCover,series,URLs FROM Books").then(async (resa) => {
+                if (!resa) return;
+                console.log(resa);
+                const parsedRes = JSON.parse(resa);
+                for (let i = 0; i < parsedRes.length; i++) {
+                    const provider = ((parsedRes[i].series.includes("marvel")) ? (providerEnum.Marvel) : ((parsedRes[i].series.includes("Anilist")) ? (providerEnum.Anilist) : ((parsedRes[i].series.includes("OL")) ? (providerEnum.OL) : ((parsedRes[i].URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
+                    setSearchOptions((prev) => [
+                        ...prev,
+                        {
+                            title: parsedRes[i].NOM,
+                            path: parsedRes[i].PATH,
+                            provider: provider,
+                            type: "book",
+                            series: parsedRes[i].series,
+                            rawTitle: parsedRes[i].NOM
+                        },
+                    ]);
+                }
+                await getFromDB("Series", "ID_Series,title,cover,PATH FROM Series").then(async (resaa) => {
+                    if (!resaa) return;
+                    const parsedResa = JSON.parse(resaa);
+                    for (let i = 0; i < parsedResa.length; i++) {
+                        const provider = ((parsedResa[i].ID_Series.includes("_1")) ? (providerEnum.Marvel) : ((parsedResa[i].ID_Series.includes("_2")) ? (providerEnum.Anilist) : (parsedResa[i].ID_Series.includes("_3")) ? (providerEnum.OL) : ((parsedResa[i].ID_Series.includes("_4")) ? (providerEnum.GBooks) : (providerEnum.MANUAL))));
+                        setSearchOptions((prev) => [
+                            ...prev,
+                            {
+                                title: buildTitleFromProvider(parsedResa[i].title, provider),
+                                path: parsedResa[i].PATH,
+                                provider: provider,
+                                type: "series",
+                                series: parsedResa[i].title,
+                                rawTitle: parsedResa[i].title
+                            },
+                        ]);
+                    }
+                });
+            });
+
+        })();
+
+        return () => {
+            active = false;
+        };
+    }, [searchLoading]);
+
+    React.useEffect(() => {
+        if (!searchOpen) {
+            setSearchOptions([]);
+        }
+    }, [searchOpen]);
+
+
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
@@ -530,14 +602,106 @@ export default function MiniDrawer({
                     />
                     <CollapsedBreadcrumbs breadcrumbs={breadcrumbs} />
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-
                         <Search>
-                            <SearchIconWrapper>
-                                <SearchIcon />
-                            </SearchIconWrapper>
-                            <StyledInputBase
-                                placeholder="Search…"
-                                inputProps={{ 'aria-label': 'search' }}
+                            <Autocomplete
+                                id="asynchronous-demo"
+                                sx={{ width: 300 }}
+                                open={searchOpen}
+                                onOpen={() => {
+                                    setSearchOpen(true);
+                                }}
+                                onClose={() => {
+                                    setSearchOpen(false);
+                                }}
+                                isOptionEqualToValue={(option, value) => option.title === value.title}
+                                getOptionLabel={(option) => option.title + ((option.provider === providerEnum.Marvel) ? (" | Marvel") : ((option.provider === providerEnum.Anilist) ? (" | Anilist") : ((option.provider === providerEnum.OL) ? (" | OL") : ((option.provider === providerEnum.GBooks) ? (" | Google Books") : ("")))))}
+                                groupBy={(option) => option.type}
+                                options={searchOptions}
+                                loading={searchLoading}
+                                renderInput={(params) => (
+                                    <StyledInputBase
+                                        {...params}
+                                        label="Search"
+                                        InputProps={{
+                                            ...params.InputProps,
+                                            endAdornment: (
+                                                <React.Fragment>
+                                                    {searchLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                                                    {params.InputProps.endAdornment}
+                                                </React.Fragment>
+                                            ),
+                                        }}
+                                    />
+                                )}
+                                onChange={async (event, value) => {
+                                    if (!value) return;
+                                    if (value.type === "book") {
+                                        await getFromDB("Books", "* FROM Books WHERE PATH = '" + value.path + "'").then(async (resa) => {
+                                            if (!resa) return;
+                                            const bookList = JSON.parse(resa);
+                                            const TheBook = bookList[0];
+                                            console.log(TheBook);
+                                            handleOpenDetails(true, TheBook, value.provider);
+                                        });
+                                    } else if (value.type === "series") {
+                                        console.log(value);
+                                        await getFromDB("Series", "* FROM Series WHERE title = '" + value.rawTitle + "'").then(async (resa) => {
+                                            if (!resa) return;
+                                            const bookList = JSON.parse(resa);
+                                            console.log(bookList);
+                                            const TheBook = bookList[0];
+                                            console.log(TheBook);
+                                            let imagelink;
+                                            if (value.provider === providerEnum.Marvel) {
+                                                try {
+                                                    imagelink = JSON.parse(TheBook.cover).path + "/detail." + JSON.parse(TheBook.cover).extension;
+                                                } catch (e) {
+                                                    imagelink = "null";
+                                                }
+                                            } else {
+                                                imagelink = TheBook.cover;
+                                            }
+                                            const parsedBook = {
+                                                API_ID: value.provider.toString(),
+                                                unread: 0,
+                                                read: 0,
+                                                reading: 0,
+                                                statut: TheBook["statut"],
+                                                start_date: TheBook["start_date"],
+                                                end_date: TheBook["end_date"],
+                                                ID_book: TheBook["ID_Series"],
+                                                URLCover: imagelink.toString(),
+                                                NOM: value.title,
+                                                favorite: TheBook["favorite"],
+                                                PATH: value.path,
+                                                folder: 0,
+                                                last_page: 0,
+                                                issueNumber: TheBook["chapters"],
+                                                description: TheBook["description"],
+                                                format: "",
+                                                URLs: TheBook["SOURCE"],
+                                                series: "",
+                                                creators: TheBook["STAFF"],
+                                                characters: TheBook["CHARACTERS"],
+                                                prices: "",
+                                                dates: "01-01-1970",
+                                                collectedIssues: "0",
+                                                collections: "0",
+                                                variants: "",
+                                                score: TheBook["Score"],
+                                                trending: TheBook["TRENDING"],
+                                                genres: TheBook["genres"],
+                                                volumes: TheBook["volumes"],
+                                                lock: TheBook["lock"],
+                                                note: TheBook["note"],
+                                                BG_cover: TheBook["BG"],
+                                            };
+                                            handleOpenSeries(true, parsedBook, value.provider);
+                                        });
+                                    } else {
+                                        Toaster(t("empty_notSupported"), "error");
+                                    }
+                                }}
                             />
                         </Search>
                     </Box>
@@ -831,4 +995,4 @@ export default function MiniDrawer({
             </Box>
         </Box >
     );
-}
+};

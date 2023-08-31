@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Avatar, Typography } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { tryToParse } from '@/utils/utils.ts';
 
 export default function MoreInfoDialog({ onClose, openModal, desc, name, hrefURL, image, type }: {
 	onClose: any,
@@ -33,13 +34,6 @@ export default function MoreInfoDialog({ onClose, openModal, desc, name, hrefURL
 		onClose();
 	};
 
-	const tryToParse = (str: string) => {
-		try {
-			return JSON.parse(str);
-		} catch (e) {
-			return str;
-		}
-	};
 
 	return (
 		<div>
