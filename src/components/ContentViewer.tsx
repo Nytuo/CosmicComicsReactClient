@@ -347,7 +347,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                         }
                     >
                         <img src={
-                            type === "series" ? TheBook.URLCover :
+                            type === "series" ? TheBook.URLCover === null || TheBook.URLCover === "null" ? "Images/fileDefault.png" : TheBook.URLCover : TheBook.URLCover === null || TheBook.URLCover === "null" ? "Images/fileDefault.png" :
                                 TheBook.URLCover.includes("public/FirstImagesOfAll") ? TheBook.URLCover.split("public/")[1] : TheBook.URLCover
                         } id="ImgColCover" alt="#"
                             style={
