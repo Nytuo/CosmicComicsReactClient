@@ -25,7 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { AllBooks, DetectFolderInLibrary, InsertIntoDB, getFromDB, logout } from '@/utils/Fetchers.ts';
 import { ValidatedExtension, buildTitleFromProvider, providerEnum, tryToParse } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
-import { PDP, currentProfile } from '@/utils/Common.ts';
+import { PDP, cardModeEX, currentProfile } from '@/utils/Common.ts';
 import UserAccountDialog from './Dialogs/UserAccountDialog.tsx';
 import { IBook } from '@/interfaces/IBook.ts';
 import Book from '@/utils/Book.ts';
@@ -329,7 +329,7 @@ export default function MiniDrawer({
         setUserAccountOpen(false);
     };
 
-    const [cardMode, setCardMode] = React.useState(true);
+    const [cardMode, setCardMode] = React.useState(cardModeEX);
 
     /**
      * 

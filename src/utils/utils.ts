@@ -70,6 +70,15 @@ const providerEnum = {
     "GBooks": 4,
     "OL": 3
 };
+//Search element on the JSON
+function SearchInJSON(search, info) {
+    for (let i in info) {
+        if (i === search) {
+            return info[i];
+        }
+    }
+    return null;
+}
 
 /**
  * Generation of the Book Object for not yet DB inserted items
@@ -142,4 +151,4 @@ function openBOOKM(path: string, page: string) {
 }
 
 
-export { convertDate, providerEnum, resolveTitle, _01toBool, ValidatedExtension, coolanimations, generateBookTemplate, openBOOKM, tryToParse, buildTitleFromProvider };
+export { convertDate, providerEnum, resolveTitle, _01toBool, ValidatedExtension, coolanimations, generateBookTemplate, openBOOKM, tryToParse, buildTitleFromProvider, SearchInJSON };

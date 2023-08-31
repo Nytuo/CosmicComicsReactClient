@@ -1,6 +1,6 @@
 import MiniDrawer from '@/components/Drawer.tsx';
-import { PDP } from '@/utils/Common.ts';
-import React, { useEffect } from 'react';
+import { PDP, checkLogin } from '@/utils/Common.ts';
+import React, { useEffect, useLayoutEffect } from 'react';
 function Collectionner() {
     const [CosmicComicsData, setCosmicComicsData] = React.useState("C:/Users/Public/Cosmic-Comics/data");
     const [CosmicComicsTemp, setCosmicComicsTemp] = React.useState("C:/Users/Public/Cosmic-Comics/temp");
@@ -9,7 +9,15 @@ function Collectionner() {
         document.title = "Collectionner";
     }, []);
 
+    useLayoutEffect(() => {
+        checkLogin();
+        setInterval(() => {
+            checkLogin();
+        }, 1000 * 60 * 60 * 4);
+    }, []);
+
     useEffect(() => {
+
         const fetchLocation = async () => {
 
             await fetch(PDP + "/CosmicDataLoc").then(function (response) {
