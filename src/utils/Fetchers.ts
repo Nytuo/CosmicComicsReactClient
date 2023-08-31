@@ -244,4 +244,25 @@ async function deleteLib(elElement: any) {
         });
     }
 }
-export { getFromDB, InsertIntoDB, DetectFolderInLibrary, addLibrary, updateLibrary, OneForAll, AllForOne, TrueDeleteFromDB, downloadBook, logout, changeRating, modifyConfigJson, deleteLib };
+
+/**
+ * Fetch all books from the DB
+ * @param filters The optional filters
+ * @return {Promise<null|any>} The books
+ */
+async function AllBooks(filters = ""): Promise<null | any> {
+    console.log("fetching books from DB with filters: " + filters);
+    let request;
+    if (filters === "") {
+        request = "* FROM Books";
+    } else {
+        request = "* FROM Books WHERE " + filters;
+    }
+    return await getFromDB("Books", request).then(async (res) => {
+        if (res === "" || res === null || res === undefined) return null;
+        const TheBookun = JSON.parse(res);
+        return TheBookun;
+    });
+}
+
+export { getFromDB, InsertIntoDB, DetectFolderInLibrary, addLibrary, updateLibrary, OneForAll, AllForOne, TrueDeleteFromDB, downloadBook, logout, changeRating, modifyConfigJson, deleteLib, AllBooks };

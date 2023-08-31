@@ -22,7 +22,7 @@ import { Autocomplete, Avatar, CircularProgress, InputBase, Menu, MenuItem, Text
 import SearchIcon from '@mui/icons-material/Search';
 import CollapsedBreadcrumbs from './Breadcrumb.tsx';
 import { useTranslation } from 'react-i18next';
-import { DetectFolderInLibrary, InsertIntoDB, getFromDB, logout } from '@/utils/Fetchers.ts';
+import { AllBooks, DetectFolderInLibrary, InsertIntoDB, getFromDB, logout } from '@/utils/Fetchers.ts';
 import { ValidatedExtension, buildTitleFromProvider, providerEnum, tryToParse } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
 import { PDP, currentProfile } from '@/utils/Common.ts';
@@ -38,6 +38,8 @@ import Card from './Card.tsx';
 import ContainerExplorer from './ContainerExplorer.tsx';
 import { Toaster } from './Toaster.tsx';
 import UploadDialog from './Dialogs/UploadDialog.tsx';
+import NavigationDialog from './Dialogs/NavigationDialog.tsx';
+import AboutDialog from './Dialogs/AboutDialog.tsx';
 
 
 const drawerWidth = 240;
@@ -187,10 +189,20 @@ export default function MiniDrawer({
     const isMenuOpen = Boolean(anchorEl);
     const isAPIOpen = Boolean(anchorAPI);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+    const [openNavigation, setOpenNavigation] = React.useState(false);
 
     const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
+
+    const handleOpenNavigation = (event: React.MouseEvent<HTMLElement>) => {
+        setOpenNavigation(true);
+    };
+
+    const handleCloseNavigation = () => {
+        setOpenNavigation(false);
+    };
+
 
     const handleAPIOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorAPI(event.currentTarget);
@@ -283,16 +295,16 @@ export default function MiniDrawer({
     const [dialogFor, setDialogFor] = React.useState<'edit' | 'create'>('edit');
     const [openDetails, setOpenDetails] = React.useState<{ open: boolean, book: IBook, provider: any; } | null>(null);
     const [openSeries, setOpenSeries] = React.useState<{ open: boolean, series: IBook[], provider: any; }>({ open: false, series: [], provider: null });
-    const [openExplorer, setOpenExplorer] = React.useState<{ open: boolean, explorer: IBook[], provider: any, booksNumber: number; }>(({ open: false, explorer: [], provider: null, booksNumber: 0 }));
+    const [openExplorer, setOpenExplorer] = React.useState<{ open: boolean, explorer: IBook[], provider: any, booksNumber: number; type: "series" | "books"; }>(({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" }));
     const [openError, setOpenError] = React.useState(false);
     const handleOpenDetails = (open: boolean, book: IBook, provider: any) => {
-        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0 });
+        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
         setOpenSeries({ open: false, series: [], provider: null });
         setOpenDetails({ open: open, book: book, provider: provider });
     };
 
     const handleOpenSeries = (open: boolean, series: IBook[], provider: any) => {
-        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0 });
+        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
         setOpenDetails(null);
         setOpenSeries({ open: open, series: series, provider: provider });
     };
@@ -300,7 +312,7 @@ export default function MiniDrawer({
         text: t("HOME"), onClick: () => {
             setOpenDetails(null);
             setOpenSeries({ open: false, series: [], provider: null });
-            setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0 });
+            setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
             handleRemoveBreadcrumbsTo(1);
         }
     }]);
@@ -443,7 +455,7 @@ export default function MiniDrawer({
                             note: res[0]["note"],
                             BG_cover: res[0]["BG"],
                         });
-                        setOpenExplorer({ open: true, explorer: OSseries, provider: provider, booksNumber: FolderRes.length });
+                        setOpenExplorer({ open: true, explorer: OSseries, provider: provider, booksNumber: FolderRes.length, type: "series" });
                         // onclick on the cover : await createSeries(provider, path, libraryPath, res);
                         n++;
 
@@ -571,6 +583,7 @@ export default function MiniDrawer({
             <CssBaseline />
             <UserAccountDialog forWhat={dialogFor} onClose={handleCloseUserAccount} openModal={userAccountOpen} />
             <UploadDialog openModal={uploadOpen} onClose={handleCloseUpload} cosmicComicsTemp={CosmicComicsTemp} />
+            <NavigationDialog openModal={openNavigation} onClose={handleCloseNavigation} />
             <AppBar position="fixed" open={open}>
                 <Toolbar>
                     <IconButton
@@ -708,7 +721,9 @@ export default function MiniDrawer({
 
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+                        <IconButton size="large" aria-label="show 4 new mails" color="inherit"
+                            onClick={handleOpenNavigation}
+                        >
                             <MoreHoriz />
                         </IconButton>
 
@@ -816,7 +831,7 @@ export default function MiniDrawer({
                             onClick={() => {
                                 setOpenDetails(null);
                                 setOpenSeries({ open: false, series: [], provider: null });
-                                setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0 });
+                                setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
 
                                 handleRemoveBreadcrumbsTo(1);
                             }}
@@ -888,9 +903,21 @@ export default function MiniDrawer({
                     </ListItem>
                     <ListItem key={t('TRACKER') + Math.random()} disablePadding sx={{ display: 'block' }}>
                         <ListItemButton
-                            onClick={() => {
-                                //TODO Breadcrumb logic
-                                // AllBooks("PATH IS NULL OR PATH = '' OR PATH = 'null'");
+                            onClick={async () => {
+                                await AllBooks("PATH IS NULL OR PATH = '' OR PATH = 'null'").then((res) => {
+                                    if (!res || res === null) return;
+                                    if (openExplorer === null) return;
+                                    const parsedRes = tryToParse(res);
+                                    console.log(parsedRes);
+                                    const OSseries = openExplorer.explorer;
+                                    for (let i = 0; i < parsedRes.length; i++) {
+                                        const res = parsedRes[i];
+                                        console.log(res);
+                                        const book = new Book(res["ID_book"], res["NOM"], res["URLCover"], res["description"], res["creators"], res["characters"], res["URLs"], res["note"], res["read"], res["reading"], res["unread"], res["favorite"], res["last_page"], res["folder"], res["PATH"], res["issueNumber"], res["format"], res["pageCount"], res["series"], res["prices"], res["dates"], res["collectedIssues"], res["collections"], res["variants"], res["lock"], '0');
+                                        OSseries.push(book.book);
+                                    }
+                                    setOpenExplorer({ open: true, explorer: OSseries, provider: 0, booksNumber: parsedRes.length, type: "books" });
+                                });
                             }}
                             sx={{
                                 minHeight: 48,
@@ -988,7 +1015,7 @@ export default function MiniDrawer({
                     </div>
                 </div> : <></>}
                 {
-                    openExplorer && openExplorer.open ? <ContainerExplorer stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={handleOpenSeries} /> :
+                    openExplorer && openExplorer.open ? <ContainerExplorer stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={openExplorer.type === "series" ? handleOpenSeries : handleOpenDetails} /> :
                         openSeries && openSeries.open ? <Series stateSeries={openSeries} handleAddBreadcrumbs={handleAddBreadcrumbs} /> :
                             openDetails && openDetails.open ? <Details stateDetails={openDetails} handleAddBreadcrumbs={handleAddBreadcrumbs} /> : <HomeContainer handleOpenDetails={handleOpenDetails} />
                 }

@@ -65,7 +65,6 @@ if (currentProfile.getToken == null) {
         console.log(error);
     });
 }
-let cardMode = true;
 //Search element on the JSON
 function SearchInJSON(search, info) {
     for (let i in info) {
@@ -155,7 +154,6 @@ document.getElementById("createdby").innerText = language["createdby"];
 document.getElementById("usewhat").innerHTML = language["technology_used"];
 document.getElementById("seewhere").innerHTML = language["github_promoted"];
 document.getElementById("translated").innerText = language["translation"];
-let betaTest = ["THEO LEPRINCE"]
 document.getElementById("beta_test").innerText = language["beta_test"] + betaTest.toString();
 document.getElementById("project").innerHTML = language["license"];
 document.getElementById("close_about").innerText = language["close"];
@@ -205,28 +203,6 @@ function setTheme(theme) {
 
 
 /**
- * Add or remove AnimateCSS animation
- * @param {HTMLElement} element The element to animate
- * @param {string} animation The animation
- * @param {string} prefix The prefix of the class
- */
-const animateCSS = (element, animation, prefix = "animate__") =>
-    new Promise((resolve, reject) => {
-        const animationName = `${prefix}${animation}`;
-        const node = element;
-        node.classList.add(`${prefix}animated`, animationName);
-
-        function handleAnimationEnd(event) {
-            event.stopPropagation();
-            node.classList.remove(`${prefix}animated`, animationName);
-            resolve("Animation ended");
-        }
-
-        node.addEventListener("animationend", handleAnimationEnd, { once: true });
-    });
-
-
-/**
  * Change the Lib modal to modify the library
  * @param elElement The element to modify
  */
@@ -241,9 +217,6 @@ function modifyLib(elElement) {
         return updateLibrary({ 'form': [document.getElementById('namelocation'), document.getElementById('locationa'), document.getElementById('providerID')] }, elElement["ID_LIBRARY"]);
     };
 }
-
-let defaultBG = document.documentElement.style.getPropertyValue('--background');
-
 /**
  * Reset the lib modal to default (adding a library)
  */
@@ -511,57 +484,7 @@ function OpenDownloadDir() {
     window.location.href = "viewer.html?" + CosmicComicsTemp + "/downloaded_book/";
 }
 
-async function AllBooks(filters = "") {
-    resetOverlay();
 
-    document.getElementById("home").style.display = "none";
-    document.getElementById("overlay").style.display = "block";
-    let request;
-    if (filters === "") {
-        request = "* FROM Books";
-    } else {
-        request = "* FROM Books WHERE " + filters;
-    }
-    await getFromDB("Books", request).then(async (res) => {
-        //for all books in res create a card and add it to the container
-        let TheBookun = JSON.parse(res);
-        if (TheBookun.length === 0) {
-            Toastifycation(language["empty_notSupported"], "#ff0000");
-            animateCSS(document.getElementById("overlay"), "fadeOut").then((message) => {
-                document.getElementById("overlay2").style.display = "none";
-                document.getElementById("overlay").style.display = "none";
-                document.getElementById("ContainerExplorer").style.display = "flex";
-                document.getElementById("home").innerText = language["empty_library"]
-                document.getElementById("home").style.display = "block";
-                document.getElementById("home").style.fontSize = "24px";
-            });
-            return;
-        }
-        animateCSS(document.getElementById("overlay"), "fadeOut").then((message) => {
-
-            for (let i = 0; i < TheBookun.length; i++) {
-                let TheBook = TheBookun[i];
-                let card = new Card(TheBook["unread"], TheBook["read"], TheBook["reading"], TheBook["ID_book"], TheBook["URLCover"], TheBook["NOM"], TheBook["favorite"])
-                let carddiv = card.card;
-                card.addPlayButtonListener();
-
-                let brook = TheBook;
-                carddiv.addEventListener("click", function () {
-                    let provider = ((brook.series.includes("marvel")) ? (providerEnum.Marvel) : ((brook.series.includes("Anilist")) ? (providerEnum.Anilist) : ((brook.series.includes("OL")) ? (providerEnum.OL) : ((brook.URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
-                    createDetails(brook, provider);
-                });
-                const element = document.getElementById("ContainerExplorer");
-                const divrating = document.createElement("div");
-                carddiv.appendChild(divrating);
-                element.appendChild(carddiv);
-            }
-            document.getElementById("overlay2").style.display = "none";
-            document.getElementById("overlay").style.display = "none";
-            document.getElementById("ContainerExplorer").style.display = "flex";
-        });
-
-    });
-}
 
 document.getElementById("rematch").setAttribute("data-bs-toggle", "modal");
 document.getElementById("rematch").setAttribute("data-bs-target", "#rematchModal");

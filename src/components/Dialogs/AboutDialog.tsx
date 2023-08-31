@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -40,46 +39,47 @@ export default function AboutDialog({ onClose, openModal }: {
 		onClose();
 	};
 
+	const listOfBetaTesters = [
+		"Théo LEPRINCE",
+		"Arnaud BEUX",
+	];
+
 	return (
 		<div>
 			<Dialog open={open} onClose={handleClose}>
-				<DialogTitle>{t("EDIT")}</DialogTitle>
+				<DialogTitle>{t("about")}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						<h1>Cosmic Comics</h1>
+						<h1 style={{ textAlign: "center" }}>Cosmic Comics</h1>
 						<img src="Images/Logo.png" alt="" width="auto" height="80px"
-							class="navbar-brand rotate linear infinite" /><img src="Images/LogoTxt.png" alt=""
-								class="navbar-brand" height="80px" />
+							className="navbar-brand rotate linear infinite" /><img src="Images/LogoTxt.png" alt=""
+								className="navbar-brand" height="80px" />
 						<p id="version">{version}</p>
-						<p id="createdby">Created by Nytuo (Arnaud BEUX)</p>
-						<p id="usewhat">This application is a web server based Comics & Manga reader & Collectionner.</p>
-						<p id="seewhere">See the project on <a style='cursor: pointer' target='seemore'
-							href='https://github.com/Nytuo/CosmicComics'>GitHub</a>, and feel
-							free to open an issue on GitHub for any problems you may have, ask for functionalities.</p>
-						<p id="project">All the code is available on GitHub, under the <a style='cursor: pointer'
-							target='seemore'
-							href='https://www.gnu.org/licenses/gpl-3.0.html'>GNU
-							GPL-3.0</a> license.</p>
-						<p id="translated"></p>
-						<p id="beta_test">THEO LEPRINCE</p>
-						<a href="https://nytuo.fr" target="_blank"><img
-							src="Images/Nytuo_softwares.png" alt="" class="" height="80px" /></a>
-						<a href="https://nytuo.fr" target="_blank"><img src="Images/Nytuo website.png"
-							alt="" class=""
-							height="80px" /></a>
+						<p>{t("createdby")}</p>
+						<p>{t("technology_used")}</p>
+						<p dangerouslySetInnerHTML={{ __html: t("github_promoted") }}></p>
+						<p dangerouslySetInnerHTML={{ __html: t("license") }}></p>
+						<p>{t("translation")}</p>
+						<p>{t("beta_test")}{
+							listOfBetaTesters.map((betaTester, index) => {
+								return (
+									<span key={index}>
+										{betaTester}
+										{index < listOfBetaTesters.length - 1 ? ", " : ""}
+									</span>
+								);
+							})
+						}
+						</p>
+						<div style={{ textAlign: "center" }}>
+							<a href="https://nytuo.fr" target="_blank"><img
+								src="Images/Nytuo_softwares.png" alt="" height="80px" /></a>
+							<a href="https://nytuo.fr" target="_blank"><img src="Images/Nytuo website.png"
+								height="80px" /></a>
+						</div>
 					</DialogContentText>
-					<TextField
-						autoFocus
-						margin="dense"
-						id="passwordLogin"
-						label={t("ThePassToWorLabel")}
-						type="password"
-						fullWidth
-						variant="standard"
-					/>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleClose}>{t("send")}</Button>
 					<Button onClick={handleClose}>{t("cancel")}</Button>
 				</DialogActions>
 			</Dialog>

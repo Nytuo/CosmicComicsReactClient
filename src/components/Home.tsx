@@ -1,6 +1,6 @@
 import { getFromDB } from "@/utils/Fetchers.ts";
 import Card from "@/components/Card.tsx";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IBook } from "@/interfaces/IBook";
 import { useTheme } from "@mui/material";
@@ -18,28 +18,24 @@ function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
             if (!resa) return;
             if (resa.includes("404")) return;
             const TheBookun = JSON.parse(resa);
-            console.log(TheBookun);
             setReadingBooks(TheBookun);
         });
         getFromDB("Books", "* FROM Books ORDER BY ID_book DESC LIMIT 10").then(async (resa) => {
             if (!resa) return;
             if (resa.includes("404")) return;
             const TheBookun = JSON.parse(resa);
-            console.log(TheBookun);
             setRecentlyAdded(TheBookun);
         });
         getFromDB("Books", "* FROM Books WHERE unread = 1").then(async (resa) => {
             if (!resa) return;
             if (resa.includes("404")) return;
             const TheBookun = JSON.parse(resa);
-            console.log(TheBookun);
             setToRead(TheBookun);
         });
         getFromDB("Books", "* FROM Books WHERE favorite = 1").then(async (resa) => {
             if (!resa) return;
             if (resa.includes("404")) return;
             const TheBookun = JSON.parse(resa);
-            console.log(TheBookun);
             setMyFavorite(TheBookun);
         });
     }, []);
@@ -47,30 +43,40 @@ function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
         <h2 id="continueReading">{t("continue_reading")}</h2>
         {
             readingBooks.length === 0 ? <p>{t("nothingHere")}</p> :
-                readingBooks.map((book: IBook, index) => {
-                    return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
-                })
+                <div className="cards-list">
+                    {readingBooks.map((book: IBook, index) => {
+                        return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                    })}
+                </div>
         }
         <h2 id="myfav">{t("myfavorites")}</h2>
 
         {myFavorite.length === 0 ? <p>{t("nothingHere")}</p> :
-            myFavorite.map((book: IBook, index) => {
-                return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
-            })
+            <div className="cards-list">
+                {
+                    myFavorite.map((book: IBook, index) => {
+                        return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                    })
+                }
+            </div>
         }
         <h2 id="recentlyAddedLabel">{t("recentlyAdded")}</h2>
         {recentlyAdded.length === 0 ? <p>{t("nothingHere")}</p> :
-            recentlyAdded.map((book: IBook, index) => {
-                return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
-            })
+            <div className="cards-list">
+                {recentlyAdded.map((book: IBook, index) => {
+                    return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                })}
+            </div>
         }
         <h2 id="toReadd">{t("toRead")}</h2>
         {toRead.length === 0 ? <p>{t("nothingHere")}</p> :
-            toRead.map((book: IBook, index) => {
-                return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
-            })
+            <div className="cards-list">
+                {toRead.map((book: IBook, index) => {
+                    return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                })}
+            </div>
         }
     </div>);
 }
 
-export default Home;
+export default Home;;

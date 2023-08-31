@@ -53,29 +53,29 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
             if (TheBook.characters !== "null") {
                 const NameToFetchList: string[] = [];
                 if (provider === providerEnum.Marvel) {
-                    JSON.parse(TheBook.characters)["items"].forEach((el: any) => {
+                    tryToParse(TheBook.characters)["items"].forEach((el: any) => {
                         NameToFetchList.push("'" + el.name + "'");
                     });
                 } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                    JSON.parse(TheBook.characters).forEach((el: any) => {
+                    tryToParse(TheBook.characters).forEach((el: any) => {
                         NameToFetchList.push("'" + el.name + "'");
                     });
                 }
                 const NameToFetch = NameToFetchList.join(",");
                 await getFromDB("Characters", "* FROM Characters WHERE name IN (" + NameToFetch + ")").then((clres) => {
                     if (!clres) return;
-                    const parsedClres = JSON.parse(clres);
+                    const parsedClres = tryToParse(clres);
                     setCharacters(parsedClres);
                 });
             }
         } else {
             const NameToFetchList: string[] = [];
             if (provider === providerEnum.Marvel) {
-                JSON.parse(TheBook.characters)["items"].forEach((el: any) => {
+                tryToParse(TheBook.characters)["items"].forEach((el: any) => {
                     NameToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
                 });
             } else if (provider === providerEnum.Anilist) {
-                JSON.parse(TheBook.characters).forEach((el: any) => {
+                tryToParse(TheBook.characters).forEach((el: any) => {
                     NameToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
                 });
             } else if (provider === providerEnum.OL) {
@@ -86,7 +86,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
             const NameToFetch = NameToFetchList.join(",");
             await getFromDB("Characters", "* FROM Characters WHERE name IN (" + NameToFetch + ")").then((clres) => {
                 if (!clres) return;
-                const parsedClres = JSON.parse(clres);
+                const parsedClres = tryToParse(clres);
                 setCharacters(parsedClres);
             });
         }
@@ -96,22 +96,22 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
         if (TheBook.creators !== "null" && TheBook.creators !== null && TheBook.creators !== undefined && TheBook.creators !== "") {
             const StaffToFetchList: string[] = [];
             if (provider === providerEnum.Marvel) {
-                JSON.parse(TheBook.creators)["items"].forEach((el) => {
+                tryToParse(TheBook.creators)["items"].forEach((el) => {
                     StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
                 });
             } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL) {
-                JSON.parse(TheBook.creators).forEach((el) => {
+                tryToParse(TheBook.creators).forEach((el) => {
                     StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
                 });
             } else if (provider === providerEnum.GBooks) {
-                JSON.parse(TheBook.creators).forEach((el) => {
+                tryToParse(TheBook.creators).forEach((el) => {
                     StaffToFetchList.push("'" + el.replaceAll("'", "''") + "'");
                 });
             }
             const StaffToFetch = StaffToFetchList.join(",");
             await getFromDB("Creators", "* FROM Creators WHERE name IN (" + StaffToFetch + ")").then((clres) => {
                 if (!clres) return;
-                const parsedClres = JSON.parse(clres);
+                const parsedClres = tryToParse(clres);
                 setStaff(parsedClres);
             });
         }
@@ -119,7 +119,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
     const fetchRelations = async () => {
         await getFromDB("relations", "* FROM relations WHERE series = '" + TheBook.ID_book + "'").then((clres) => {
             if (!clres) return;
-            const parsedClres = JSON.parse(clres);
+            const parsedClres = tryToParse(clres);
             parsedClres.sort(function (a: any, b: any) {
                 if (a.name < b.name) {
                     return -1;
@@ -142,7 +142,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
         fetchRelations();
         if (type == "series") {
             if (provider === providerEnum.Marvel) {
-                // loadView(path, libraryPath, JSON.parse(res[0].start_date), provider);
+                // loadView(path, libraryPath, tryToParse(res[0].start_date), provider);
             } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                 // loadView(path, libraryPath, "", provider);
             }
@@ -245,12 +245,12 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         {
                             type === "volume" ? (
                                 (provider === providerEnum.Marvel) ?
-                                    <h1><a target='_blank' href={((TheBook.URLs === null || TheBook.URLs === "null") ? ("#") : (JSON.parse(TheBook.URLs)[0].url))} style={{ color: 'white' }}>{TheBook.NOM}<OpenInNew /></a></h1>
+                                    <h1><a target='_blank' href={((TheBook.URLs === null || TheBook.URLs === "null") ? ("#") : (tryToParse(TheBook.URLs)[0].url))} style={{ color: 'white' }}>{TheBook.NOM}<OpenInNew /></a></h1>
                                     : (provider === providerEnum.Anilist) ?
                                         <h1><a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}</a></h1> :
                                         <h1><a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}</a></h1>) :
                                 (provider === providerEnum.Marvel) ?
-                                    <h1><a target='_blank' href={((TheBook.URLs == "null") ? ("#") : (JSON.parse(TheBook.URLs)[0].url))} style={{ color: 'white' }}>{TheBook.NOM}<i style={{ fontSize: '18px', top: '-10px', position: 'relative' }} className='material-icons'>open_in_new</i></a></h1> :
+                                    <h1><a target='_blank' href={((TheBook.URLs == "null") ? ("#") : (tryToParse(TheBook.URLs)[0].url))} style={{ color: 'white' }}>{TheBook.NOM}<i style={{ fontSize: '18px', top: '-10px', position: 'relative' }} className='material-icons'>open_in_new</i></a></h1> :
                                     (provider === providerEnum.Anilist) ?
                                         <h1><a target='_blank' href={(TheBook.URLs == "null") ? ("#") : (TheBook.URLs)} style={{ color: 'white' }}>{TheBook.NOM}<OpenInNew /></a></h1> :
                                         <h1><a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}<OpenInNew /></a></h1>
@@ -306,22 +306,22 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                                     } label={
                                                         t('UNKNOWN')
                                                     } icon={<QuestionMark />} /> : provider === providerEnum.Marvel ?
-                                            JSON.parse(TheBook.end_date) > new Date().getFullYear() ?
+                                            tryToParse(TheBook.end_date) > new Date().getFullYear() ?
                                                 <Chip color="warning" sx={
                                                     { marginRight: "5px" }
                                                 } label={
                                                     t('RELEASING')
-                                                } icon={<AutoStories />} /> : JSON.parse(TheBook.end_date) < new Date().getFullYear() ?
+                                                } icon={<AutoStories />} /> : tryToParse(TheBook.end_date) < new Date().getFullYear() ?
                                                     <Chip color="info" sx={
                                                         { marginRight: "5px" }
                                                     } label={
                                                         t('FINISHED')
-                                                    } icon={<Done />} /> : JSON.parse(TheBook.start_date) > new Date().getFullYear() ?
+                                                    } icon={<Done />} /> : tryToParse(TheBook.start_date) > new Date().getFullYear() ?
                                                         <Chip color="error" sx={
                                                             { marginRight: "5px" }
                                                         } label={
                                                             t('NOT_YET_RELEASED')
-                                                        } icon={<Close />} /> : JSON.parse(TheBook.start_date) === new Date().getFullYear() ?
+                                                        } icon={<Close />} /> : tryToParse(TheBook.start_date) === new Date().getFullYear() ?
                                                             <Chip color="warning" sx={
                                                                 { marginRight: "5px" }
                                                             } label={
@@ -355,23 +355,23 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         >
                             {
                                 type === "volume" ?
-                                    (TheBook.dates !== "null" ? t("dates") + JSON.parse(TheBook.dates).map((date: { type: string; date: string; }, index: number) => {
+                                    (TheBook.dates !== "null" ? t("dates") + tryToParse(TheBook.dates).map((date: { type: string; date: string; }, index: number) => {
                                         return <p key={index}>{date.type.replace(/([A-Z])/g, ' $1').trim() + " : " + date.date}</p>;
                                     }) : "?") : ""
                             }
                             {
-                                type === "series" ? (!APINOTFOUND) ? ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.start_date)) + " -" : (JSON.parse(TheBook.start_date).year)) == null ? "? -" : ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.start_date)) + " -" : (JSON.parse(TheBook.start_date).year)) + " -" : "" : ""
+                                type === "series" ? (!APINOTFOUND) ? ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.start_date)) + " -" : (tryToParse(TheBook.start_date).year)) == null ? "? -" : ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.start_date)) + " -" : (tryToParse(TheBook.start_date).year)) + " -" : "" : ""
                             }
                             {
                                 type === "series" ? (APINOTFOUND) ?
-                                    (JSON.parse(TheBook.start_date) == null) ? "? -" : JSON.parse(TheBook.start_date) + " -" : "" : ""
+                                    (tryToParse(TheBook.start_date) == null) ? "? -" : tryToParse(TheBook.start_date) + " -" : "" : ""
                             }
                             {
-                                type === "series" ? (!APINOTFOUND) ? ((provider === providerEnum.Marvel) ? " " + (JSON.parse(TheBook.end_date)) : (JSON.parse(TheBook.end_date).year)) == null || JSON.parse(TheBook.end_date) > new Date().getFullYear() ? " ?" : ((provider === providerEnum.Marvel) ? " " + (JSON.parse(TheBook.end_date)) : " " + (JSON.parse(TheBook.end_date).year)) : " ?" : ""
+                                type === "series" ? (!APINOTFOUND) ? ((provider === providerEnum.Marvel) ? " " + (tryToParse(TheBook.end_date)) : (tryToParse(TheBook.end_date).year)) == null || tryToParse(TheBook.end_date) > new Date().getFullYear() ? " ?" : ((provider === providerEnum.Marvel) ? " " + (tryToParse(TheBook.end_date)) : " " + (tryToParse(TheBook.end_date).year)) : " ?" : ""
                             }
                             {
                                 type === "series" ? (APINOTFOUND) ?
-                                    (JSON.parse(TheBook.end_date) == null || JSON.parse(TheBook.end_date) > new Date().getFullYear()) ? " ?" : " " + JSON.parse(TheBook.end_date) : "" : ""
+                                    (tryToParse(TheBook.end_date) == null || tryToParse(TheBook.end_date) > new Date().getFullYear()) ? " ?" : " " + tryToParse(TheBook.end_date) : "" : ""
                             }
                         </div>
                         <Stack spacing={3}>                        <Grid2 container spacing={2} id='btnsActions'>
@@ -387,7 +387,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                             await getFromDB("Books", "PATH FROM Books WHERE unread=1 OR reading=1").then(async (resa) => {
                                                 if (!resa) return;
                                                 let continueSeriesReading;
-                                                const bookList = JSON.parse(resa);
+                                                const bookList = tryToParse(resa);
                                                 for (let i = 0; i < bookList.length; i++) {
                                                     if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
                                                         continueSeriesReading = bookList[i].PATH;
@@ -440,7 +440,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                                 Toaster(t("remove_fav"), "success");
                                                 await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
                                                     if (!resa) return;
-                                                    const bookList = JSON.parse(resa);
+                                                    const bookList = tryToParse(resa);
                                                     for (let i = 0; i < bookList.length; i++) {
                                                         if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
                                                             const options = {
@@ -464,7 +464,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                                 Toaster(t("add_fav"), "success");
                                                 await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
                                                     if (!resa) return;
-                                                    const bookList = JSON.parse(resa);
+                                                    const bookList = tryToParse(resa);
                                                     for (let i = 0; i < bookList.length; i++) {
                                                         if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
                                                             const options = {
@@ -543,7 +543,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                 ((TheBook.prices !== "null" && TheBook.prices !== "" && TheBook.prices != null) ?
                                     ((provider === providerEnum.Marvel) ?
 
-                                        JSON.parse(TheBook.prices).map((price: { type: string; price: string; }, index: number) => {
+                                        tryToParse(TheBook.prices).map((price: { type: string; price: string; }, index: number) => {
                                             return <p key={index}>{price.type.replace(/([A-Z])/g, ' $1').trim() + " : " + price.price}</p>;
                                         }) : "") : "")
                             }
@@ -599,8 +599,8 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                             }
                             {
                                 TheBook.genres !== undefined ?
-                                    JSON.parse(TheBook.genres).map((el: any, index: number) => {
-                                        return (index !== JSON.parse(TheBook.genres).length - 1) ? el + " / " : el;
+                                    tryToParse(TheBook.genres).map((el: any, index: number) => {
+                                        return (index !== tryToParse(TheBook.genres).length - 1) ? el + " / " : el;
                                     }) : ""
                             }
                         </div>
@@ -612,16 +612,16 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         <div id="id">
                             {type === "volume" ?
                                 (TheBook.characters !== "null" && providerEnum.Marvel) ?
-                                    t("thisisa") + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + t("Thisispartofthe") + " '" + JSON.parse(TheBook.series).name + "' " + t("series") : (provider === providerEnum.Anilist) ?
+                                    t("thisisa") + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + t("Thisispartofthe") + " '" + tryToParse(TheBook.series).name + "' " + t("series") : (provider === providerEnum.Anilist) ?
                                         t("Thisispartofthe") + " '" + TheBook.series.split("_")[2].replaceAll("$", " ") + "' " + t("series") : (provider === providerEnum.Marvel) ?
-                                            t("Thisispartofthe") + " '" + JSON.parse(TheBook.series).name + "' " + t("series") : (provider === providerEnum.MANUAL) ?
+                                            t("Thisispartofthe") + " '" + tryToParse(TheBook.series).name + "' " + t("series") : (provider === providerEnum.MANUAL) ?
                                                 t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : (provider === providerEnum.OL) ?
                                                     t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : (provider === providerEnum.GBooks) ? t("this is a") + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : "" : provider === providerEnum.Marvel ? t("ThisseriesIDfromMarvel") + parseInt(TheBook.ID_book) : ""
                             }
                         </div>
                         <div id="colissue">{
                             type === "volume" ?
-                                TheBook.collectedIssues === 'null' ? "" : JSON.parse(TheBook.collectedIssues).map((issue: { name: string; }, index: number) => {
+                                TheBook.collectedIssues === 'null' ? "" : tryToParse(TheBook.collectedIssues).map((issue: { name: string; }, index: number) => {
                                     return <p key={index}>{issue.name}</p>;
                                 })
                                 : ""
@@ -629,7 +629,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         <div id="col">
                             {
                                 type === "volume" ?
-                                    TheBook.collections === 'null' ? "" : JSON.parse(TheBook.collections).map((col: { name: string; }, index: number) => {
+                                    TheBook.collections === 'null' ? "" : tryToParse(TheBook.collections).map((col: { name: string; }, index: number) => {
                                         return <p key={index}>{col.name}</p>;
                                     })
                                     : ""
@@ -689,7 +689,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                             {t("Numberofcharacters")}
                             {
                                 type === "volume" ?
-                                    ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.characters)["available"]) : ((TheBook.characters !== "null") ? (JSON.parse(TheBook.characters).length) : (0))) : ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook.characters)["available"]) : (JSON.parse(TheBook.characters).length))
+                                    ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.characters)["available"]) : ((TheBook.characters !== "null") ? (tryToParse(TheBook.characters).length) : (0))) : ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.characters)["available"]) : (tryToParse(TheBook.characters).length))
                             }
                             <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
                                 {
@@ -703,7 +703,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                             onClick={
                                                 () => {
                                                     if (provider === providerEnum.Marvel) {
-                                                        handleOpenMoreInfo(el.name, el.description, JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension, JSON.parse(el.url)[0].url);
+                                                        handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url);
                                                     } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                                                         handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
                                                     }
@@ -713,7 +713,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                             {
                                                 (provider === providerEnum.Marvel) ? <Box>
                                                     <Avatar sx={{ width: 120, height: 120 }}
-                                                        alt='a character' src={JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension} />
+                                                        alt='a character' src={tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension} />
                                                     <Typography>{el.name}</Typography></Box> :
                                                     (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ? <Box sx={{ textAlign: "center" }}>
                                                         <Avatar sx={{ width: 120, height: 120 }}
@@ -728,7 +728,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                             <h1>{t('Staff')}</h1>
                             {t("Numberofpeople")}
                             {
-                                ((provider === providerEnum.Marvel) ? (JSON.parse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (JSON.parse(TheBook["creators"]).length) : ("0")))
+                                ((provider === providerEnum.Marvel) ? (tryToParse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0")))
                             }
                             <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
                                 {
@@ -742,7 +742,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                             onClick={
                                                 () => {
                                                     if (provider === providerEnum.Marvel) {
-                                                        handleOpenMoreInfo(el.name, el.description, JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension, JSON.parse(el.url)[0].url);
+                                                        handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url);
                                                     } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                                                         handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
                                                     }
@@ -751,8 +751,8 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                         >
                                             {
                                                 (provider === providerEnum.Marvel) ?
-                                                    (el.name === JSON.parse(TheBook.creators)["items"][index].name) ?
-                                                        <><Avatar src={JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension}></Avatar><span>{el.name}</span><br /><span style={{ fontSize: "14px", color: "#a8a8a8a8" }}>{JSON.parse(TheBook.creators)["items"][index]["role"]}</span></> : ""
+                                                    (el.name === tryToParse(TheBook.creators)["items"][index].name) ?
+                                                        <><Avatar src={tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension}></Avatar><span>{el.name}</span><br /><span style={{ fontSize: "14px", color: "#a8a8a8a8" }}>{tryToParse(TheBook.creators)["items"][index]["role"]}</span></> : ""
                                                     : (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ?
                                                         (tryToParse(TheBook.creators)[index] !== undefined && el.name === tryToParse(TheBook.creators)[index].name) ?
                                                             <><Avatar sx={{ width: 120, height: 120 }} src={el.image.replaceAll('"', "")}></Avatar><br /><span>{el.name}</span></>
@@ -776,13 +776,13 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                                         return <Card key={index} onClick={
                                             () => {
                                                 if (provider === providerEnum.Marvel) {
-                                                    handleOpenMoreInfo(el.name, el.description, JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension, JSON.parse(el.url)[0].url, "cover");
+                                                    handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url, "cover");
                                                 } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                                                     handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url, "cover");
                                                 }
                                             }
                                         }
-                                            book={new Book(el.ID_book, el.name, ((provider === providerEnum.Marvel) ? (JSON.parse(el.image).path + "/detail." + JSON.parse(el.image).extension) : (el.image)), "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, provider)}
+                                            book={new Book(el.ID_book, el.name, ((provider === providerEnum.Marvel) ? (tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension) : (el.image)), "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, provider)}
                                             provider={provider}
                                         />;
                                     })}
@@ -791,7 +791,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs }: {
                         </div>
                         <div>
                             {
-                                (TheBook.variants !== "null" && TheBook.variants !== "" && TheBook.variants != null) ? (provider === providerEnum.Marvel) ? t("variantsList") + ' : ' + JSON.parse(TheBook.variants).map((variant: { name: string; }, index: number) => {
+                                (TheBook.variants !== "null" && TheBook.variants !== "" && TheBook.variants != null) ? (provider === providerEnum.Marvel) ? t("variantsList") + ' : ' + tryToParse(TheBook.variants).map((variant: { name: string; }, index: number) => {
                                     return <p key={index}>{variant.name}</p>;
                                 }) : "" : ""
                             }
