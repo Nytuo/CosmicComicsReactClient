@@ -10,12 +10,14 @@ import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { Icon, IconButton, Tooltip } from '@mui/material';
 import { Bookmark, Download, Info, PhotoLibrary, Settings, TipsAndUpdates } from '@mui/icons-material';
-import AboutDialog from './AboutDialog';
-import BookmarksDialog from './BookmarksDialog';
+import AboutDialog from './AboutDialog.tsx';
+import BookmarksDialog from './BookmarksDialog.tsx';
+import DownloadDialog from './DownloadDialog.tsx';
 
-export default function NavigationDialog({ onClose, openModal }: {
+export default function NavigationDialog({ onClose, openModal, CosmicComicsTemp }: {
 	onClose: any,
 	openModal: boolean,
+	CosmicComicsTemp: string;
 }) {
 	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
@@ -45,6 +47,15 @@ export default function NavigationDialog({ onClose, openModal }: {
 	const handleCloseBookmarks = () => {
 		setOpenBookmarks(false);
 	};
+
+	const [openDownload, setOpenDownload] = React.useState(false);
+	const handleOpenDownload = (event: React.MouseEvent<HTMLElement>) => {
+		setOpenDownload(true);
+	};
+
+	const handleCloseDownload = () => {
+		setOpenDownload(false);
+	};
 	return (
 		<div>
 			<Dialog open={open} onClose={handleClose} fullWidth={true}
@@ -72,7 +83,9 @@ export default function NavigationDialog({ onClose, openModal }: {
 								</IconButton>
 							</Tooltip>
 							<Tooltip title={t('download')}>
-								<IconButton>
+								<IconButton
+									onClick={handleOpenDownload}
+								>
 									<Download />
 								</IconButton>
 							</Tooltip>
@@ -107,6 +120,7 @@ export default function NavigationDialog({ onClose, openModal }: {
 			</Dialog>
 			<AboutDialog openModal={openAbout} onClose={handleCloseAbout} />
 			<BookmarksDialog openModal={openBookmarks} onClose={handleCloseBookmarks} />
+			<DownloadDialog openModal={openDownload} onClose={handleCloseDownload} CosmicComicsTemp={CosmicComicsTemp} />
 		</div>
 	);
 }

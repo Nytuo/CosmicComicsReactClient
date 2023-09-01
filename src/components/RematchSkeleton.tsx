@@ -9,6 +9,7 @@ import { API } from '@/API/API.ts';
 import Card from '@/components/Card.tsx';
 import Book from '@/utils/Book.ts';
 import { Anilist } from '@/API/Anilist.ts';
+import { Button } from '@mui/material';
 
 export default function RematchSkeleton({ provider, type }: {
     provider: any,
@@ -24,7 +25,7 @@ export default function RematchSkeleton({ provider, type }: {
         <div>
             <input type="text" id="rematchSearch" placeholder="Search title in the library's API" />
             <input type="text" id="rematchYearSearch" placeholder="Year (optional)" />
-            <button id="rematchSearchSender"
+            <Button id="rematchSearchSender"
                 onClick={
                     () => {
                         const search = document.getElementById("rematchSearch") as HTMLInputElement;
@@ -137,7 +138,7 @@ export default function RematchSkeleton({ provider, type }: {
 
                     }
                 }
-            >Search</button>
+            >Search</Button>
             <div id="resultRematch">
                 {
                     rematchResult.map(({ book, onclick }, index) => { return <Card provider={provider} key={index} book={book} onClick={onclick} />; })

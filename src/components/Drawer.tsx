@@ -701,7 +701,7 @@ export default function MiniDrawer({
             <CssBaseline />
             <UserAccountDialog forWhat={dialogFor} onClose={handleCloseUserAccount} openModal={userAccountOpen} />
             <UploadDialog openModal={uploadOpen} onClose={handleCloseUpload} cosmicComicsTemp={CosmicComicsTemp} />
-            <NavigationDialog openModal={openNavigation} onClose={handleCloseNavigation} />
+            <NavigationDialog openModal={openNavigation} onClose={handleCloseNavigation} CosmicComicsTemp={CosmicComicsTemp} />
             <APISelectorDialog openModal={openAPISelector} onClose={() => { setOpenAPISelector(false); }} />
             <AppBar position="fixed" open={open}>
                 <Toolbar>

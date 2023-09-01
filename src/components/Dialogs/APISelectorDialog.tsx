@@ -39,6 +39,9 @@ export default function APISelectorDialog({ onClose, openModal }: {
 			Toaster("Making changes on the database...", "info");
 		}
 		setOpen(false);
+		setSend(false);
+		setProvider(null);
+		setTheBook(null);
 		onClose();
 	};
 
@@ -99,7 +102,7 @@ export default function APISelectorDialog({ onClose, openModal }: {
 					}
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleClose}>{t("cancel")}</Button>
+					<Button onClick={() => handleClose(false)}>{t("cancel")}</Button>
 					<Button onClick={() => { setSend(true); handleClose(true); }}>{t("send")}</Button>
 				</DialogActions>
 			</Dialog>

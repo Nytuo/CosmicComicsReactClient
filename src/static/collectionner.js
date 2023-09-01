@@ -23,28 +23,9 @@ document.addEventListener("dragleave", (event) => {
     console.log("File has left the Drop Space");
 });
 
-async function downloader() {
-    let url = document.getElementById("id_URLDL").value;
-    let name = document.getElementById("id_NAME_DL").value;
-    let vol = document.getElementById("id_VOL_DL").value;
-    console.log(url);
-    const option = {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-            "url": url, "name": name, "vol": vol
-        }, null, 2)
-    };
-    await fetch(PDP + '/downloadBook', option).then(() => {
-        console.log("downloaded");
-        Toastifycation(language["downloaded"]);
-    }).catch(err => {
-        console.log(err);
-        Toastifycation(language["error"]);
-    });
-}
 
-function OpenDownloadDir() {
-    window.location.href = "viewer.html?" + CosmicComicsTemp + "/downloaded_book/";
-}
+
+
 
 /**
  * Spawn a context menu for account management

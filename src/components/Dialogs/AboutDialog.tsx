@@ -23,9 +23,6 @@ export default function AboutDialog({ onClose, openModal }: {
 	const [version, setVersion] = React.useState("");
 
 	useEffect(() => {
-		/**
- * Get the version and display it on the info
- */
 		fetch(PDP + "/getVersion").then(function (response) {
 			return response.text();
 		}).then(function (data) {
