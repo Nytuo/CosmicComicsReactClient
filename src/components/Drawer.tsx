@@ -42,6 +42,7 @@ import NavigationDialog from './Dialogs/NavigationDialog.tsx';
 import AboutDialog from './Dialogs/AboutDialog.tsx';
 import { OpenLibrary } from '@/API/OpenLibrary.ts';
 import { GoogleBooks } from '@/API/GoogleBooks.ts';
+import APISelectorDialog from './Dialogs/APISelectorDialog.tsx';
 
 
 const drawerWidth = 240;
@@ -294,6 +295,11 @@ export default function MiniDrawer({
     const handleOpenUpload = () => {
         setUploadOpen(true);
     };
+    const [openAPISelector, setOpenAPISelector] = React.useState(false);
+    const handleOpenTracker = () => {
+        setOpenAPISelector(true);
+    };
+
     const [dialogFor, setDialogFor] = React.useState<'edit' | 'create'>('edit');
     const [openDetails, setOpenDetails] = React.useState<{ open: boolean, book: IBook, provider: any; } | null>(null);
     const [openSeries, setOpenSeries] = React.useState<{ open: boolean, series: IBook[], provider: any; }>({ open: false, series: [], provider: null });
@@ -696,6 +702,7 @@ export default function MiniDrawer({
             <UserAccountDialog forWhat={dialogFor} onClose={handleCloseUserAccount} openModal={userAccountOpen} />
             <UploadDialog openModal={uploadOpen} onClose={handleCloseUpload} cosmicComicsTemp={CosmicComicsTemp} />
             <NavigationDialog openModal={openNavigation} onClose={handleCloseNavigation} />
+            <APISelectorDialog openModal={openAPISelector} onClose={() => { setOpenAPISelector(false); }} />
             <AppBar position="fixed" open={open}>
                 <Toolbar>
                     <IconButton
@@ -915,7 +922,7 @@ export default function MiniDrawer({
                                     } else if (text === t('open_file')) {
                                         handleOpenUpload();
                                     } else if (text === t('TRACKER')) {
-                                        //
+                                        handleOpenTracker();
                                     }
                                 }}
                             >

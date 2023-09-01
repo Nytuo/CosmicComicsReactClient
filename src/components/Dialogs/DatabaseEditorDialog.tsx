@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { IBook } from '@/interfaces/IBook';
 import { PDP, currentProfile } from '@/utils/Common.ts';
 import { Checkbox, FormControlLabel } from '@mui/material';
+import DatabaseEditorSkeleton from '../DatabaseEditorSkeleton';
 
 export default function DatabaseEditorDialog({ onClose, openModal, TheBook, type }: {
 	onClose: any,
@@ -27,61 +28,11 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook, type
 	}, [openModal]);
 	const handleClose = () => {
 		setOpen(false);
+		setSend(false);
 		onClose();
 	};
 
-	useLayoutEffect(() => {
-		if (TheBook) {
-			document.querySelectorAll("#commonEdit>label>input").forEach((e: any) => {
-				e.value = TheBook[e.id.replaceAll("edit_", "")];
-			});
-			if (type === 'series') {
-				document.querySelectorAll("#seriesEdit>label>input").forEach((e: any) => {
-					e.value = TheBook[e.id.replaceAll("edit_", "")];
-				});
-			} else if (type === 'book') {
-				document.querySelectorAll("#bookEdit>label>input").forEach((e: any) => {
-					e.value = TheBook[e.id.replaceAll("edit_", "")];
-				});
-			}
-		}
-	}, []);
-
-	const handleSend = async () => {
-		const values = [];
-		const columns = [];
-		document.querySelectorAll("#commonEdit>label>input").forEach((e: any) => {
-			values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
-			columns.push(e.id.replaceAll("edit_", ""));
-		});
-		if (type === 'series') {
-			document.querySelectorAll("#seriesEdit>label>input").forEach((e: any) => {
-				values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
-				columns.push(e.id.replaceAll("edit_", ""));
-			});
-		} else if (type === 'book') {
-			document.querySelectorAll("#bookEdit>label>input").forEach((e: any) => {
-				values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
-				columns.push(e.id.replaceAll("edit_", ""));
-			});
-		}
-		const lockCheck = document.getElementById("lockCheck") as HTMLInputElement;
-		values.push(lockCheck ? lockCheck.checked : false);
-		columns.push("lock");
-		await fetch(PDP + "/DB/update", {
-			method: "POST", headers: {
-				"Content-Type": "application/json"
-			}, body: JSON.stringify({
-				"token": currentProfile.getToken,
-				"table": type === 'series' ? "Series" : "Books",
-				"type": "edit",
-				"column": columns,
-				"whereEl": TheBook.PATH,
-				"value": values,
-				"where": "PATH"
-			}, null, 2)
-		});
-	};
+	const [send, setSend] = React.useState(false);
 
 	return (
 		<div>
@@ -89,243 +40,11 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook, type
 				maxWidth="md">
 				<DialogTitle>{t("EDIT")}</DialogTitle>
 				<DialogContent>
-					<DialogContentText>
-						Warning : Be careful when you modify those fields, DO NOT change the way they are written. If an item
-						have '"', { } or [] at the beginning and at the end DO NOT remove them change only the
-						content. The required fields have to respect this
-						pattern.
-
-					</DialogContentText>
-					<div id="commonEdit">
-						<FormControlLabel control={<Checkbox id='lockCheck'
-							defaultChecked={TheBook.lock === 1}
-						/>} label="Lock this item ? (That prevent the metadata to be overwritten when refresh and disable rematch)" />
-
-						<TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_PATH"
-							label={'Path'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/>
-						<TextField
-							autoFocus
-							required
-							margin="dense"
-							id="edit_description"
-							label={'Description'}
-							type="text"
-							fullWidth
-							variant="outlined"
-						/>
-					</div>
-					{type === 'series' ?
-						<div id="seriesEdit">
-							<TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_title"
-								label={'Title'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/><TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_cover"
-								label={'Cover'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/><TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_SOURCE"
-								label={'Source'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/><TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_BG"
-								label={'Link BG'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/><TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_statut"
-								label={'Status'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/>
-							<TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_start_date"
-								label={'Start Date'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/><TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_end_date"
-								label={'End Date'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/>
-							<TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_Score"
-								label={'Score'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/>
-							<TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_genres"
-								label={'Genres'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/>
-							<TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_volumes"
-								label={'Volumes'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/>	<TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_TRENDING"
-								label={'Trending'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/>	<TextField
-								autoFocus
-								required
-								margin="dense"
-								id="edit_chapters"
-								label={'Chapters'}
-								type="text"
-								fullWidth
-								variant="outlined"
-							/>
-						</div> : type === 'book' ?
-							<div id="bookEdit">
-								<TextField
-									autoFocus
-									required
-									margin="dense"
-									id="edit_NOM"
-									label={'Title'}
-									type="text"
-									fullWidth
-									variant="outlined"
-								/><TextField
-									autoFocus
-									required
-									margin="dense"
-									id="edit_URLCover"
-									label={'URL Cover'}
-									type="text"
-									fullWidth
-									variant="outlined"
-								/><TextField
-									autoFocus
-									required
-									margin="dense"
-									id="edit_issueNumber"
-									label={'Issue Number'}
-									type="text"
-									fullWidth
-									variant="outlined"
-								/><TextField
-									autoFocus
-									required
-									margin="dense"
-									id="edit_format"
-									label={'Format'}
-									type="text"
-									fullWidth
-									variant="outlined"
-								/><TextField
-									autoFocus
-									required
-									margin="dense"
-									id="edit_pageCount"
-									label={'Page count'}
-									type="text"
-									fullWidth
-									variant="outlined"
-								/><TextField
-									autoFocus
-									required
-									margin="dense"
-									id="edit_URLs"
-									label={'URLs'}
-									type="text"
-									fullWidth
-									variant="outlined"
-								/><TextField
-									autoFocus
-									required
-									margin="dense"
-									id="edit_series"
-									label={'Series'}
-									type="text"
-									fullWidth
-									variant="outlined"
-								/><TextField
-									autoFocus
-									required
-									margin="dense"
-									id="prices"
-									label={'Prices'}
-									type="text"
-									fullWidth
-									variant="outlined"
-								/><TextField
-									autoFocus
-									required
-									margin="dense"
-									id="dates"
-									label={'Dates'}
-									type="text"
-									fullWidth
-									variant="outlined"
-								/>
-							</div> : <></>}
+					<DatabaseEditorSkeleton TheBook={TheBook} type={type} triggerSend={send} />
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("cancel")}</Button>
-					<Button onClick={() => { handleSend; }}>{t("send")}</Button>
+					<Button onClick={() => { setSend(true); }}>{t("send")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div >
