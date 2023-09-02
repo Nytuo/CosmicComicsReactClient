@@ -6,6 +6,14 @@ import { PDP, currentProfile } from '@/utils/Common.ts';
 import { Checkbox, FormControlLabel } from '@mui/material';
 import { Toaster } from './Toaster';
 
+/**
+ * A skeleton component for editing a book or series in the database.
+ * @param TheBook - The book or series to edit.
+ * @param type - The type of item being edited ('book' or 'series').
+ * @param triggerSend - A flag that triggers sending the edited data to the server.
+ * @param trackedMode - A flag that indicates whether the item is being tracked.
+ * @returns A component that displays editable fields for the book or series.
+ */
 export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, trackedMode }: {
     TheBook: IBook,
     type: 'series' | 'book';

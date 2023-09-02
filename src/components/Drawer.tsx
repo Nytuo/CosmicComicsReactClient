@@ -15,15 +15,12 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import { AccountCircle, Download, FileOpen, GpsFixed, Home, LibraryAdd, LibraryBooks, LocalLibrary, MoreHoriz, MoreVert } from '@mui/icons-material';
-import { Autocomplete, Avatar, CircularProgress, InputBase, Menu, MenuItem, TextField } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Download, FileOpen, GpsFixed, Home, LibraryAdd, LibraryBooks, LocalLibrary, MoreHoriz, MoreVert } from '@mui/icons-material';
+import { Autocomplete, Avatar, CircularProgress, Menu, MenuItem, TextField } from '@mui/material';
 import CollapsedBreadcrumbs from './Breadcrumb.tsx';
 import { useTranslation } from 'react-i18next';
 import { AllBooks, DetectFolderInLibrary, InsertIntoDB, deleteLib, getFromDB, logout } from '@/utils/Fetchers.ts';
-import { ValidatedExtension, buildTitleFromProvider, providerEnum, tryToParse } from '@/utils/utils.ts';
+import { buildTitleFromProvider, providerEnum, tryToParse } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
 import { PDP, cardModeEX, currentProfile } from '@/utils/Common.ts';
 import UserAccountDialog from './Dialogs/UserAccountDialog.tsx';
@@ -31,22 +28,19 @@ import { IBook } from '@/interfaces/IBook.ts';
 import Book from '@/utils/Book.ts';
 import Details from './Details.tsx';
 import Series from './Series.tsx';
-import Overlay from './Overlay.tsx';
 import { Marvel } from '@/API/Marvel.ts';
 import { Anilist } from '@/API/Anilist.ts';
-import Card from './Card.tsx';
 import ContainerExplorer from './ContainerExplorer.tsx';
 import { Toaster } from './Toaster.tsx';
 import UploadDialog from './Dialogs/UploadDialog.tsx';
 import NavigationDialog from './Dialogs/NavigationDialog.tsx';
-import AboutDialog from './Dialogs/AboutDialog.tsx';
 import { OpenLibrary } from '@/API/OpenLibrary.ts';
 import { GoogleBooks } from '@/API/GoogleBooks.ts';
 import APISelectorDialog from './Dialogs/APISelectorDialog.tsx';
 import AddingLibraryDialog from './Dialogs/AddingLibraryDialog.tsx';
 import { API } from '@/API/API.ts';
 
-
+//#region Styles
 const drawerWidth = 240;
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -153,7 +147,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
         }),
     }),
 );
-
+//#endregion
 
 export default function MiniDrawer({
     CosmicComicsTemp
@@ -161,25 +155,46 @@ export default function MiniDrawer({
     CosmicComicsTemp: string;
 }
 ) {
+    const { t } = useTranslation();
+    const theme = useTheme();
+    //#region States
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
         React.useState<null | HTMLElement>(null);
     const [anchorAPI, setAnchorAPI] = React.useState<null | HTMLElement>(null);
-    const { t } = useTranslation();
-    const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const [libraries, setLibraries] = React.useState([]);
+    const [openNavigation, setOpenNavigation] = React.useState(false);
+    const [userAccountOpen, setUserAccountOpen] = React.useState(false);
+    const [uploadOpen, setUploadOpen] = React.useState(false);
+    const [createLibraryOpen, setCreateLibraryOpen] = React.useState(false);
+    const [createLibraryEditMode, setCreateLibraryEditMode] = React.useState<"add" | "edit">("add");
+    const [old, setOld] = React.useState<any>(null);
+    const [dialogFor, setDialogFor] = React.useState<'edit' | 'create'>('edit');
+    const [openDetails, setOpenDetails] = React.useState<{ open: boolean, book: IBook, provider: any; } | null>(null);
+    const [openSeries, setOpenSeries] = React.useState<{ open: boolean, series: IBook[], provider: any; }>({ open: false, series: [], provider: null });
+    const [openExplorer, setOpenExplorer] = React.useState<{ open: boolean, explorer: IBook[], provider: any, booksNumber: number; type: "series" | "books"; }>(({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" }));
+    const [openError, setOpenError] = React.useState(false);
+    const [openAPISelector, setOpenAPISelector] = React.useState(false);
+    const [breadcrumbs, setBreadcrumbs] = React.useState<{ text: string; onClick: () => void; }[]>([{
+        text: t("HOME"), onClick: () => {
+            setOpenDetails(null);
+            setOpenSeries({ open: false, series: [], provider: null });
+            setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
+            handleRemoveBreadcrumbsTo(1);
+        }
+    }]);
+    const [cardMode, setCardMode] = React.useState(cardModeEX);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [searchOpen, setSearchOpen] = React.useState(false);
+    const [searchOptions, setSearchOptions] = React.useState<ISearchElement[]>([]);
+    //#endregion
+    const isMenuOpen = Boolean(anchorEl);
+    const isAPIOpen = Boolean(anchorAPI);
+    const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+    const searchLoading = searchOpen && searchOptions.length === 0;
 
-    React.useEffect(() => {
-        const fetchLibraries = async () => {
-            await getFromDB("Libraries", "* FROM Libraries").then((res) => {
-                if (!res) return;
-                if (res.includes("404")) return;
-                setLibraries(JSON.parse(res));
-            });
-        };
-        fetchLibraries();
-    }, []);
+    //#region Handlers
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -189,23 +204,17 @@ export default function MiniDrawer({
         setOpen(false);
     };
 
-    const isMenuOpen = Boolean(anchorEl);
-    const isAPIOpen = Boolean(anchorAPI);
-    const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-    const [openNavigation, setOpenNavigation] = React.useState(false);
-
     const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
 
-    const handleOpenNavigation = (event: React.MouseEvent<HTMLElement>) => {
+    const handleOpenNavigation = () => {
         setOpenNavigation(true);
     };
 
     const handleCloseNavigation = () => {
         setOpenNavigation(false);
     };
-
 
     const handleAPIOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorAPI(event.currentTarget);
@@ -225,76 +234,6 @@ export default function MiniDrawer({
         setMobileMoreAnchorEl(event.currentTarget);
     };
 
-    const menuId = 'primary-search-account-menu';
-    const renderMenu = (
-        <Menu
-            anchorEl={anchorEl}
-            anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-            }}
-            id={menuId}
-            keepMounted
-            transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-            }}
-            open={isMenuOpen}
-            onClose={handleMenuClose}
-        >
-            <MenuItem onClick={() => { setUserAccountOpen(true); setDialogFor("edit"); }}>{t("Modifyyouraccount")}</MenuItem>
-            <MenuItem onClick={() => { setUserAccountOpen(true); setDialogFor("create"); }}>{t("Createanewuser")}</MenuItem>
-            <MenuItem onClick={() => {
-                logout();
-            }}>{t("logout")}</MenuItem>
-        </Menu>
-    );
-
-
-    const mobileMenuId = 'primary-search-account-menu-mobile';
-    const renderMobileMenu = (
-        <Menu
-            anchorEl={mobileMoreAnchorEl}
-            anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-            }}
-            id={mobileMenuId}
-            keepMounted
-            transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-            }}
-            open={isMobileMenuOpen}
-            onClose={handleMobileMenuClose}
-        >
-            <MenuItem
-                onClick={(e) => {
-                    handleOpenNavigation(e);
-                    handleMobileMenuClose();
-                }
-                }
-            >
-                <MoreHoriz />
-                <p style={{ marginLeft: "10px" }}>{t('navigation')}</p>
-            </MenuItem>
-            <MenuItem onClick={handleProfileMenuOpen}>
-                <IconButton
-                    size="large"
-                    aria-label="account of current user"
-                    aria-controls="primary-search-account-menu"
-                    aria-haspopup="true"
-                    color="inherit"
-                >
-                    <Avatar alt="" src={currentProfile.getPP} />
-                </IconButton>
-                <p style={{ marginLeft: "10px" }}>Profile</p>
-            </MenuItem>
-        </Menu>
-    );
-
-    const [userAccountOpen, setUserAccountOpen] = React.useState(false);
-    const [uploadOpen, setUploadOpen] = React.useState(false);
     const handleCloseUpload = () => {
         setUploadOpen(false);
     };
@@ -302,9 +241,6 @@ export default function MiniDrawer({
         setUploadOpen(true);
     };
 
-    const [createLibraryOpen, setCreateLibraryOpen] = React.useState(false);
-    const [createLibraryEditMode, setCreateLibraryEditMode] = React.useState<"add" | "edit">("add");
-    const [old, setOld] = React.useState<any>(null);
     const handleCloseCreateLibrary = () => {
         setCreateLibraryOpen(false);
     };
@@ -319,16 +255,10 @@ export default function MiniDrawer({
         }
         setCreateLibraryOpen(true);
     };
-    const [openAPISelector, setOpenAPISelector] = React.useState(false);
     const handleOpenTracker = () => {
         setOpenAPISelector(true);
     };
 
-    const [dialogFor, setDialogFor] = React.useState<'edit' | 'create'>('edit');
-    const [openDetails, setOpenDetails] = React.useState<{ open: boolean, book: IBook, provider: any; } | null>(null);
-    const [openSeries, setOpenSeries] = React.useState<{ open: boolean, series: IBook[], provider: any; }>({ open: false, series: [], provider: null });
-    const [openExplorer, setOpenExplorer] = React.useState<{ open: boolean, explorer: IBook[], provider: any, booksNumber: number; type: "series" | "books"; }>(({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" }));
-    const [openError, setOpenError] = React.useState(false);
     const handleOpenDetails = (open: boolean, book: IBook, provider: any) => {
         setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
         setOpenSeries({ open: false, series: [], provider: null });
@@ -340,20 +270,12 @@ export default function MiniDrawer({
         setOpenDetails(null);
         setOpenSeries({ open: open, series: series, provider: provider });
     };
-    const [breadcrumbs, setBreadcrumbs] = React.useState<{ text: string; onClick: () => void; }[]>([{
-        text: t("HOME"), onClick: () => {
-            setOpenDetails(null);
-            setOpenSeries({ open: false, series: [], provider: null });
-            setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
-            handleRemoveBreadcrumbsTo(1);
-        }
-    }]);
+
     const handleChangeToDetails = (open: boolean, book: IBook, provider: any) => {
         setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
         setOpenSeries({ open: false, series: [], provider: null });
         setOpenDetails({ open: true, book: book, provider: provider });
     };
-    const [isLoading, setIsLoading] = React.useState(false);
     const handleAddBreadcrumbs = (text: string, onClick: () => void) => {
         setBreadcrumbs([...breadcrumbs, { text: text, onClick: onClick }]);
     };
@@ -365,14 +287,15 @@ export default function MiniDrawer({
         setUserAccountOpen(false);
     };
 
-    const [cardMode, setCardMode] = React.useState(cardModeEX);
+    //#endregion
 
+    //#region Functions
     /**
-     * 
-     * @param provider The provider of the library
-     * @param FolderRes The folder result
-     * @param libraryPath The path to the library
-     */
+         * 
+         * @param provider The provider of the library
+         * @param FolderRes The folder result
+         * @param libraryPath The path to the library
+         */
     async function loadContent(provider: number, FolderRes: string, libraryPath: string) {
         let n = 0;
         const listOfImages = [];
@@ -385,7 +308,6 @@ export default function MiniDrawer({
             for (let index = 0; index < FolderRes.length; index++) {
                 const path = FolderRes[index];
                 const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "").replace("/", "");
-                const path_without_file = path.replace(name, "");
                 const realname = name;
                 console.log(realname);
                 let found = false;
@@ -439,7 +361,7 @@ export default function MiniDrawer({
                         } else {
                             node = JSON.parse(res[0].title)["english"];
                         }
-                        let invertedPath = path.replaceAll("\\", "/");
+                        const invertedPath = path.replaceAll("\\", "/");
                         let imagelink;
                         if (provider === providerEnum.Marvel) {
                             try {
@@ -525,7 +447,7 @@ export default function MiniDrawer({
             for (let index = 0; index < data.length; index++) {
                 const path = data[index];
                 const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "");
-                const realnameREG = /[^\\\/]+(?=\.\w+$)|[^\\\/]+$/.exec(name);
+                const realnameREG = /[^\\/]+(?=\.\w+$)|[^\\/]+$/.exec(name);
                 if (realnameREG === null) continue;
                 const realname = realnameREG[0];
                 await getFromDB("Books", "* FROM Books WHERE PATH = '" + path + "'").then(async (resa) => {
@@ -643,9 +565,19 @@ export default function MiniDrawer({
             }
         }, 500);
     }
+    //#endregion
 
-
-
+    //#region Effects
+    React.useEffect(() => {
+        const fetchLibraries = async () => {
+            await getFromDB("Libraries", "* FROM Libraries").then((res) => {
+                if (!res) return;
+                if (res.includes("404")) return;
+                setLibraries(JSON.parse(res));
+            });
+        };
+        fetchLibraries();
+    }, []);
     React.useEffect(() => {
         if (openExplorer !== null && openExplorer.explorer.length === openExplorer.booksNumber) {
             setIsLoading(false);
@@ -653,19 +585,6 @@ export default function MiniDrawer({
             setIsLoading(true);
         }
     }, [openExplorer]);
-
-    interface ISearchElement {
-        title: string;
-        path: string;
-        provider: any;
-        type: string;
-        series?: string;
-        rawTitle: string;
-    }
-    const [searchOpen, setSearchOpen] = React.useState(false);
-    const [searchOptions, setSearchOptions] = React.useState<ISearchElement[]>([]);
-    const searchLoading = searchOpen && searchOptions.length === 0;
-
     React.useEffect(() => {
         let active = true;
 
@@ -724,7 +643,84 @@ export default function MiniDrawer({
             setSearchOptions([]);
         }
     }, [searchOpen]);
+    //#endregion
 
+    const menuId = 'primary-search-account-menu';
+    const renderMenu = (
+        <Menu
+            anchorEl={anchorEl}
+            anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            id={menuId}
+            keepMounted
+            transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            open={isMenuOpen}
+            onClose={handleMenuClose}
+        >
+            <MenuItem onClick={() => { setUserAccountOpen(true); setDialogFor("edit"); }}>{t("Modifyyouraccount")}</MenuItem>
+            <MenuItem onClick={() => { setUserAccountOpen(true); setDialogFor("create"); }}>{t("Createanewuser")}</MenuItem>
+            <MenuItem onClick={() => {
+                logout();
+            }}>{t("logout")}</MenuItem>
+        </Menu>
+    );
+
+
+    const mobileMenuId = 'primary-search-account-menu-mobile';
+    const renderMobileMenu = (
+        <Menu
+            anchorEl={mobileMoreAnchorEl}
+            anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            id={mobileMenuId}
+            keepMounted
+            transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            open={isMobileMenuOpen}
+            onClose={handleMobileMenuClose}
+        >
+            <MenuItem
+                onClick={() => {
+                    handleOpenNavigation();
+                    handleMobileMenuClose();
+                }
+                }
+            >
+                <MoreHoriz />
+                <p style={{ marginLeft: "10px" }}>{t('navigation')}</p>
+            </MenuItem>
+            <MenuItem onClick={handleProfileMenuOpen}>
+                <IconButton
+                    size="large"
+                    aria-label="account of current user"
+                    aria-controls="primary-search-account-menu"
+                    aria-haspopup="true"
+                    color="inherit"
+                >
+                    <Avatar alt="" src={currentProfile.getPP} />
+                </IconButton>
+                <p style={{ marginLeft: "10px" }}>Profile</p>
+            </MenuItem>
+        </Menu>
+    );
+
+    interface ISearchElement {
+        title: string;
+        path: string;
+        provider: any;
+        type: string;
+        series?: string;
+        rawTitle: string;
+    }
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -796,7 +792,7 @@ export default function MiniDrawer({
                                         }}
                                     />
                                 )}
-                                onChange={async (event, value) => {
+                                onChange={async (_, value) => {
                                     if (!value) return;
                                     if (value.type === "book") {
                                         await getFromDB("Books", "* FROM Books WHERE PATH = '" + value.path + "'").then(async (resa) => {

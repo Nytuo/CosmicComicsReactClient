@@ -33,4 +33,4 @@ export function Loading() {
 			</Grid >
 		</>
 	);
-};
+}

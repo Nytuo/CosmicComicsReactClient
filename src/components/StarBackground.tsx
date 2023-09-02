@@ -1,6 +1,15 @@
 import { useLayoutEffect } from "react";
 
+/**
+ * Renders a starry background with animated stars.
+ * @returns An empty JSX element.
+ */
 function StarBackground() {
+    /**
+     * Creates a starry background with a specified number of stars and animation delay.
+     * @param numStars - The number of stars to generate.
+     * @param animDelay - The delay between star animations in seconds.
+     */
     function createStarBackground(numStars: number, animDelay: number) {
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;

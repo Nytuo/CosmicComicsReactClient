@@ -6,12 +6,12 @@ import { IBook } from "@/interfaces/IBook";
 import { useTheme } from "@mui/material";
 
 function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
+    const { t } = useTranslation();
+    const theme = useTheme();
     const [readingBooks, setReadingBooks] = useState([]);
     const [recentlyAdded, setRecentlyAdded] = useState([]);
     const [toRead, setToRead] = useState([]);
     const [myFavorite, setMyFavorite] = useState([]);
-    const { t } = useTranslation();
-    const theme = useTheme();
     useEffect(() => {
         document.getElementsByTagName("body")[0].style.background = theme.palette.background.default;
         getFromDB("Books", "* FROM Books WHERE reading = 1").then(async (resa: string | void) => {
@@ -79,4 +79,4 @@ function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
     </div>);
 }
 
-export default Home;;
+export default Home;

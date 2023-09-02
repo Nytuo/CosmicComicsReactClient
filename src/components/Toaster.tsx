@@ -3,6 +3,11 @@ import * as React from "react";
 import { Toastifycation } from "./Toastifyation.tsx";
 import logger from "@/logger.ts";
 
+/**
+ * Displays a toast notification with the given text and variant.
+ * @param text - The text to display in the toast notification.
+ * @param variant - The variant of the toast notification. Can be "success", "error", "warning", or "info".
+ */
 export function Toaster(text: string, variant: "success" | "error" | "warning" | "info") {
 	const onClose = () => {
 		root.unmount();

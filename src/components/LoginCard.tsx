@@ -1,6 +1,15 @@
 import React from 'react';
 import IProfile from '@/interfaces/IProfile';
 import { setCookie } from '@/utils/Common.ts';
+/**
+ * Renders a login card for a given profile.
+ * @param {Object} props - The component props.
+ * @param {IProfile} props.profile - The profile to render the login card for.
+ * @param {number} props.key - The key of the login card.
+ * @param {React.Dispatch<React.SetStateAction<boolean>>} props.setOpenLogin - The state setter for the login modal.
+ * @param {React.Dispatch<React.SetStateAction<IProfile | undefined>>} props.setSelectedProfile - The state setter for the selected profile.
+ * @returns {JSX.Element} The login card component.
+ */
 export function LoginCard({ profile, key, setOpenLogin, setSelectedProfile }: { profile: IProfile, key: number, setOpenLogin: React.Dispatch<React.SetStateAction<boolean>>, setSelectedProfile: React.Dispatch<React.SetStateAction<IProfile | undefined>>; }) {
 	return (
 		<>

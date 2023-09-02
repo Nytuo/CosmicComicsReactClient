@@ -10,6 +10,9 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 
+/**
+ * A navigation bar component that displays a logo and menu options for desktop and mobile views.
+ */
 export default function PrimarySearchAppBar() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =

@@ -11,6 +11,12 @@ import Book from '@/utils/Book.ts';
 import { Anilist } from '@/API/Anilist.ts';
 import { Button } from '@mui/material';
 
+/**
+ * A component that allows the user to search for a book or a serie in different APIs and rematch it with a different provider.
+ * @param provider - The provider to use for the rematch.
+ * @param type - The type of the search (book or serie).
+ * @returns A React component that renders the search inputs and the results of the search.
+ */
 export default function RematchSkeleton({ provider, type }: {
     provider: any,
     type: "book" | "serie",
