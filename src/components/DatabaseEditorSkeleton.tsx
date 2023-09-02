@@ -1,4 +1,3 @@
-import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import { useEffect, useLayoutEffect } from "react";
 import { useTranslation } from 'react-i18next';
@@ -17,26 +16,20 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
 
     useLayoutEffect(() => {
         if (TheBook) {
-            document.querySelectorAll("#commonEdit>label>input").forEach((e: any) => {
+            document.querySelectorAll("#commonEdit>div>div>input").forEach((e: any) => {
                 e.value = TheBook[e.id.replaceAll("edit_", "")];
             });
             if (type === 'series') {
-                document.querySelectorAll("#seriesEdit>label>input").forEach((e: any) => {
+                document.querySelectorAll("#seriesEdit>div>div>input").forEach((e: any) => {
                     e.value = TheBook[e.id.replaceAll("edit_", "")];
                 });
             } else if (type === 'book') {
-                document.querySelectorAll("#bookEdit>label>input").forEach((e: any) => {
+                document.querySelectorAll("#bookEdit>div>div>input").forEach((e: any) => {
                     e.value = TheBook[e.id.replaceAll("edit_", "")];
                 });
             }
         }
     }, []);
-
-    useEffect(() => {
-        if (triggerSend) {
-            handleSend();
-        }
-    }, [triggerSend]);
 
     const handleSend = async () => {
         const values = [];
@@ -83,6 +76,14 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
             Toaster(err, "error");
         });
     };
+
+    useEffect(() => {
+        if (triggerSend) {
+            handleSend();
+        }
+    }, [triggerSend]);
+
+
 
     return (
         <div>

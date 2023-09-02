@@ -1,14 +1,12 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
-import { Autocomplete, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { InsertIntoDB, TrueDeleteFromDB, getFromDB } from '@/utils/Fetchers.ts';
 import { IBook } from '@/interfaces/IBook.ts';
 import { providerEnum, tryToParse } from '@/utils/utils.ts';
@@ -20,16 +18,20 @@ export default function APISelectorDialog({ onClose, openModal }: {
 	onClose: any,
 	openModal: boolean,
 }) {
-	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
+	const [open, setOpen] = React.useState(openModal);
 	const [TheBook, setTheBook] = React.useState<IBook | null>(null);
-	const [provider, setProvider] = React.useState<any>(null);
+	const [provider, setProvider] = React.useState<any>("");
 	const [send, setSend] = React.useState(false);
+
+	// This is used to update the state of the dialog when the parent component changes the value of openModal.
 	useEffect(() => {
 		if (openModal !== open) {
 			setOpen(openModal);
 		}
-	}, [openModal]);
+	}, [openModal, open]);
+
+	// This is used to update the state of the parent component when the dialog is closed.
 	const handleClose = (sended: boolean) => {
 		if (!sended) {
 			Toaster("Operation aborted", "info");
@@ -50,9 +52,8 @@ export default function APISelectorDialog({ onClose, openModal }: {
 			<Dialog open={open} onClose={handleClose}
 				fullScreen={true}
 			>
-				<DialogTitle>{t("EDIT")}</DialogTitle>
+				<DialogTitle>{t("APISelectorTitle")}</DialogTitle>
 				<DialogContent>
-
 					<FormControl fullWidth
 						sx={
 							{
@@ -69,10 +70,9 @@ export default function APISelectorDialog({ onClose, openModal }: {
 								setProvider(provider.target.value);
 								await InsertIntoDB("Books", "", `(?,${null},'REPLACE THIS BY A VALUE',null,${0},${0},${1},${0},${0},${0},'${null}','${null}','${null}','${null}','${null}',${null},'${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}',0)`);
 								const TheBookTemp = await getFromDB("Books", "* FROM Books WHERE NOM = 'REPLACE THIS BY A VALUE'");
-								if (!TheBookTemp !== undefined || TheBookTemp !== null || typeof TheBookTemp === "string") {
+								if (TheBookTemp && TheBookTemp !== undefined && TheBookTemp !== null && typeof TheBookTemp === "string") {
 									setTheBook(tryToParse(TheBookTemp)[0]);
 								}
-
 							}}
 						>
 							<MenuItem value={1}>Marvel (Comics Marvel & Star Wars)</MenuItem>
@@ -103,7 +103,12 @@ export default function APISelectorDialog({ onClose, openModal }: {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={() => handleClose(false)}>{t("cancel")}</Button>
-					<Button onClick={() => { setSend(true); handleClose(true); }}>{t("send")}</Button>
+					<Button onClick={() => {
+						setSend(true);
+						setTimeout(() => {
+							handleClose(true);
+						}, 500);
+					}}>{t("send")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>

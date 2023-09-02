@@ -22,7 +22,7 @@ export default function CreateAccountDialog({ openModal, title, text, okBtn, cre
 		if (openModal !== open) {
 			setOpen(openModal);
 		}
-	}, [openModal]);
+	}, [openModal, open]);
 	return (
 		<div>
 			<Dialog open={open} fullWidth={true}

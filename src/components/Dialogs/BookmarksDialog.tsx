@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -9,7 +8,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { PDP, currentProfile } from '@/utils/Common.ts';
-import { IconButton } from '@mui/material';
 import { getFromDB } from '@/utils/Fetchers.ts';
 import { openBOOKM } from '@/utils/utils.ts';
 import { Block } from '@mui/icons-material';
@@ -18,18 +16,27 @@ export default function BookmarksDialog({ onClose, openModal }: {
 	onClose: any,
 	openModal: boolean,
 }) {
-	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
+	const [open, setOpen] = React.useState(openModal);
+	const [bookmarks, setBookmarks] = React.useState<any[]>([]);
+
+	// This is used to update the state of the dialog when the parent component changes the value of openModal.
 	useEffect(() => {
 		if (openModal !== open) {
 			setOpen(openModal);
 		}
-	}, [openModal]);
+	}, [openModal, open]);
+
+	// This is used to update the state of the parent component when the dialog is closed.
 	const handleClose = () => {
 		setOpen(false);
 		onClose();
 	};
-	const [bookmarks, setBookmarks] = React.useState<any[]>([]);
+
+
+	/**
+	 * Gets the bookmarks from the database.
+	 */
 	const listBM = async () => {
 		const option = {
 			method: 'GET', headers: {
