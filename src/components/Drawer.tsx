@@ -119,6 +119,9 @@ const AppBar = styled(MuiAppBar, {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
+    background: theme.palette.background.default,
+    boxShadow: "none",
+
     ...(open && {
         marginLeft: drawerWidth,
         width: `calc(100% - ${drawerWidth}px)`,
@@ -126,6 +129,9 @@ const AppBar = styled(MuiAppBar, {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,
         }),
+        background: theme.palette.background.default,
+        boxShadow: "none",
+
     }),
 }));
 
@@ -135,6 +141,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
         flexShrink: 0,
         whiteSpace: 'nowrap',
         boxSizing: 'border-box',
+        background: theme.palette.background.default,
+        boxShadow: "none",
         ...(open && {
             ...openedMixin(theme),
             '& .MuiDrawer-paper': openedMixin(theme),
@@ -1198,4 +1206,4 @@ export default function MiniDrawer({
             </Box>
         </Box >
     );
-};
+}

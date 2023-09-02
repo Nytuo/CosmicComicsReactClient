@@ -368,15 +368,15 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                         {
                             type === "volume" ? (
                                 (provider === providerEnum.Marvel) ?
-                                    <h1><a target='_blank' href={((TheBook.URLs === null || TheBook.URLs === "null") ? ("#") : (tryToParse(TheBook.URLs)[0].url))} style={{ color: 'white' }}>{TheBook.NOM}<OpenInNew /></a></h1>
+                                    <h1><a target='_blank' href={((TheBook.URLs === null || TheBook.URLs === "null") ? ("#") : (tryToParse(TheBook.URLs)[0].url))}>{TheBook.NOM}<OpenInNew /></a></h1>
                                     : (provider === providerEnum.Anilist) ?
-                                        <h1><a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}</a></h1> :
-                                        <h1><a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}</a></h1>) :
+                                        <h1><a target='_blank' >{TheBook.NOM}</a></h1> :
+                                        <h1><a target='_blank' >{TheBook.NOM}</a></h1>) :
                                 (provider === providerEnum.Marvel) ?
-                                    <h1><a target='_blank' href={((TheBook.URLs == "null") ? ("#") : (tryToParse(TheBook.URLs)[0].url))} style={{ color: 'white' }}>{TheBook.NOM}<i style={{ fontSize: '18px', top: '-10px', position: 'relative' }} className='material-icons'>open_in_new</i></a></h1> :
+                                    <h1><a target='_blank' href={((TheBook.URLs == "null") ? ("#") : (tryToParse(TheBook.URLs)[0].url))} >{TheBook.NOM}<i style={{ fontSize: '18px', top: '-10px', position: 'relative' }} className='material-icons'>open_in_new</i></a></h1> :
                                     (provider === providerEnum.Anilist) ?
-                                        <h1><a target='_blank' href={(TheBook.URLs == "null") ? ("#") : (TheBook.URLs)} style={{ color: 'white' }}>{TheBook.NOM}<OpenInNew /></a></h1> :
-                                        <h1><a target='_blank' style={{ color: 'white' }}>{TheBook.NOM}<OpenInNew /></a></h1>
+                                        <h1><a target='_blank' href={(TheBook.URLs == "null") ? ("#") : (TheBook.URLs)}>{TheBook.NOM}<OpenInNew /></a></h1> :
+                                        <h1><a target='_blank'>{TheBook.NOM}<OpenInNew /></a></h1>
                         }
                         <Grid2 container sx={
                             {

@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material';
 import i18next from 'i18next';
 
 export default function SettingsDialog({ onClose, openModal }: {
@@ -16,6 +16,7 @@ export default function SettingsDialog({ onClose, openModal }: {
 	const { t } = useTranslation();
 	const [open, setOpen] = React.useState(openModal);
 	const [language, setLanguage] = React.useState<any>(localStorage.getItem("language") || "en");
+	const [theme, setTheme] = React.useState<any>(localStorage.getItem("theme") || "darkTheme");
 
 	// This is used to update the state of the dialog when the parent component changes the value of openModal.
 	useEffect(() => {
@@ -30,44 +31,116 @@ export default function SettingsDialog({ onClose, openModal }: {
 		onClose();
 	};
 
+	const resolveLanguageNameByCode = (code: string) => {
+		switch (code) {
+			case "fr":
+				return "Français";
+			case "en":
+				return "English";
+			case "es":
+				return "Espanol";
+			case "it":
+				return "Italian";
+			case "de":
+				return "Deutsch";
+			case "dev":
+				return "Dev";
+			default:
+				return code;
+		}
+	};
+
+	const resolveThemeNameByCode = (code: string) => {
+		switch (code) {
+			case "OLED":
+				return "OLED";
+			case "blueTheme":
+				return "Blue";
+			case "darkTheme":
+				return "Dark";
+			case "sithTheme":
+				return "Sith";
+			case "redTheme":
+				return "Red";
+			case "xmasTheme":
+				return "Xmas";
+			case "lightTheme":
+				return "Light";
+			case "jediTheme":
+				return "Jedi";
+			case "halloween":
+				return "Halloween";
+			case "greenTheme":
+				return "Green";
+			default:
+				return code;
+		}
+	};
+
+
+	const locales = ["en", "fr", "es", "it", "de", "dev"];
+	const themes = ["OLED", "blueTheme", "darkTheme", "sithTheme", "redTheme", "xmasTheme", "lightTheme", "jediTheme", "halloween", "greenTheme"];
+
 	return (
 		<div>
 			<Dialog open={open} onClose={handleClose} fullWidth={true}
 				maxWidth="md">
-				<DialogTitle>{t("EDIT")}</DialogTitle>
+				<DialogTitle>{t("settings")}</DialogTitle>
 				<DialogContent>
-					{/* <div>
-						<select aria-label="Default select example"
-							onChange="selectTheme()" id="themeselector">
-							<option value="" id="selectTheme_id">Select a theme</option>
-						</select>
-					</div> */}
-					<FormControl fullWidth
-						sx={
-							{
-								width: "100%",
-							}
-						}
-					>
-						<InputLabel id="demo-simple-select-label">{t("selectAProvider")}</InputLabel>
-						<Select
-							labelId="demo-simple-select-label"
-							value={language}
-							label={t("select_a_language")}
-							onChange={async (lang: any) => {
-								setLanguage(lang.target.value);
-								i18next.changeLanguage(lang.target.value);
-								localStorage.setItem("language", lang.target.value);
-							}}
-						>
-							<MenuItem value={"fr"}>Français</MenuItem>
-							<MenuItem value={"en"}>English</MenuItem>
-							<MenuItem value={"es"}>Espanol</MenuItem>
-							<MenuItem value={"it"}>Italian</MenuItem>
-							<MenuItem value={"de"}>Deutsch</MenuItem>
-							<MenuItem value={"dev"}>Dev</MenuItem>
-						</Select>
-					</FormControl>
+					<Box>
+						<Stack spacing={2}>
+							<FormControl fullWidth
+								sx={
+									{
+										marginTop: 2,
+									}
+								}
+							>
+								<InputLabel id="demo-simple-select-label">{t("select_a_theme")}</InputLabel>
+								<Select
+									labelId="demo-simple-select-label"
+									id="demo-simple-select"
+									value={theme}
+									label={t("select_a_theme")}
+									onChange={(e) => {
+										setTheme(e.target.value);
+										localStorage.setItem("theme", e.target.value);
+										window.location.reload();
+									}}
+								>
+									{
+										themes.map((theme: any) => {
+											return <MenuItem value={theme}>{resolveThemeNameByCode(theme)}</MenuItem>;
+										})
+									}
+								</Select>
+							</FormControl>
+							<FormControl fullWidth
+								sx={
+									{
+										width: "100%",
+									}
+								}
+							>
+								<InputLabel id="demo-simple-select-label">{t("select_a_language")}</InputLabel>
+								<Select
+									labelId="demo-simple-select-label"
+									value={language}
+									label={t("select_a_language")}
+									onChange={async (lang: any) => {
+										setLanguage(lang.target.value);
+										i18next.changeLanguage(lang.target.value);
+										localStorage.setItem("language", lang.target.value);
+									}}
+								>
+									{
+										locales.map((lang: any) => {
+											return <MenuItem value={lang}>{resolveLanguageNameByCode(lang)}</MenuItem>;
+										})
+									}
+								</Select>
+							</FormControl>
+						</Stack></Box>
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("cancel")}</Button>

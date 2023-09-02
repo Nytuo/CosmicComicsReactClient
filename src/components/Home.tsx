@@ -13,7 +13,7 @@ function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
     const { t } = useTranslation();
     const theme = useTheme();
     useEffect(() => {
-        document.getElementsByTagName("body")[0].style.backgroundColor = theme.palette.background.default;
+        document.getElementsByTagName("body")[0].style.background = theme.palette.background.default;
         getFromDB("Books", "* FROM Books WHERE reading = 1").then(async (resa: string | void) => {
             if (!resa) return;
             if (resa.includes("404")) return;
