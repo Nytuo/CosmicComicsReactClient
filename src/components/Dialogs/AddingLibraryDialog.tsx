@@ -7,7 +7,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { Box, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-import { addLibrary } from '@/utils/Fetchers.ts';
+import { addLibrary, updateLibrary } from '@/utils/Fetchers.ts';
 import Logger from '@/logger.ts';
 import VerticalStepper from '../VerticalStepper';
 
@@ -17,9 +17,11 @@ import VerticalStepper from '../VerticalStepper';
  * @param openModal - A boolean value to determine if the dialog is open or not.
  * @returns A React component.
  */
-export default function AddingLibraryDialog({ onClose, openModal }: {
+export default function AddingLibraryDialog({ onClose, openModal, type = "add", old }: {
 	onClose: any,
 	openModal: boolean,
+	type: "add" | "edit",
+	old?: any;
 }) {
 	const [open, setOpen] = React.useState(openModal);
 	const [provider, setProvider] = React.useState<any>("");
@@ -40,11 +42,19 @@ export default function AddingLibraryDialog({ onClose, openModal }: {
 		onClose();
 	};
 
+	useEffect(() => {
+		if (type === "edit") {
+			setName(old["NAME"]);
+			setLocation(old["PATH"]);
+			setProvider(old["API_ID"]);
+		}
+	}, [old]);
+
 	return (
 		<div>
 			<Dialog open={open} onClose={handleClose} fullWidth={true}
 				maxWidth="md">
-				<DialogTitle>{t("addLib")}</DialogTitle>
+				<DialogTitle>{type === "add" ? t("addLib") : t("modifyLib")}</DialogTitle>
 				<DialogContent>
 					<Box
 						component="form"
@@ -58,13 +68,13 @@ export default function AddingLibraryDialog({ onClose, openModal }: {
 						<VerticalStepper steps={[
 							{
 								label: t("nameOfLib"),
-								content: <TextField sx={{ width: "100%" }} id="namelocation" label={t("nameOfLib")} variant="outlined"
+								content: <TextField sx={{ width: "100%" }} id="namelocation" label={t("nameOfLib")} variant="outlined" defaultValue={type === "add" ? "" : old["NAME"]}
 									onBlur={(event) => { setName(event.target.value); }}
 								/>
 							},
 							{
 								label: t("locationOnServer"),
-								content: <TextField sx={{ width: "100%" }} id="locationa" label={t("locationOnServer")} variant="outlined"
+								content: <TextField sx={{ width: "100%" }} id="locationa" label={t("locationOnServer")} variant="outlined" defaultValue={type === "add" ? "" : old["PATH"]}
 									onBlur={(event) => { setLocation(event.target.value); }}
 								/>
 							},
@@ -96,7 +106,11 @@ export default function AddingLibraryDialog({ onClose, openModal }: {
 							},
 						]}
 							onFinish={() => {
-								addLibrary({ 'form': [name, location, provider] });
+								if (type === "add") {
+									addLibrary({ 'form': [name, location, provider] });
+								} else {
+									updateLibrary({ 'form': [name, location, provider] }, old["ID_LIBRARY"]);
+								}
 								Logger.debug("Adding library: " + name + " " + location + " " + provider);
 							}
 							}

@@ -22,7 +22,7 @@ import { Autocomplete, Avatar, CircularProgress, InputBase, Menu, MenuItem, Text
 import SearchIcon from '@mui/icons-material/Search';
 import CollapsedBreadcrumbs from './Breadcrumb.tsx';
 import { useTranslation } from 'react-i18next';
-import { AllBooks, DetectFolderInLibrary, InsertIntoDB, getFromDB, logout } from '@/utils/Fetchers.ts';
+import { AllBooks, DetectFolderInLibrary, InsertIntoDB, deleteLib, getFromDB, logout } from '@/utils/Fetchers.ts';
 import { ValidatedExtension, buildTitleFromProvider, providerEnum, tryToParse } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
 import { PDP, cardModeEX, currentProfile } from '@/utils/Common.ts';
@@ -44,6 +44,7 @@ import { OpenLibrary } from '@/API/OpenLibrary.ts';
 import { GoogleBooks } from '@/API/GoogleBooks.ts';
 import APISelectorDialog from './Dialogs/APISelectorDialog.tsx';
 import AddingLibraryDialog from './Dialogs/AddingLibraryDialog.tsx';
+import { API } from '@/API/API.ts';
 
 
 const drawerWidth = 240;
@@ -294,11 +295,20 @@ export default function MiniDrawer({
     };
 
     const [createLibraryOpen, setCreateLibraryOpen] = React.useState(false);
+    const [createLibraryEditMode, setCreateLibraryEditMode] = React.useState<"add" | "edit">("add");
+    const [old, setOld] = React.useState<any>(null);
     const handleCloseCreateLibrary = () => {
         setCreateLibraryOpen(false);
     };
 
-    const handleOpenCreateLibrary = () => {
+    const handleOpenCreateLibrary = (type = "add", old?: any) => {
+        if (type === "edit") {
+            setCreateLibraryEditMode("edit");
+            setOld(old);
+        } else {
+            setCreateLibraryEditMode("add");
+            setOld(null);
+        }
         setCreateLibraryOpen(true);
     };
     const [openAPISelector, setOpenAPISelector] = React.useState(false);
@@ -715,7 +725,7 @@ export default function MiniDrawer({
             <UploadDialog openModal={uploadOpen} onClose={handleCloseUpload} cosmicComicsTemp={CosmicComicsTemp} />
             <NavigationDialog openModal={openNavigation} onClose={handleCloseNavigation} CosmicComicsTemp={CosmicComicsTemp} />
             <APISelectorDialog openModal={openAPISelector} onClose={() => { setOpenAPISelector(false); }} />
-            <AddingLibraryDialog openModal={createLibraryOpen} onClose={handleCloseCreateLibrary} />
+            <AddingLibraryDialog openModal={createLibraryOpen} onClose={handleCloseCreateLibrary} type={createLibraryEditMode} old={old} />
             <AppBar position="fixed" open={open}>
                 <Toolbar>
                     <IconButton
@@ -904,12 +914,9 @@ export default function MiniDrawer({
                         open={isAPIOpen}
                         onClose={handleMenuClose}
                     >
-                        {/* <MenuItem onClick={() => deleteLib(el)}>{t("DELETE")}</MenuItem>
-                        <MenuItem onClick={() => modifyLib(el)}>{t("EDIT")}</MenuItem>
-                        <MenuItem onClick={() => new API().refreshMetadata(el)}>{t("refreshMetadata")}</MenuItem> */}
-                        <MenuItem >{t("DELETE")}</MenuItem>
-                        <MenuItem >{t("EDIT")}</MenuItem>
-                        <MenuItem >{t("refreshMetadata")}</MenuItem>
+                        <MenuItem onClick={() => deleteLib(el)}>{t("DELETE")}</MenuItem>
+                        <MenuItem onClick={() => handleOpenCreateLibrary("edit", el)}>{t("EDIT")}</MenuItem>
+                        <MenuItem onClick={() => new API().refreshMetadata(el)}>{t("refreshMetadata")}</MenuItem>
                     </Menu>;
                 })
             }

@@ -74,7 +74,7 @@ async function addLibrary(forma: any) {
 async function updateLibrary(forma: HTMLFormElement, id: string) {
     const option = {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-            "name": forma.form[0].value, "path": forma.form[1].value, "api_id": forma.form[2].value
+            "name": forma.form[0], "path": forma.form[1], "api_id": forma.form[2]
         }, null, 2)
     };
     await fetch(PDP + '/DB/lib/update/' + currentProfile.getToken + "/" + id, option).then(() => {
