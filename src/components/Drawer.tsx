@@ -259,9 +259,15 @@ export default function MiniDrawer({
             open={isMobileMenuOpen}
             onClose={handleMobileMenuClose}
         >
-            <MenuItem>
+            <MenuItem
+                onClick={(e) => {
+                    handleOpenNavigation(e);
+                    handleMobileMenuClose();
+                }
+                }
+            >
                 <MoreHoriz />
-                <p style={{ marginLeft: "10px" }}>Navigation</p>
+                <p style={{ marginLeft: "10px" }}>{t('navigation')}</p>
             </MenuItem>
             <MenuItem onClick={handleProfileMenuOpen}>
                 <IconButton

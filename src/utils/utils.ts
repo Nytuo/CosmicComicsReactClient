@@ -34,6 +34,11 @@ function resolveTitle(title: string) {
         return title;
     }
 }
+/**
+ * Attempts to parse a JSON string and returns the parsed object. If the string cannot be parsed, the original string is returned.
+ * @param str - The string to parse.
+ * @returns The parsed object or the original string.
+ */
 const tryToParse = (str: string) => {
     try {
         return JSON.parse(str);
@@ -42,6 +47,12 @@ const tryToParse = (str: string) => {
     }
 };
 
+/**
+ * Builds a title string based on the given provider and title.
+ * @param title - The title string to parse.
+ * @param provider - The provider enum value to determine how to format the title.
+ * @returns The formatted title string.
+ */
 const buildTitleFromProvider = (title: string, provider: number) => {
     const parsedTitle = tryToParse(title);
     if (provider === providerEnum.Marvel) {
@@ -58,6 +69,11 @@ const buildTitleFromProvider = (title: string, provider: number) => {
         return parsedTitle;
     }
 };
+/**
+ * Converts a number to a boolean value.
+ * @param number The number to convert.
+ * @returns `true` if the number is not zero, `false` otherwise.
+ */
 function _01toBool(number: number) {
     return number === 0;
 }

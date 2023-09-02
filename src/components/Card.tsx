@@ -12,7 +12,8 @@ function Card({ book, provider, handleOpenDetails, onClick }: { book: IBook; pro
     if (book.URLCover === "null" || book.URLCover === "" || book.URLCover == null) {
         book.URLCover = "Images/fileDefault.png";
     } else if (book.URLCover.includes("public/FirstImagesOfAll")) {
-        book.URLCover = book.URLCover.split("public/")[1];
+        book.URLCover = PDP + "/" + book.URLCover.split("public/")[1];
+        console.log(book.URLCover);
     }
 
     const { t } = useTranslation();

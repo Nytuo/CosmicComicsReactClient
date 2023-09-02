@@ -32,6 +32,13 @@ function getCookie(cName: string, document: any) {
 	return res;
 }
 
+/**
+ * Sets a cookie with the given name, value, and expiration time.
+ * @param cName - The name of the cookie.
+ * @param cValue - The value of the cookie.
+ * @param expHours - The number of hours until the cookie expires.
+ * @param document - The document object to use for setting the cookie.
+ */
 function setCookie(cName: string, cValue: string, expHours: number, document: any) {
 	const date = new Date();
 	date.setTime(date.getTime() + (expHours * 60 * 60 * 1000));
@@ -51,6 +58,12 @@ function setTheme(theme: string) {
 let cardMode = false;
 
 
+/**
+ * Checks if the user is logged in by verifying the token stored in the currentProfile object.
+ * If the token is invalid or missing, the user is redirected to the login page.
+ * If the token is valid, the user's name is retrieved and stored in the currentProfile object.
+ * Additionally, the user's display style and theme preferences are retrieved and applied to the app.
+ */
 function checkLogin() {
 	if (currentProfile.getToken === null) {
 		window.location.href = "/login";

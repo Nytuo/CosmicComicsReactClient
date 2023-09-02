@@ -16,9 +16,6 @@ export default function RematchSkeleton({ provider, type }: {
     type: "book" | "serie",
 }) {
     const { t } = useTranslation();
-
-
-
     const [rematchResult, setRematchResult] = React.useState<any[]>([]);
 
     return (

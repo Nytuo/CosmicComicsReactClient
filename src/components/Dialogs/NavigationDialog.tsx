@@ -11,6 +11,8 @@ import { Bookmark, Download, Info, PhotoLibrary, Settings, TipsAndUpdates } from
 import AboutDialog from './AboutDialog.tsx';
 import BookmarksDialog from './BookmarksDialog.tsx';
 import DownloadDialog from './DownloadDialog.tsx';
+import { Toaster } from '../Toaster.tsx';
+import { PDP, currentProfile } from '@/utils/Common.ts';
 
 /**
  * Navigation dialog component that displays a dialog with navigation options for the CosmicComicsReactClient application.
@@ -118,7 +120,23 @@ export default function NavigationDialog({ onClose, openModal, CosmicComicsTemp 
 							</IconButton>
 						</Tooltip>
 						<Tooltip title={t('ExtractMissingImg')}>
-							<IconButton>
+							<IconButton
+								onClick={
+									() => {
+										fetch(PDP + "/fillBlankImage", {
+											method: "POST",
+											headers: {
+												"Content-Type": "application/json"
+											},
+											body: JSON.stringify({
+												"token": currentProfile.getToken
+											}, null, 2)
+										}).then(() => {
+											Toaster(t("emptyimageressourceswillbefilledupwiththecover"), "success");
+										});
+									}
+								}
+							>
 								<PhotoLibrary />
 							</IconButton>
 						</Tooltip>
