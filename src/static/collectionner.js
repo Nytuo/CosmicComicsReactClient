@@ -1,27 +1,4 @@
-//Handle the drag and drop to open files in the app
-document.addEventListener("drop", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    for (const f of event.dataTransfer.files) {
-        // Using the path attribute to get absolute file path
-        console.log("File Path of dragged files: ", f.path);
-        if (f.path.includes(".cbz") || f.path.includes(".cbr") || f.path.includes(".cbt") || f.path.includes(".cb7") || f.path.includes(".zip") || f.path.includes(".rar") || f.path.includes(".7z") || f.path.includes(".tar")) {
-            window.location.href = "viewer.html?" + f.path;
-        } else {
-            Toastifycation(language["drag&drop_fail"], "#ff0000");
-        }
-    }
-});
-document.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-});
-document.addEventListener("dragenter", (event) => {
-    console.log("File is in the Drop Space");
-});
-document.addEventListener("dragleave", (event) => {
-    console.log("File has left the Drop Space");
-});
+
 
 
 

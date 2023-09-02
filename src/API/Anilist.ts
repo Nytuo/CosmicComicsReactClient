@@ -1,9 +1,18 @@
 import { Toaster } from "@/components/Toaster.tsx";
+import logger from "@/logger.ts";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 
+/**
+ * Represents a class that interacts with the Anilist API to search and add manga to the database.
+ */
 class Anilist {
 
-    async InsertBook(realname:string, path:string) {
+    /**
+     * Inserts a book into Anilist.
+     * @param bookName - The real name of the book.
+     * @param path - The path of the book.
+     */
+    async InsertBook(bookName: string, path: string) {
         fetch(PDP + "/insert/anilist/book", {
             method: "POST",
             headers: {
@@ -12,8 +21,12 @@ class Anilist {
             body: JSON.stringify({
                 "token": currentProfile.getToken,
                 "path": path,
-                "realname": realname,
+                "realname": bookName,
             })
+        }).then(() => {
+            logger.info("Book added to Anilist");
+        }).catch((error) => {
+            logger.error(error);
         });
     }
 
@@ -27,10 +40,11 @@ class Anilist {
             return response.text();
         }).then(function (data) {
             data = JSON.parse(data);
-            console.log(data);
+            logger.info("Anilist search result: " + data);
             return data;
         }).catch(function (error) {
-            console.log(error);
+            Toaster("Error while searching for manga", "error");
+            logger.error(error);
         });
     }
 
@@ -50,8 +64,10 @@ class Anilist {
             }
         }).then(() => {
             Toaster("Manga added to the database", "success");
+        }).catch(() => {
+            Toaster("Manga not added to the database", "error");
         });
     }
 }
 
-export { Anilist}
+export { Anilist };

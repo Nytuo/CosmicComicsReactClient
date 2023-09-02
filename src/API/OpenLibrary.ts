@@ -1,7 +1,17 @@
+import logger from "@/logger.ts";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 
+/**
+ * A class representing the OpenLibrary API.
+ */
 class OpenLibrary {
-    async InsertBook(name = "", path:string) {
+    /**
+     * Inserts a book into the Open Library API.
+     * @param name The name of the book.
+     * @param path The path of the book.
+     * @returns A Promise that resolves to the response data from the API.
+     */
+    async InsertBook(name = "", path: string) {
         return fetch(PDP + "/insert/ol/book/", {
             method: "GET",
             headers: {
@@ -13,11 +23,11 @@ class OpenLibrary {
         }).then(function (response) {
             return response.text();
         }).then(function (data) {
-            console.log(data);
             data = JSON.parse(data);
+            logger.info("Book added to Open Library");
             return data;
         }).catch(function (error) {
-            console.log(error);
+            logger.error(error);
         });
     }
 
@@ -27,11 +37,12 @@ class OpenLibrary {
             return response.text();
         }).then(function (data) {
             data = JSON.parse(data);
+            logger.info("Open Library search result: " + data);
             return data;
         }).catch(function (error) {
-            console.log(error);
+            logger.error(error);
         });
     }
 }
 
-export { OpenLibrary }
+export { OpenLibrary };

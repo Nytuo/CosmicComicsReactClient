@@ -1,7 +1,17 @@
+import logger from "@/logger.ts";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 
+/**
+ * A class for interacting with the Google Books API.
+ */
 class GoogleBooks {
-    async InsertBook(name = "", path) {
+    /**
+     * Inserts a book into the Google Books API.
+     * @param {string} name The name of the book.
+     * @param {string} path The path of the book.
+     * @returns A Promise that resolves to the book data.
+     */
+    async InsertBook(name = "", path: string) {
         return fetch(PDP + "/insert/googlebooks/book/", {
             method: "GET",
             headers: {
@@ -13,25 +23,31 @@ class GoogleBooks {
         }).then(function (response) {
             return response.text();
         }).then(function (data) {
-            console.log(data);
+            logger.info("Book added to Google Books");
             data = JSON.parse(data);
             return data;
         }).catch(function (error) {
-            console.log(error);
+            logger.error(error);
         });
     }
 
+    /**
+     * Fetches comics from the Google Books API based on the provided name.
+     * @param name The name of the comic to search for.
+     * @returns A Promise that resolves to the fetched data.
+     */
     async GetComics(name = "") {
         name = encodeURIComponent(name);
         return fetch(PDP + "/api/googlebooks/getComics/" + name).then(function (response) {
             return response.text();
         }).then(function (data) {
             data = JSON.parse(data);
+            logger.info("Google Books search result: " + data);
             return data;
         }).catch(function (error) {
-            console.log(error);
+            logger.error(error);
         });
     }
 }
 
-export { GoogleBooks }
+export { GoogleBooks };

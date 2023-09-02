@@ -62,16 +62,6 @@ const Search = styled('div')(({ theme }) => ({
     },
 }));
 
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-}));
-
 const StyledInputBase = styled(TextField)(({ theme }) => ({
     color: 'inherit',
     '& .MuiInputBase-input': {
@@ -1142,7 +1132,12 @@ export default function MiniDrawer({
                                             aria-label="account of current user"
                                             aria-controls={"api-list-" + index}
                                             aria-haspopup="true"
-                                            onClick={handleAPIOpen}
+                                            onClick={(event: any) => {
+                                                event.stopPropagation();
+                                                event.preventDefault();
+                                                handleAPIOpen(event);
+                                            }
+                                            }
                                             color="inherit"
                                         >
                                             <MoreVert />

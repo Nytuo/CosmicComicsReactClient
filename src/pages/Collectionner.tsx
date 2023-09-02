@@ -1,10 +1,12 @@
 import MiniDrawer from '@/components/Drawer.tsx';
 import { PDP, checkLogin } from '@/utils/Common.ts';
 import React, { useEffect, useLayoutEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 function Collectionner() {
     const [CosmicComicsData, setCosmicComicsData] = React.useState("C:/Users/Public/Cosmic-Comics/data");
     const [CosmicComicsTemp, setCosmicComicsTemp] = React.useState("C:/Users/Public/Cosmic-Comics/temp");
     const [CosmicComicsTempI, setCosmicComicsTempI] = React.useState("setCosmicComicsData");
+    const { t } = useTranslation();
     useEffect(() => {
         document.title = "Collectionner";
     }, []);

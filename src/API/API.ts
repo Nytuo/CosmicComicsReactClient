@@ -1,7 +1,11 @@
 import { Toaster } from "@/components/Toaster.tsx";
+import logger from "@/logger.ts";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 import { DetectFolderInLibrary, getFromDB } from "@/utils/Fetchers.ts";
 
+/**
+ * Represents an API class that provides methods for refreshing metadata and launching metadata refresh.
+ */
 class API {
     /**
      * Trigger the metadata refresh for the selected library
@@ -25,7 +29,7 @@ class API {
                     }
                 }
             });
-        })
+        });
     }
     /**
      * Rematch the element of old_id by the new_id
@@ -35,36 +39,24 @@ class API {
      * @param {string} old_id The old id
      * @param {boolean} isSeries Is the element a series
      */
-    async rematch(new_id: string, provider:number, type:string, old_id:string, isSeries = false) {
-        if (isSeries) {
-            await fetch(PDP + "/DB/update", {
-                method: "POST", headers: {
-                    "Content-Type": "application/json"
-                }, body: JSON.stringify({
-                    "token": currentProfile.getToken,
-                    "table": "Series",
-                    "type": "noedit",
-                    "column": "ID_Series",
-                    "whereEl": old_id,
-                    "value": `'${new_id}'`,
-                    "where": "ID_Series"
-                }, null, 2)
-            })
-        } else {
-            await fetch(PDP + "/DB/update", {
-                method: "POST", headers: {
-                    "Content-Type": "application/json"
-                }, body: JSON.stringify({
-                    "token": currentProfile.getToken,
-                    "table": "Books",
-                    "type": "noedit",
-                    "column": "API_ID",
-                    "whereEl": old_id,
-                    "value": `'${new_id}'`,
-                    "where": "ID_book"
-                }, null, 2)
-            })
-        }
+    async rematch(new_id: string, provider: number, type: string, old_id: string, isSeries = false) {
+        await fetch(PDP + "/DB/update", {
+            method: "POST", headers: {
+                "Content-Type": "application/json"
+            }, body: JSON.stringify({
+                "token": currentProfile.getToken,
+                "table": isSeries ? "Series" : "Books",
+                "type": "noedit",
+                "column": isSeries ? "ID_Series" : "API_ID",
+                "whereEl": old_id,
+                "value": `'${new_id}'`,
+                "where": isSeries ? "ID_Series" : "ID_book"
+            }, null, 2)
+        }).then(() => {
+            logger.info("Element rematched");
+        }).catch((error) => {
+            logger.error(error);
+        });
         await this.refreshMeta(new_id, provider, type);
     }
 
@@ -74,8 +66,7 @@ class API {
      * @param {number} provider The provider of the element to refresh
      * @param {string} type The type of the element to refresh
      */
-    async refreshMeta(id: string, provider:number, type: string) {
-        console.log("Refreshing metadata for " + id + " from " + provider + " (" + type + ")");
+    async refreshMeta(id: string, provider: number, type: string) {
         Toaster("Refreshing metadata for " + id + " from " + provider + " (" + type + ")", "info");
         fetch(PDP + "/refreshMeta", {
             method: "POST",
@@ -90,8 +81,11 @@ class API {
             })
         }).then(() => {
             Toaster("Metadata refreshed", "success");
-        })
+        }).catch((error) => {
+            Toaster("Error while refreshing metadata", "error");
+            logger.error(error);
+        });
     }
 }
 
-export { API }
+export { API };
