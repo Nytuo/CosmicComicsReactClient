@@ -1,6 +1,5 @@
 import { IBook } from "@/interfaces/IBook.ts";
 import Card from "./Card.tsx";
-import { providerEnum } from "@/utils/utils.ts";
 
 function ContainerExplorer({ stateExplorer, handleAddBreadcrumbs, handleOpenDetails }: { stateExplorer: { open: boolean; explorer: IBook[]; provider: any; booksNumber: number; } | null; handleAddBreadcrumbs: any; handleOpenDetails: any; }) {
     return (<>
@@ -10,8 +9,6 @@ function ContainerExplorer({ stateExplorer, handleAddBreadcrumbs, handleOpenDeta
                 return <Card provider={stateExplorer.provider} key={index} book={book} handleOpenDetails={handleOpenDetails} />;
             }) : <></>}
         </div>
-
-
     </>);
 }
 

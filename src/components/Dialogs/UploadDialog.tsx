@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -11,25 +10,38 @@ import { useTranslation } from 'react-i18next';
 import { Toaster } from '../Toaster.tsx';
 import { PDP } from '@/utils/Common.ts';
 
+/**
+ * A dialog component for uploading a comic file.
+ * @param onClose - A function to close the dialog.
+ * @param openModal - A boolean to determine if the dialog is open.
+ * @param cosmicComicsTemp - A string representing the temporary folder for the comic file.
+ * @returns A React component.
+ */
 export default function UploadDialog({ onClose, openModal, cosmicComicsTemp }: {
 	onClose: any,
 	openModal: boolean,
 	cosmicComicsTemp: string;
 }) {
-	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
+	const [open, setOpen] = React.useState(openModal);
+
+	// This is used to update the state of the dialog when the parent component changes the value of openModal.
 	useEffect(() => {
 		if (openModal !== open) {
 			setOpen(openModal);
 		}
-	}, [openModal]);
+	}, [openModal, open]);
+
+	// This is used to update the state of the parent component when the dialog is closed.
 	const handleClose = () => {
 		setOpen(false);
 		onClose();
 	};
 
-	//Open a single file
-	function openInViewer() {
+	/**
+	 * Sends a POST request to upload a comic and opens it in the viewer if successful.
+	 */
+	function openInViewer(): void {
 		const form = document.getElementById("uploader") as HTMLFormElement;
 		if (!form || form === null) return;
 		const formData = new FormData(form);
@@ -79,4 +91,4 @@ export default function UploadDialog({ onClose, openModal, cosmicComicsTemp }: {
 			</Dialog>
 		</div>
 	);
-};
+}

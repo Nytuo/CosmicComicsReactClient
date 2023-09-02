@@ -3,7 +3,7 @@ import { updateBookStatusForOne, InsertIntoDB, changeRating, downloadBook, getFr
 import { IBook } from "@/interfaces/IBook.ts";
 import { providerEnum, tryToParse } from "@/utils/utils.ts";
 import { ArrowBack, ArrowForward, AutoStories, Check, Close, Done, Download, Edit, Favorite, OpenInNew, PlayArrow, QuestionMark, Refresh, YoutubeSearchedFor } from "@mui/icons-material";
-import { Avatar, Box, Chip, CircularProgress, Container, IconButton, Paper, Stack, Tooltip, Typography, styled } from "@mui/material";
+import { Avatar, Box, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import Rating from "@mui/material/Rating/Rating";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import { useContext, useEffect, useLayoutEffect, useState } from "react";

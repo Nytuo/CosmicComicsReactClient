@@ -1592,11 +1592,6 @@ select{
     height: 40px;
 }
 
-#newImage {
-    border: solid #157347 5px;
-    transition: border .3s;
-}
-
 .scrollBtnL {
     background-color: transparent;
     color: whitesmoke;

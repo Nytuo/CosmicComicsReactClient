@@ -11,7 +11,20 @@ import IProfile from "../../interfaces/IProfile";
 import { PDP, setCookie } from "../../utils/Common";
 import { Toaster } from "../Toaster";
 import { useTranslation } from 'react-i18next';
+import Logger from '@/logger.ts';
 
+/**
+ * A dialog component for logging in a user.
+ *
+ * @param onClose - A function to be called when the dialog is closed.
+ * @param openModal - A boolean indicating whether the dialog should be open or not.
+ * @param title - The title of the dialog.
+ * @param text - The text to be displayed in the dialog.
+ * @param okBtn - The text to be displayed on the "OK" button.
+ * @param cancelBtn - The text to be displayed on the "Cancel" button.
+ * @param profile - An optional `IProfile` object representing the user's profile.
+ * @returns A `LoginDialog` component.
+ */
 export default function LoginDialog({ onClose, openModal, title, text, okBtn, cancelBtn, profile }: {
 	onClose: any,
 	openModal: boolean,
@@ -21,20 +34,33 @@ export default function LoginDialog({ onClose, openModal, title, text, okBtn, ca
 	cancelBtn: string,
 	profile: IProfile | undefined;
 }) {
-	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
+	const [open, setOpen] = React.useState(openModal);
+
+	// This is used to update the state of the dialog when the parent component changes the value of openModal.
 	useEffect(() => {
 		if (openModal !== open) {
 			setOpen(openModal);
 		}
-	}, [openModal]);
+	}, [openModal, open]);
+
+	// This is used to update the state of the parent component when the dialog is closed.
 	const handleClose = () => {
 		setOpen(false);
 		onClose();
 	};
+
+
+	/**
+	 * Handles the login process for the user.
+	 * If the user's profile and password are valid, sets a cookie for the selected profile and redirects to the collection page.
+	 * If the password is incorrect, displays an error message.
+	 * If the profile or password are missing, displays an error message.
+	 * @returns A Promise that resolves when the login process is complete.
+	 */
 	const handleConnect = async (): Promise<any> => {
 		if (profile && document.getElementById("passwordLogin")) {
-			console.log(PDP + "/profile/login/" + profile.name + "/" + (document.getElementById("passwordLogin") as HTMLInputElement)?.value.trim());
+			Logger.debug(PDP + "/profile/login/" + profile.name + "/" + (document.getElementById("passwordLogin") as HTMLInputElement)?.value.trim());
 			await fetch(PDP + "/profile/login/" + profile.name + "/" + (document.getElementById("passwordLogin") as HTMLInputElement)?.value.trim(), { 'cache': 'no-cache' }).then(function (response) {
 				return response.text();
 			}).then(function (data) {
@@ -47,7 +73,7 @@ export default function LoginDialog({ onClose, openModal, title, text, okBtn, ca
 					Toaster(t("errors.no_password"), "error");
 				}
 			}).catch(function (error) {
-				console.log(error);
+				Logger.error(error);
 			});
 		}
 	};
@@ -70,7 +96,6 @@ export default function LoginDialog({ onClose, openModal, title, text, okBtn, ca
 						fullWidth
 						variant="standard"
 						onKeyDown={(e) => {
-							console.log(e.key);
 							if (e.key === "Enter") {
 								handleConnect();
 							}
@@ -84,4 +109,4 @@ export default function LoginDialog({ onClose, openModal, title, text, okBtn, ca
 			</Dialog>
 		</div>
 	);
-};
+}

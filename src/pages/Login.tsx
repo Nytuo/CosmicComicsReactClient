@@ -62,7 +62,7 @@ export default function Login() {
                 text={t("InsertPassword")} okBtn={t("loginInBtn")} cancelBtn={t("cancel")}
                 profile={selectedProfile} />
             <CreateAccountDialog openModal={openCreateAccount} title={t("firstConfig")}
-                text={t("createFirstAccount")} okBtn={t("login")}
+                text={t("createFirstAccount")}
                 createFunction={servConfig} />
         </>
     );

@@ -3,7 +3,6 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
@@ -74,31 +73,29 @@ export default function BookmarksDialog({ onClose, openModal }: {
 			>
 				<DialogTitle>{t("Bookmark")}</DialogTitle>
 				<DialogContent>
-					<DialogContentText>
-						<div id="bookmarkContainer" style={{ textAlign: "center" }}>
-							{
-								bookmarks.length > 0 ?
-									bookmarks.map((bookmark: any, index: number) => {
-										console.log(bookmark);
-										return (
-											<div key={index}>
-												<Button
-													onClick={() => {
-														openBOOKM(bookmark.path, bookmark.page);
-													}
-													}
-												>
-													{
-														t("Seethepage") + bookmark.page
-													}
-												</Button>
-												<img src={bookmark.URLCover} />
-											</div>
-										);
-									}) : <div><Block /></div>
-							}
-						</div>
-					</DialogContentText>
+					<div id="bookmarkContainer" style={{ textAlign: "center" }}>
+						{
+							bookmarks.length > 0 ?
+								bookmarks.map((bookmark: any, index: number) => {
+									console.log(bookmark);
+									return (
+										<div key={index}>
+											<Button
+												onClick={() => {
+													openBOOKM(bookmark.path, bookmark.page);
+												}
+												}
+											>
+												{
+													t("Seethepage") + bookmark.page
+												}
+											</Button>
+											<img src={bookmark.URLCover} />
+										</div>
+									);
+								}) : <div><Block /></div>
+						}
+					</div>
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("cancel")}</Button>

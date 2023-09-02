@@ -13,13 +13,17 @@ export default function SettingsDialog({ onClose, openModal }: {
 	onClose: any,
 	openModal: boolean,
 }) {
-	const [open, setOpen] = React.useState(openModal);
 	const { t } = useTranslation();
+	const [open, setOpen] = React.useState(openModal);
+
+	// This is used to update the state of the dialog when the parent component changes the value of openModal.
 	useEffect(() => {
 		if (openModal !== open) {
 			setOpen(openModal);
 		}
-	}, [openModal]);
+	}, [openModal, open]);
+
+	// This is used to update the state of the parent component when the dialog is closed.
 	const handleClose = () => {
 		setOpen(false);
 		onClose();
@@ -71,9 +75,9 @@ export default function SettingsDialog({ onClose, openModal }: {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("send")}</Button>
-					<Button onClick={ }>{t("cancel")}</Button>
+					<Button onClick={handleClose}>{t("cancel")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>
 	);
-};
+}

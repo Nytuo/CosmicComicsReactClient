@@ -19,6 +19,8 @@ export default function VerticalStepper({ steps, onFinish }: { steps: any[]; onF
     const { t } = useTranslation();
 
     const [activeStep, setActiveStep] = React.useState(0);
+    const [selectedImage, setSelectedImage] = React.useState<number>(-1);
+
 
     /**
      * Increments the active step by 1.
@@ -59,7 +61,7 @@ export default function VerticalStepper({ steps, onFinish }: { steps: any[]; onF
                         >
                             {step.label}
                         </StepLabel>
-                        <StepContent>
+                        <StepContent TransitionProps={{ unmountOnExit: false }}>
                             {step.content}
                             <Box sx={{ mb: 2 }}>
                                 <div>
