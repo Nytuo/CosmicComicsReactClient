@@ -13,6 +13,7 @@ import BookmarksDialog from './BookmarksDialog.tsx';
 import DownloadDialog from './DownloadDialog.tsx';
 import { Toaster } from '../Toaster.tsx';
 import { PDP, currentProfile } from '@/utils/Common.ts';
+import SettingsDialog from './SettingsDialog.tsx';
 
 /**
  * Navigation dialog component that displays a dialog with navigation options for the CosmicComicsReactClient application.
@@ -31,6 +32,7 @@ export default function NavigationDialog({ onClose, openModal, CosmicComicsTemp 
 	const [openDownload, setOpenDownload] = React.useState(false);
 	const [openAbout, setOpenAbout] = React.useState(false);
 	const [openBookmarks, setOpenBookmarks] = React.useState(false);
+	const [openSettings, setOpenSettings] = React.useState(false);
 
 	// This is used to update the state of the dialog when the parent component changes the value of openModal.
 	useEffect(() => {
@@ -70,6 +72,14 @@ export default function NavigationDialog({ onClose, openModal, CosmicComicsTemp 
 	const handleCloseDownload = () => {
 		setOpenDownload(false);
 	};
+
+	const handleOpenSettings = () => {
+		setOpenSettings(true);
+	};
+
+	const handleCloseSettings = () => {
+		setOpenSettings(false);
+	};
 	return (
 		<div>
 			<Dialog open={open} onClose={handleClose} fullWidth={true}
@@ -91,7 +101,13 @@ export default function NavigationDialog({ onClose, openModal, CosmicComicsTemp 
 							</IconButton>
 						</Tooltip>
 						<Tooltip title={t('settings')}>
-							<IconButton>
+							<IconButton
+								onClick={
+									() => {
+										handleOpenSettings();
+									}
+								}
+							>
 								<Settings />
 							</IconButton>
 						</Tooltip>
@@ -149,6 +165,7 @@ export default function NavigationDialog({ onClose, openModal, CosmicComicsTemp 
 			<AboutDialog openModal={openAbout} onClose={handleCloseAbout} />
 			<BookmarksDialog openModal={openBookmarks} onClose={handleCloseBookmarks} />
 			<DownloadDialog openModal={openDownload} onClose={handleCloseDownload} CosmicComicsTemp={CosmicComicsTemp} />
+			<SettingsDialog openModal={openSettings} onClose={handleCloseSettings} />
 		</div>
 	);
 }
