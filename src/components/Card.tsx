@@ -1,5 +1,5 @@
 import { IBook } from "@/interfaces/IBook";
-import { AllForOne, getFromDB } from "@/utils/Fetchers.ts";
+import { updateBookStatusForOne, getFromDB } from "@/utils/Fetchers.ts";
 import { providerEnum } from "@/utils/utils.ts";
 import { AutoStories, Close, Done, Favorite, PlayArrow } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
@@ -38,7 +38,7 @@ function Card({ book, provider, handleOpenDetails, onClick }: { book: IBook; pro
             <div className="card__body">
                 <span className="card__play js-play"
                     onClick={() => {
-                        AllForOne("unread", "read", "reading", book.ID_book);
+                        updateBookStatusForOne("reading", book.ID_book);
                         const encoded = encodeURIComponent(book.PATH.replaceAll("/", "%C3%B9"));
                         window.location.href = "viewer.html?" + encoded;
                     }
@@ -118,7 +118,7 @@ function Card({ book, provider, handleOpenDetails, onClick }: { book: IBook; pro
                     id={"btn_id_unread_" + book.ID_book + "_" + Math.random() * 8000}
                 >
                     <IconButton onClick={() => {
-                        AllForOne("read", "reading", "unread", book.ID_book);
+                        updateBookStatusForOne("unread", book.ID_book);
                         Toaster(t("mkunread"), "success");
                     }}>
                         <Close />
@@ -130,7 +130,7 @@ function Card({ book, provider, handleOpenDetails, onClick }: { book: IBook; pro
                     id={"btn_id_reading_" + book.ID_book + "_" + Math.random() * 8000}
                 >
                     <IconButton onClick={() => {
-                        AllForOne("unread", "read", "reading", book.ID_book);
+                        updateBookStatusForOne("reading", book.ID_book);
                         Toaster(t("mkreading"), "success");
                     }}>
                         <AutoStories />
@@ -142,7 +142,7 @@ function Card({ book, provider, handleOpenDetails, onClick }: { book: IBook; pro
                     id={"btn_id_read_" + book.ID_book + "_" + Math.random() * 8000}
                 >
                     <IconButton onClick={() => {
-                        AllForOne("unread", "reading", "read", book.ID_book);
+                        updateBookStatusForOne("read", book.ID_book);
                         Toaster(t("mkread"), "success");
                     }}>
                         <Done />

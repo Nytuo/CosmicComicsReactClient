@@ -6,7 +6,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 const previousLanguage = localStorage.getItem("language") || "fr";
 i18n.use(Backend).use(LanguageDetector).use(initReactI18next).init({
     fallbackLng: previousLanguage,
-    debug: true,
+    debug: false,
     detection: {
         order: ["queryString", "cookie"],
     },

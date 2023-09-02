@@ -37,7 +37,7 @@ class OpenLibrary {
             return response.text();
         }).then(function (data) {
             data = JSON.parse(data);
-            logger.info("Open Library search result: " + data);
+            logger.debug("Open Library search result: " + data);
             return data;
         }).catch(function (error) {
             logger.error(error);

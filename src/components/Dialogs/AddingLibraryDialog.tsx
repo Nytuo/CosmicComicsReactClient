@@ -1,25 +1,40 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
+import { Box, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { addLibrary } from '@/utils/Fetchers.ts';
+import Logger from '@/logger.ts';
+import VerticalStepper from '../VerticalStepper';
 
+/**
+ * A dialog component for adding a library.
+ * @param onClose - A function to close the dialog.
+ * @param openModal - A boolean value to determine if the dialog is open or not.
+ * @returns A React component.
+ */
 export default function AddingLibraryDialog({ onClose, openModal }: {
 	onClose: any,
 	openModal: boolean,
 }) {
 	const [open, setOpen] = React.useState(openModal);
+	const [provider, setProvider] = React.useState<any>("");
+	const [name, setName] = React.useState<any>("");
+	const [location, setLocation] = React.useState<any>("");
 	const { t } = useTranslation();
+
+	// This is used to update the state of the dialog when the parent component changes the value of openModal.
 	useEffect(() => {
 		if (openModal !== open) {
 			setOpen(openModal);
 		}
-	}, [openModal]);
+	}, [openModal, open]);
+
+	// This is used to update the state of the parent component when the dialog is closed.
 	const handleClose = () => {
 		setOpen(false);
 		onClose();
@@ -29,52 +44,69 @@ export default function AddingLibraryDialog({ onClose, openModal }: {
 		<div>
 			<Dialog open={open} onClose={handleClose} fullWidth={true}
 				maxWidth="md">
-				<DialogTitle>{t("EDIT")}</DialogTitle>
+				<DialogTitle>{t("addLib")}</DialogTitle>
 				<DialogContent>
-					<DialogContentText>
-						<div class="input-field">
-							<input class="form-control" type="text" id="namelocation" name="namelocation" autocomplete="off" />
-							<label for="namelocation" id="nameOfLib">Name of the library</label>
-						</div>
-						<br />
-						<div class="input-field">
-
-							<input class="form-control" type="text" id="locationa" name="locationa" autocomplete="off" />
-							<label for="locationa" id="locationOnServer">Location on the server</label>
-						</div>
-						<br />
-						<label>
-							<select id="providerID" name="providerID">
-								<option id="opt0" value="" disabled selected>Select a provider</option>
-								<option id="opt1" value="1">Marvel (Comics Marvel & Star Wars)</option>
-								<option id="opt2" value="2">Anilist (Manga)</option>
-								<option id="opt3" value="4">Google Books</option>
-								<option id="opt4" value="3">Open Library</option>
-								<option id="opt5" value="0">MANUAL</option>
-							</select>
-						</label>
-						<br />
-						<button id="sendlib" class="btn btns pure-material-button-contained"
-							onclick="return addLibrary({'form':[document.getElementById('namelocation'),document.getElementById('locationa'),document.getElementById('providerID')]});">
-							Add Library
-						</button>
-
-					</DialogContentText>
-					<TextField
-						autoFocus
-						margin="dense"
-						id="passwordLogin"
-						label={t("ThePassToWorLabel")}
-						type="password"
-						fullWidth
-						variant="standard"
-					/>
+					<Box
+						component="form"
+						sx={{
+							marginTop: "10px",
+							width: '100%',
+						}}
+						noValidate
+						autoComplete="off"
+					>
+						<VerticalStepper steps={[
+							{
+								label: t("nameOfLib"),
+								content: <TextField sx={{ width: "100%" }} id="namelocation" label={t("nameOfLib")} variant="outlined"
+									onBlur={(event) => { setName(event.target.value); }}
+								/>
+							},
+							{
+								label: t("locationOnServer"),
+								content: <TextField sx={{ width: "100%" }} id="locationa" label={t("locationOnServer")} variant="outlined"
+									onBlur={(event) => { setLocation(event.target.value); }}
+								/>
+							},
+							{
+								label: t("selectAProvider"),
+								content: <FormControl fullWidth
+									sx={
+										{
+											width: "100%",
+										}
+									}
+								>
+									<InputLabel id="demo-simple-select-label">{t("selectAProvider")}</InputLabel>
+									<Select
+										labelId="demo-simple-select-label"
+										value={provider}
+										label={t("selectAProvider")}
+										onChange={async (provider: any) => {
+											setProvider(provider.target.value);
+										}}
+									>
+										<MenuItem value={1}>Marvel (Comics Marvel & Star Wars)</MenuItem>
+										<MenuItem value={2}>Anilist (Manga)</MenuItem>
+										<MenuItem value={3}>Open Library</MenuItem>
+										<MenuItem value={4}>Google Books</MenuItem>
+										<MenuItem value={0}>MANUAL</MenuItem>
+									</Select>
+								</FormControl>
+							},
+						]}
+							onFinish={() => {
+								addLibrary({ 'form': [name, location, provider] });
+								Logger.debug("Adding library: " + name + " " + location + " " + provider);
+							}
+							}
+						/>
+					</Box>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleClose}>{t("send")}</Button>
-					<Button onClick={ }>{t("cancel")}</Button>
+					<Button onClick={handleClose}>{t("cancel")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>
 	);
-};
+}

@@ -1,4 +1,5 @@
 import { translateString } from "@/i18n.ts";
+import Logger from "@/logger.ts";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 
 /**
@@ -13,13 +14,14 @@ async function getFromDB(dbname: string, request: string) {
             "request": request
         }, null, 2)
     };
-    console.log(PDP + '/DB/get/' + currentProfile.getToken + "/" + dbname);
+    Logger.debug("Fetching data from DB: " + dbname + " with request: " + request);
     return fetch(PDP + '/DB/get/' + currentProfile.getToken + "/" + dbname, option).then(function (response) {
         return response.text();
     }).then(function (data) {
+        Logger.debug("Data fetched from DB: " + dbname + " with request: " + request);
         return data;
     }).catch(function (error) {
-        console.log(error);
+        Logger.error(error);
     });
 }
 /**
@@ -57,8 +59,9 @@ async function DetectFolderInLibrary(result: string) {
  * Add a new library
  * @param {{form: HTMLElement[]}} forma The form to get the data (The HTML element)
  */
-async function addLibrary(forma: HTMLFormElement) {
-    await InsertIntoDB("Libraries", "(NAME,PATH,API_ID)", `('${forma.form[0].value}','${forma.form[1].value}','${forma.form[2].value}')`).then(() => {
+async function addLibrary(forma: any) {
+    Logger.debug(forma);
+    await InsertIntoDB("Libraries", "(NAME,PATH,API_ID)", `('${forma.form[0]}','${forma.form[1]}','${forma.form[2]}')`).then(() => {
         window.location.href = window.location.href.split("?")[0];
     });
 }
@@ -78,35 +81,48 @@ async function updateLibrary(forma: HTMLFormElement, id: string) {
         window.location.href = window.location.href.split("?")[0];
     });
 }
-function OneForAll(W1: string, W2: string, A: string, title: string) {
+
+
+/**
+ * Updates the status of all the books for the values (unread, read, reading) in the database.
+ * @param setTo - The new status to set the book to (unread, read, or reading).
+ * @param title - The title of the book to update.
+ */
+function updateBookStatusForAll(setTo: "unread" | "read" | "reading", title: string) {
+    const allPosibleValues = ["unread", "reading", "read"];
+    for (let i = 0; i < allPosibleValues.length; i++) {
+        if (allPosibleValues[i] !== setTo) {
+            allPosibleValues.splice(i, 1);
+        }
+    }
     fetch(PDP + "/DB/update/OneForAll", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            "W1": W1,
-            "W2": W2,
-            "A": A,
+            "W1": allPosibleValues[0],
+            "W2": allPosibleValues[1],
+            "A": setTo,
             "title": title,
             "token": currentProfile.getToken,
         })
     });
 }
 
+
 /**
- *
- * @param W1
- * @param W2
- * @param A
- * @param ID
- * @constructor
+ * Updates the status of a book in the database.
+ * @param setTo - The new status of the book. Must be one of "unread", "read", or "reading".
+ * @param ID - The ID of the book to update.
  */
-function AllForOne(W1: string, W2: string, A: string, ID: string) {
+function updateBookStatusForOne(setTo: "unread" | "read" | "reading", ID: string) {
     const asso: { [key: string]: any; } = {};
-    asso[A] = true;
-    asso[W1] = false;
-    asso[W2] = false;
+    const allPosibleValues = ["unread", "reading", "read"];
+    for (let i = 0; i < allPosibleValues.length; i++) {
+        asso[allPosibleValues[i]] = false;
+    }
+    asso[setTo] = true;
     const columns = [];
     const values = [];
     for (const key in asso) {
@@ -129,6 +145,12 @@ function AllForOne(W1: string, W2: string, A: string, ID: string) {
     fetch(PDP + "/DB/update", options);
 }
 
+/**
+ * Deletes a record from the specified database using a true delete operation.
+ * @param dbName The name of the database to delete the record from.
+ * @param id The ID of the record to delete.
+ * @returns A Promise that resolves with the result of the fetch operation.
+ */
 async function TrueDeleteFromDB(dbName: string, id: string) {
     return fetch(PDP + '/DB/truedelete/' + currentProfile.getToken + "/" + dbName + "/" + id);
 }
@@ -144,7 +166,6 @@ async function downloadBook(path: string) {
             path: path
         }, null, 2)
     };
-    console.log(option);
     await fetch(PDP + '/DL', option).then(() => {
         window.open(PDP + "/getDLBook", "_blank");
     });
@@ -171,7 +192,7 @@ async function logout() {
  */
 function changeRating(table: string, where: string, value: number) {
     if (table === "Books") {
-        console.log(table, value + " from Book");
+        Logger.debug(table + " " + value + " from Books");
         const options = {
             method: "POST", headers: {
                 "Content-Type": "application/json"
@@ -186,7 +207,7 @@ function changeRating(table: string, where: string, value: number) {
         };
         fetch(PDP + "/DB/update", options);
     } else if (table === "Series") {
-        console.log(table, value);
+        Logger.debug(table + " " + value + " from Series");
         const options = {
             method: "POST", headers: {
                 "Content-Type": "application/json"
@@ -226,7 +247,7 @@ function modifyConfigJson(tomod: string | number, mod: any) {
         };
         fetch('/config/writeConfig/' + currentProfile.getToken, option);
     }).catch(function (error) {
-        console.log(error);
+        Logger.error(error);
     });
 }
 
@@ -239,6 +260,7 @@ async function deleteLib(elElement: any) {
     const confirmDelete = confirm(translateString("deleteaccount") + elElement["NAME"] + " ?");
     if (confirmDelete) {
         await fetch(PDP + '/DB/lib/delete/' + currentProfile.getToken + "/" + elElement["ID_LIBRARY"]).then(() => {
+            Logger.info("Library deleted");
             alert(translateString("libraryDeleted"));
             location.reload();
         });
@@ -251,7 +273,7 @@ async function deleteLib(elElement: any) {
  * @return {Promise<null|any>} The books
  */
 async function AllBooks(filters = ""): Promise<null | any> {
-    console.log("fetching books from DB with filters: " + filters);
+    Logger.info("fetching books from DB with filters: " + filters);
     let request;
     if (filters === "") {
         request = "* FROM Books";
@@ -265,4 +287,4 @@ async function AllBooks(filters = ""): Promise<null | any> {
     });
 }
 
-export { getFromDB, InsertIntoDB, DetectFolderInLibrary, addLibrary, updateLibrary, OneForAll, AllForOne, TrueDeleteFromDB, downloadBook, logout, changeRating, modifyConfigJson, deleteLib, AllBooks };
+export { getFromDB, InsertIntoDB, DetectFolderInLibrary, addLibrary, updateLibrary, updateBookStatusForAll, updateBookStatusForOne, TrueDeleteFromDB, downloadBook, logout, changeRating, modifyConfigJson, deleteLib, AllBooks };

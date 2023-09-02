@@ -1,5 +1,5 @@
 import { PDP, currentProfile } from "@/utils/Common.ts";
-import { AllForOne, InsertIntoDB, changeRating, downloadBook, getFromDB } from "@/utils/Fetchers.ts";
+import { updateBookStatusForOne, InsertIntoDB, changeRating, downloadBook, getFromDB } from "@/utils/Fetchers.ts";
 import { IBook } from "@/interfaces/IBook.ts";
 import { providerEnum, tryToParse } from "@/utils/utils.ts";
 import { ArrowBack, ArrowForward, AutoStories, Check, Close, Done, Download, Edit, Favorite, OpenInNew, PlayArrow, QuestionMark, Refresh, YoutubeSearchedFor } from "@mui/icons-material";
@@ -503,7 +503,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 <IconButton id="playbutton" onClick={
                                     async () => {
                                         if (type == "volume") {
-                                            AllForOne("unread", "read", "reading", TheBook.ID_book);
+                                            updateBookStatusForOne("reading", TheBook.ID_book);
                                             const encoded = encodeURIComponent(TheBook.PATH.replaceAll("/", "%C3%B9"));
                                             window.location.href = "viewer.html?" + encoded;
                                         } else {
@@ -529,7 +529,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 <IconButton
                                     onClick={
                                         () => {
-                                            AllForOne("unread", "reading", "read", TheBook.ID_book);
+                                            updateBookStatusForOne("read", TheBook.ID_book);
                                             Toaster(t("mkread"), "success");
                                         }
                                     }
@@ -539,7 +539,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 <IconButton id="readingbtndetails" style={{ display: type === "series" ? "none" : "block" }}
                                     onClick={
                                         () => {
-                                            AllForOne("unread", "read", "reading", TheBook.ID_book);
+                                            updateBookStatusForOne("reading", TheBook.ID_book);
                                             Toaster(t("mkreading"), "success");
                                         }
                                     }
@@ -548,7 +548,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 <IconButton id="decheckbtn"
                                     onClick={
                                         () => {
-                                            AllForOne("read", "reading", "unread", TheBook.ID_book);
+                                            updateBookStatusForOne("unread", TheBook.ID_book);
                                             Toaster(t("mkunread"), "success");
                                         }
                                     }

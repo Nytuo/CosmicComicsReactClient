@@ -21,7 +21,7 @@ class Marvel {
             return response.text();
         }).then(function (data) {
             data = JSON.parse(data);
-            logger.info("Marvel search result: " + data);
+            logger.debug("Marvel search result: " + data);
             return data;
         }).catch(function (error) {
             logger.error(error);
@@ -41,7 +41,7 @@ class Marvel {
             return response.text();
         }).then(function (data) {
             data = JSON.parse(data);
-            logger.info("Marvel search result: " + data);
+            logger.debug("Marvel search result: " + data);
             return data;
         }).catch(function (error) {
             logger.error(error);

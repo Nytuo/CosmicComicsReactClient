@@ -42,7 +42,7 @@ class GoogleBooks {
             return response.text();
         }).then(function (data) {
             data = JSON.parse(data);
-            logger.info("Google Books search result: " + data);
+            logger.debug("Google Books search result: " + data);
             return data;
         }).catch(function (error) {
             logger.error(error);

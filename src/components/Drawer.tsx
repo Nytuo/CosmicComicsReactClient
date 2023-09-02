@@ -43,6 +43,7 @@ import AboutDialog from './Dialogs/AboutDialog.tsx';
 import { OpenLibrary } from '@/API/OpenLibrary.ts';
 import { GoogleBooks } from '@/API/GoogleBooks.ts';
 import APISelectorDialog from './Dialogs/APISelectorDialog.tsx';
+import AddingLibraryDialog from './Dialogs/AddingLibraryDialog.tsx';
 
 
 const drawerWidth = 240;
@@ -285,6 +286,15 @@ export default function MiniDrawer({
     const handleOpenUpload = () => {
         setUploadOpen(true);
     };
+
+    const [createLibraryOpen, setCreateLibraryOpen] = React.useState(false);
+    const handleCloseCreateLibrary = () => {
+        setCreateLibraryOpen(false);
+    };
+
+    const handleOpenCreateLibrary = () => {
+        setCreateLibraryOpen(true);
+    };
     const [openAPISelector, setOpenAPISelector] = React.useState(false);
     const handleOpenTracker = () => {
         setOpenAPISelector(true);
@@ -465,7 +475,13 @@ export default function MiniDrawer({
                 }
             }
         });
-        if (!cardMode) if (n === 0) Toaster(t("empty_notSupported"), "error");
+        if (!cardMode) if (n === 0) {
+            Toaster(t("empty_notSupported"), "error"); setOpenDetails(null);
+            setOpenSeries({ open: false, series: [], provider: null });
+            setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
+            setIsLoading(false);
+            handleRemoveBreadcrumbsTo(1);
+        }
     }
 
 
@@ -693,6 +709,7 @@ export default function MiniDrawer({
             <UploadDialog openModal={uploadOpen} onClose={handleCloseUpload} cosmicComicsTemp={CosmicComicsTemp} />
             <NavigationDialog openModal={openNavigation} onClose={handleCloseNavigation} CosmicComicsTemp={CosmicComicsTemp} />
             <APISelectorDialog openModal={openAPISelector} onClose={() => { setOpenAPISelector(false); }} />
+            <AddingLibraryDialog openModal={createLibraryOpen} onClose={handleCloseCreateLibrary} />
             <AppBar position="fixed" open={open}>
                 <Toolbar>
                     <IconButton
@@ -908,7 +925,7 @@ export default function MiniDrawer({
                                 }}
                                 onClick={() => {
                                     if (text === t("addLib")) {
-                                        //
+                                        handleOpenCreateLibrary();
                                     } else if (text === t('open_file')) {
                                         handleOpenUpload();
                                     } else if (text === t('TRACKER')) {

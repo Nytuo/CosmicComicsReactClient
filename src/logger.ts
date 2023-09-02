@@ -10,27 +10,27 @@ export default class Logger {
      * @param message - The message to log.
      */
     static info(message: string) {
-        console.log("%c [INFO] " + message, "color: rgb(46,46,254)54,54,187)");
+        console.log("%c [INFO] " + JSON.stringify(message), "background: rgb(46,46,254);");
     }
     /**
      * Logs an error message to the console with a red color.
      * @param message - The error message to log.
      */
     static error(message: string) {
-        console.error("%c [ERROR] " + message, "color: rgb(133,25,25)");
+        console.error("%c [ERROR] " + JSON.stringify(message));
     }
     /**
      * Logs a warning message to the console with a custom color.
      * @param message - The message to log.
      */
     static warn(message: string) {
-        console.warn("%c [WARN] " + message, "color: rgb(141,84,14)");
+        console.warn("%c [WARN] " + JSON.stringify(message), "background: rgb(141,84,14);");
     }
     /**
      * Logs a debug message to the console with a green color.
      * @param message - The message to log.
      */
     static debug(message: string) {
-        console.debug("%c [DEBUG] " + message, "color: rgb(11,85,11)");
+        console.debug("%c [DEBUG] " + JSON.stringify(message), "background: rgb(12,91,12);color: white;");
     }
 }
