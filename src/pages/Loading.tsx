@@ -1,8 +1,9 @@
 import StarBackground from "@/components/StarBackground.tsx";
-import { CircularProgress, Grid } from "@mui/material";
+import { CircularProgress, Grid, useTheme } from "@mui/material";
 import { useEffect, useLayoutEffect } from "react";
 
 export function Loading() {
+	const theme = useTheme();
 	useEffect(() => {
 		document.title = "Loading...";
 		setTimeout(() => {
@@ -13,7 +14,7 @@ export function Loading() {
 		document.querySelector("#navbar")?.classList.add("hidden");
 	}, []);
 	return (
-		<>
+		<div style={{ width: "100vw", height: "100vh", background: theme.palette.background.default }}>
 			<StarBackground />
 			<Grid
 				container
@@ -31,6 +32,6 @@ export function Loading() {
 					<CircularProgress />
 				</Grid>
 			</Grid >
-		</>
+		</div>
 	);
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import LoginDialog from "@/components/Dialogs/LoginDialog.tsx";
 import CreateAccountDialog from "@/components/Dialogs/CreateAccountDialog.tsx";
 import IProfile from "@/interfaces/IProfile";
@@ -7,12 +7,14 @@ import { LoginCard } from "@/components/LoginCard.tsx";
 import StarBackground from "@/components/StarBackground.tsx";
 import { Toaster } from "@/components/Toaster.tsx";
 import { useTranslation } from "react-i18next";
+import { Container, useTheme } from "@mui/material";
 export default function Login() {
     const [openLogin, setOpenLogin] = useState(false);
     const [openCreateAccount, setOpenCreateAccount] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState<IProfile | undefined>();
     const [profiles, setProfiles] = useState<IProfile[]>([]);
     const { t } = useTranslation();
+    const theme = useTheme();
     const onLoginModalClose = () => {
         setOpenLogin(false);
     };
@@ -27,6 +29,14 @@ export default function Login() {
             Toaster(t("errors.account_creation"), "error");
         });
     };
+
+    useLayoutEffect(() => {
+        document.getElementsByTagName("html")[0].style.overflowY = "hidden";
+        return () => {
+            document.getElementsByTagName("html")[0].style.overflowY = "auto";
+        };
+    }, []);
+
     useEffect(() => {
         discover();
     }, []);
@@ -46,9 +56,9 @@ export default function Login() {
         });
     };
     return (
-        <>
+        <div style={{ width: "100vw", height: "100vh", background: theme.palette.background.default }}>
             <StarBackground />
-            <div style={{ marginTop: "100px", textAlign: 'center', width: "100%" }}>
+            <div style={{ paddingTop: "100px", textAlign: 'center', width: "100%" }}>
                 <h1 id="whosreading">{t("whosreading")}</h1>
             </div>
             <div id="login_discover">
@@ -64,6 +74,6 @@ export default function Login() {
             <CreateAccountDialog openModal={openCreateAccount} title={t("firstConfig")}
                 text={t("createFirstAccount")}
                 createFunction={servConfig} />
-        </>
+        </div>
     );
 }

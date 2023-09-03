@@ -1185,7 +1185,7 @@ export default function MiniDrawer({
             </Drawer>
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                 <DrawerHeader />
-                {isLoading ? <div id="overlay">
+                {isLoading ? <div id="overlay" style={{ background: theme.palette.background.default }}>
                     <div style={{ textAlign: "center", marginTop: "25%" }}>
                         <CircularProgress />
                         <p id="decompressfilename" style={{ marginTop: "10px" }}></p>

@@ -9,7 +9,7 @@ import { API } from '@/API/API.ts';
 import Card from '@/components/Card.tsx';
 import Book from '@/utils/Book.ts';
 import { Anilist } from '@/API/Anilist.ts';
-import { Button } from '@mui/material';
+import { Button, Stack, TextField } from '@mui/material';
 
 /**
  * A component that allows the user to search for a book or a serie in different APIs and rematch it with a different provider.
@@ -25,9 +25,9 @@ export default function RematchSkeleton({ provider, type }: {
     const [rematchResult, setRematchResult] = React.useState<any[]>([]);
 
     return (
-        <div>
-            <input type="text" id="rematchSearch" placeholder="Search title in the library's API" />
-            <input type="text" id="rematchYearSearch" placeholder="Year (optional)" />
+        <Stack>
+            <TextField id="rematchSearch" label="Search title in the library's API" variant="outlined" />
+            <TextField id="rematchYearSearch" label="Year (optional)" variant="outlined" />
             <Button id="rematchSearchSender"
                 onClick={
                     () => {
@@ -147,6 +147,6 @@ export default function RematchSkeleton({ provider, type }: {
                     rematchResult.map(({ book, onclick }, index) => { return <Card provider={provider} key={index} book={book} onClick={onclick} />; })
                 }
             </div>
-        </div>
+        </Stack>
     );
 }

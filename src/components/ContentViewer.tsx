@@ -31,7 +31,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
     handleAddBreadcrumbs: any;
     handleChangeToDetails?: (open: boolean, book: IBook, provider: any) => void;
 }) {
-    const [rating, setRating] = useState<number | null>(type === "volume" ? (TheBook.note === null ? null : parseInt(TheBook.note)) : null);
+    const [rating, setRating] = useState<number | null>((TheBook.note === null ? null : parseInt(TheBook.note)));
     const [characters, setCharacters] = useState<any[]>([]);
     const [staff, setStaff] = useState<any[]>([]);
     const [relations, setRelations] = useState<any[]>([]);
@@ -804,115 +804,126 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                             }
                         }
                     >
-                        <div>
-                            <h1>{t("volumes")}</h1>
-                            <ContainerExplorer stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={handleChangeToDetails} />
-                        </div>
-                        <div>
-                            <h1>{t("characters")}</h1>
-                            {t("Numberofcharacters")}
-                            {
-                                type === "volume" ?
-                                    ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.characters)["available"]) : ((TheBook.characters !== "null") ? (tryToParse(TheBook.characters).length) : (0))) : ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.characters)["available"]) : (tryToParse(TheBook.characters).length))
-                            }
-                            <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
-                                {
-                                    characters.map((el: any, index: number) => {
-                                        return <div key={index}
-                                            style={{
-                                                marginLeft: "20px",
-                                                textAlign: "center",
-                                                cursor: "pointer",
-                                            }}
-                                            onClick={
-                                                () => {
-                                                    if (provider === providerEnum.Marvel) {
-                                                        handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url);
-                                                    } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                                                        handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
-                                                    }
-                                                }
-                                            }
-                                        >
-                                            {
-                                                (provider === providerEnum.Marvel) ? <Box>
-                                                    <Avatar sx={{ width: 120, height: 120 }}
-                                                        alt='a character' src={tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension} />
-                                                    <Typography>{el.name}</Typography></Box> :
-                                                    (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ? <Box sx={{ textAlign: "center" }}>
-                                                        <Avatar sx={{ width: 120, height: 120 }}
-                                                            alt='a character' src={el.image.replaceAll('"', '')} /><Typography textAlign={"center"}>{el.name}</Typography></Box> : ""
-                                            }
-                                        </div>;
-                                    })
-                                }
-                            </ScrollMenu>
-                        </div>
-                        <div>
-                            <h1>{t('Staff')}</h1>
-                            {t("Numberofpeople")}
-                            {
-                                ((provider === providerEnum.Marvel) ? (tryToParse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0")))
-                            }
-                            <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
-                                {
-                                    staff.map((el: any, index: number) => {
-                                        return <div key={index}
-                                            style={{
-                                                marginLeft: "20px",
-                                                textAlign: "center",
-                                                cursor: "pointer",
-                                            }}
-                                            onClick={
-                                                () => {
-                                                    if (provider === providerEnum.Marvel) {
-                                                        handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url);
-                                                    } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                                                        handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
-                                                    }
-                                                }
-                                            }
-                                        >
-                                            {
-                                                (provider === providerEnum.Marvel) ?
-                                                    (el.name === tryToParse(TheBook.creators)["items"][index].name) ?
-                                                        <><Avatar src={tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension}></Avatar><span>{el.name}</span><br /><span style={{ fontSize: "14px", color: "#a8a8a8a8" }}>{tryToParse(TheBook.creators)["items"][index]["role"]}</span></> : ""
-                                                    : (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ?
-                                                        (tryToParse(TheBook.creators)[index] !== undefined && el.name === tryToParse(TheBook.creators)[index].name) ?
-                                                            <><Avatar sx={{ width: 120, height: 120 }} src={el.image.replaceAll('"', "")}></Avatar><br /><span>{el.name}</span></>
-                                                            : <><Avatar sx={{ width: 120, height: 120 }} src={el.image.replaceAll('"', "")}></Avatar><br /><span>{el.name}</span></> : ""
-                                            }
-                                        </div>;
-                                    })}
-                            </ScrollMenu>
-                        </div>
-                        <div id="SiteURL"></div>
-                        <div>
-                            <h1>  {
-                                ((provider === providerEnum.Marvel) ? (t("AFewComics")) : (t("Relations")))
-                            }</h1>
-
-
-                            <div className="cards-list2">
-
-                                {
-                                    relations.map((el: any, index: number) => {
-                                        return <Card key={index} onClick={
-                                            () => {
-                                                if (provider === providerEnum.Marvel) {
-                                                    handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url, "cover");
-                                                } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                                                    handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url, "cover");
-                                                }
-                                            }
-                                        }
-                                            book={new Book(el.ID_book, el.name, ((provider === providerEnum.Marvel) ? (tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension) : (el.image)), "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, provider)}
-                                            provider={provider}
-                                        />;
-                                    })}
+                        {
+                            type === "series" && openExplorer.explorer.length > 0
+                            && <div>
+                                <h1>{t("volumes")}</h1>
+                                <ContainerExplorer stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={handleChangeToDetails} />
                             </div>
+                        }
+                        {
+                            ((provider === providerEnum.Marvel) ? (tryToParse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 && <div>
+                                <h1>{t("characters")}</h1>
+                                {t("Numberofcharacters")}
+                                {
+                                    type === "volume" ?
+                                        ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.characters)["available"]) : ((TheBook.characters !== "null") ? (tryToParse(TheBook.characters).length) : (0))) : ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.characters)["available"]) : (tryToParse(TheBook.characters).length))
+                                }
+                                <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
+                                    {
+                                        characters.map((el: any, index: number) => {
+                                            return <div key={index}
+                                                style={{
+                                                    marginLeft: "20px",
+                                                    textAlign: "center",
+                                                    cursor: "pointer",
+                                                }}
+                                                onClick={
+                                                    () => {
+                                                        if (provider === providerEnum.Marvel) {
+                                                            handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url);
+                                                        } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                                                            handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
+                                                        }
+                                                    }
+                                                }
+                                            >
+                                                {
+                                                    (provider === providerEnum.Marvel) ? <Box>
+                                                        <Avatar sx={{ width: 120, height: 120 }}
+                                                            alt='a character' src={tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension} />
+                                                        <Typography>{el.name}</Typography></Box> :
+                                                        (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ? <Box sx={{ textAlign: "center" }}>
+                                                            <Avatar sx={{ width: 120, height: 120 }}
+                                                                alt='a character' src={el.image.replaceAll('"', '')} /><Typography textAlign={"center"}>{el.name}</Typography></Box> : ""
+                                                }
+                                            </div>;
+                                        })
+                                    }
+                                </ScrollMenu>
+                            </div>
+                        }
+                        {
+                            ((provider === providerEnum.Marvel) ? (tryToParse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 && <div>
+                                <h1>{t('Staff')}</h1>
+                                {t("Numberofpeople")}
+                                {
+                                    ((provider === providerEnum.Marvel) ? (tryToParse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0")))
 
-                        </div>
+                                }
+                                <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
+                                    {
+                                        staff.map((el: any, index: number) => {
+                                            return <div key={index}
+                                                style={{
+                                                    marginLeft: "20px",
+                                                    textAlign: "center",
+                                                    cursor: "pointer",
+                                                }}
+                                                onClick={
+                                                    () => {
+                                                        if (provider === providerEnum.Marvel) {
+                                                            handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url);
+                                                        } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                                                            handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
+                                                        }
+                                                    }
+                                                }
+                                            >
+                                                {
+                                                    (provider === providerEnum.Marvel) ?
+                                                        (el.name === tryToParse(TheBook.creators)["items"][index].name) ?
+                                                            <><Avatar src={tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension}></Avatar><span>{el.name}</span><br /><span style={{ fontSize: "14px", color: "#a8a8a8a8" }}>{tryToParse(TheBook.creators)["items"][index]["role"]}</span></> : ""
+                                                        : (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ?
+                                                            (tryToParse(TheBook.creators)[index] !== undefined && el.name === tryToParse(TheBook.creators)[index].name) ?
+                                                                <><Avatar sx={{ width: 120, height: 120 }} src={el.image.replaceAll('"', "")}></Avatar><br /><span>{el.name}</span></>
+                                                                : <><Avatar sx={{ width: 120, height: 120 }} src={el.image.replaceAll('"', "")}></Avatar><br /><span>{el.name}</span></> : ""
+                                                }
+                                            </div>;
+                                        })}
+                                </ScrollMenu></div>
+                        }
+
+                        <div id="SiteURL"></div>
+                        {
+                            relations.length > 0 && <div>
+                                <h1>  {
+                                    ((provider === providerEnum.Marvel) ? (t("AFewComics")) : (t("Relations")))
+                                }</h1>
+
+
+                                <div className="cards-list2">
+
+                                    {
+                                        relations.map((el: any, index: number) => {
+                                            return <Card key={index} onClick={
+                                                () => {
+                                                    if (provider === providerEnum.Marvel) {
+                                                        handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url, "cover");
+                                                    } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                                                        handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url, "cover");
+                                                    }
+                                                }
+                                            }
+                                                book={new Book(el.ID_book, el.name, ((provider === providerEnum.Marvel) ? (tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension) : (el.image)), "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, provider)}
+                                                provider={provider}
+                                            />;
+                                        })}
+                                </div>
+
+                            </div>
+                        }
+
                         <div>
                             {
                                 (TheBook.variants !== "null" && TheBook.variants !== "" && TheBook.variants != null) ? (provider === providerEnum.Marvel) ? t("variantsList") + ' : ' + tryToParse(TheBook.variants).map((variant: { name: string; }, index: number) => {
@@ -920,7 +931,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 }) : "" : ""
                             }
                         </div>
-                        <div style={{ textAlign: "center" }}><p id="provider_text">{((provider === providerEnum.Marvel) ? (t("providedBy") + " Marvel. © 2014 Marvel") : ((provider === providerEnum.Anilist) ? (t("providedBy") + " Anilist.") : ((provider === providerEnum.MANUAL) ? (t("notFromAPI")) : ((provider === providerEnum.OL) ? (t("providedBy") + " OpenLibrary.") : ((provider === providerEnum.GBooks) ? (t("providedBy") + " Google Books.") : "")))))}</p></div>
+                        <div style={{ textAlign: "center" }}><p id="provider_text">{((provider === providerEnum.Marvel) ? (t("providedBy") + " Marvel. © 2014 Marvel") : ((provider === providerEnum.Anilist) ? (t("providedBy") + " Anilist.") : ((provider === providerEnum.MANUAL) ? (t("notFromAPI")) : ((provider === providerEnum.OL) ? (t("providedBy") + " OpenLibrary.") : ((provider === providerEnum.GBooks) ? (t("providedBy") + " Google Books.") : t("notFromAPI"))))))}</p></div>
                     </Box>
                 </Stack>
             </Box>
