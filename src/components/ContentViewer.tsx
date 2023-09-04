@@ -1,7 +1,7 @@
 import { PDP, currentProfile } from "@/utils/Common.ts";
 import { updateBookStatusForOne, InsertIntoDB, changeRating, downloadBook, getFromDB } from "@/utils/Fetchers.ts";
 import { IBook } from "@/interfaces/IBook.ts";
-import { providerEnum, tryToParse } from "@/utils/utils.ts";
+import { providerEnum, resolveTitle, tryToParse } from "@/utils/utils.ts";
 import { ArrowBack, ArrowForward, AutoStories, Check, Close, Done, Download, Edit, Favorite, OpenInNew, PlayArrow, QuestionMark, Refresh, YoutubeSearchedFor } from "@mui/icons-material";
 import { Avatar, Box, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import Rating from "@mui/material/Rating/Rating";
@@ -253,9 +253,6 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
         });
     }
     const { t } = useTranslation();
-    useEffect(() => {
-        handleAddBreadcrumbs(TheBook.NOM, () => { });
-    }, []);
     useLayoutEffect(() => {
         fetchCharacters();
         fetchCreators();
@@ -387,19 +384,19 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                             <Grid2>
                                 {
                                     type === "volume" ?
-                                        TheBook.read === 1 ?
+                                        (TheBook.read === 1 || TheBook.read === "true") ?
                                             <Chip color="info" sx={
                                                 { marginRight: "5px" }
                                             } label={
                                                 t('READ')
                                             } icon={<Done />} />
-                                            : TheBook.unread === 1 ?
+                                            : TheBook.unread === 1 || TheBook.unread === "true" ?
                                                 <Chip color="error" sx={
                                                     { marginRight: "5px" }
                                                 } label={
                                                     t('UNREAD')
                                                 } icon={<Close />} />
-                                                : TheBook.reading === 1 ?
+                                                : TheBook.reading === 1 || TheBook.reading === "true" ?
                                                     <Chip color="warning" sx={
                                                         { marginRight: "5px" }
                                                     } label={
@@ -509,10 +506,11 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                         } else {
                                             await getFromDB("Books", "PATH FROM Books WHERE unread=1 OR reading=1").then(async (resa) => {
                                                 if (!resa) return;
-                                                let continueSeriesReading;
+                                                let continueSeriesReading = "";
                                                 const bookList = tryToParse(resa);
+                                                console.log(bookList);
                                                 for (let i = 0; i < bookList.length; i++) {
-                                                    if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
+                                                    if (bookList[i].PATH.toLowerCase().includes(resolveTitle(TheBook.raw_title).toLowerCase().replaceAll('"', ''))) {
                                                         continueSeriesReading = bookList[i].PATH;
                                                         break;
                                                     }
@@ -558,54 +556,109 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 <IconButton id="favoritebtn"
                                     onClick={
                                         async () => {
-                                            if (TheBook.favorite === 1) {
-                                                TheBook.favorite = 0;
-                                                Toaster(t("remove_fav"), "success");
-                                                await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
-                                                    if (!resa) return;
-                                                    const bookList = tryToParse(resa);
-                                                    for (let i = 0; i < bookList.length; i++) {
-                                                        if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
-                                                            const options = {
-                                                                method: "POST", headers: {
-                                                                    "Content-Type": "application/json"
-                                                                }, body: JSON.stringify({
-                                                                    "token": currentProfile.getToken,
-                                                                    "table": "Books",
-                                                                    "column": "favorite",
-                                                                    "whereEl": bookList[i].PATH,
-                                                                    "value": false,
-                                                                    "where": "PATH"
-                                                                }, null, 2)
-                                                            };
-                                                            await fetch(PDP + "/DB/update", options);
+                                            if (type === "volume") {
+                                                if (TheBook.favorite === 1) {
+                                                    TheBook.favorite = 0;
+                                                    Toaster(t("remove_fav"), "success");
+                                                    await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
+                                                        if (!resa) return;
+                                                        const bookList = tryToParse(resa);
+                                                        for (let i = 0; i < bookList.length; i++) {
+                                                            if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
+                                                                const options = {
+                                                                    method: "POST", headers: {
+                                                                        "Content-Type": "application/json"
+                                                                    }, body: JSON.stringify({
+                                                                        "token": currentProfile.getToken,
+                                                                        "table": "Books",
+                                                                        "column": "favorite",
+                                                                        "whereEl": bookList[i].PATH,
+                                                                        "value": false,
+                                                                        "where": "PATH"
+                                                                    }, null, 2)
+                                                                };
+                                                                await fetch(PDP + "/DB/update", options);
+                                                            }
                                                         }
-                                                    }
-                                                });
+                                                    });
+                                                } else {
+                                                    TheBook.favorite = 1;
+                                                    Toaster(t("add_fav"), "success");
+                                                    await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
+                                                        if (!resa) return;
+                                                        const bookList = tryToParse(resa);
+                                                        for (let i = 0; i < bookList.length; i++) {
+                                                            if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
+                                                                const options = {
+                                                                    method: "POST", headers: {
+                                                                        "Content-Type": "application/json"
+                                                                    }, body: JSON.stringify({
+                                                                        "token": currentProfile.getToken,
+                                                                        "table": "Books",
+                                                                        "column": "favorite",
+                                                                        "whereEl": bookList[i].PATH,
+                                                                        "value": true,
+                                                                        "where": "PATH"
+                                                                    }, null, 2)
+                                                                };
+                                                                await fetch(PDP + "/DB/update", options);
+                                                            }
+                                                        }
+                                                    });
+                                                }
                                             } else {
-                                                TheBook.favorite = 1;
-                                                Toaster(t("add_fav"), "success");
-                                                await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
-                                                    if (!resa) return;
-                                                    const bookList = tryToParse(resa);
-                                                    for (let i = 0; i < bookList.length; i++) {
-                                                        if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
-                                                            const options = {
-                                                                method: "POST", headers: {
-                                                                    "Content-Type": "application/json"
-                                                                }, body: JSON.stringify({
-                                                                    "token": currentProfile.getToken,
-                                                                    "table": "Books",
-                                                                    "column": "favorite",
-                                                                    "whereEl": bookList[i].PATH,
-                                                                    "value": true,
-                                                                    "where": "PATH"
-                                                                }, null, 2)
-                                                            };
-                                                            await fetch(PDP + "/DB/update", options);
+                                                if (TheBook.favorite === 1) {
+                                                    TheBook.favorite = 0;
+                                                    Toaster(t("remove_fav"), "success");
+                                                    await getFromDB("Series", "* FROM Series WHERE favorite=1").then(async (resa) => {
+                                                        if (!resa) return;
+                                                        const bookList = tryToParse(resa);
+                                                        for (let i = 0; i < bookList.length; i++) {
+                                                            if (TheBook.raw_title === bookList[i].title) {
+                                                                const options = {
+                                                                    method: "POST", headers: {
+                                                                        "Content-Type": "application/json"
+                                                                    }, body: JSON.stringify({
+                                                                        "token": currentProfile.getToken,
+                                                                        "table": "Series",
+                                                                        "column": "favorite",
+                                                                        "whereEl": bookList[i].ID_Series,
+                                                                        "value": false,
+                                                                        "where": "ID_Series"
+                                                                    }, null, 2)
+                                                                };
+                                                                fetch(PDP + "/DB/update", options);
+                                                            }
                                                         }
-                                                    }
-                                                });
+                                                    });
+                                                } else {
+                                                    TheBook.favorite = 1;
+                                                    Toaster(t("add_fav"), "success");
+                                                    await getFromDB("Series", "* FROM Series WHERE favorite=0").then(async (resa) => {
+                                                        if (!resa) return;
+                                                        const bookList = tryToParse(resa);
+                                                        for (let i = 0; i < bookList.length; i++) {
+                                                            console.log(TheBook.raw_title);
+                                                            console.log(bookList[i].title);
+                                                            if (TheBook.raw_title === bookList[i].title) {
+                                                                console.log("found");
+                                                                const options = {
+                                                                    method: "POST", headers: {
+                                                                        "Content-Type": "application/json"
+                                                                    }, body: JSON.stringify({
+                                                                        "token": currentProfile.getToken,
+                                                                        "table": "Series",
+                                                                        "column": "favorite",
+                                                                        "whereEl": bookList[i].ID_Series,
+                                                                        "value": true,
+                                                                        "where": "ID_Series"
+                                                                    }, null, 2)
+                                                                };
+                                                                fetch(PDP + "/DB/update", options);
+                                                            }
+                                                        }
+                                                    });
+                                                }
                                             }
                                         }
                                     }

@@ -276,6 +276,13 @@ export default function MiniDrawer({
         setOpenSeries({ open: false, series: [], provider: null });
         setOpenDetails({ open: true, book: book, provider: provider });
     };
+
+    const handleChangeToSeries = (open: boolean, series: IBook[], provider: any) => {
+        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
+        setOpenDetails(null);
+        setOpenSeries({ open: true, series: series, provider: provider });
+        handleRemoveBreadcrumbsTo(1);
+    };
     const handleAddBreadcrumbs = (text: string, onClick: () => void) => {
         setBreadcrumbs([...breadcrumbs, { text: text, onClick: onClick }]);
     };
@@ -343,24 +350,21 @@ export default function MiniDrawer({
                         const res = JSON.parse(resa);
                         console.log(res);
                         let node;
-                        if (cardMode === true) {
-                            if (provider === providerEnum.Marvel) {
-                                node = JSON.parse(res[0].title);
-                            } else if (provider == providerEnum.Anilist) {
-                                // if (JSON.parse(res[0].title)["english"] !== undefined && JSON.parse(res[0].title)["english"] !== null) {
-                                //     node = JSON.parse(res[0].title)["english"];
-                                // } else if (JSON.parse(res[0].title)["romaji"] !== undefined && JSON.parse(res[0].title)["romaji"] !== null) {
-                                //     node = JSON.parse(res[0].title)["romaji"];
-                                // } else {
-                                //     node = JSON.parse(res[0].title);
-                                // }
-                                node = (JSON.parse(res[0].title).english + " / " + JSON.parse(res[0].title).romaji + " / " + JSON.parse(res[0].title).native);
-                            } else if (provider == providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                                node = res[0].title;
-                            }
-                        } else {
-                            node = JSON.parse(res[0].title)["english"];
+                        if (provider === providerEnum.Marvel) {
+                            node = JSON.parse(res[0].title);
+                        } else if (provider == providerEnum.Anilist) {
+                            // if (JSON.parse(res[0].title)["english"] !== undefined && JSON.parse(res[0].title)["english"] !== null) {
+                            //     node = JSON.parse(res[0].title)["english"];
+                            // } else if (JSON.parse(res[0].title)["romaji"] !== undefined && JSON.parse(res[0].title)["romaji"] !== null) {
+                            //     node = JSON.parse(res[0].title)["romaji"];
+                            // } else {
+                            //     node = JSON.parse(res[0].title);
+                            // }
+                            node = (JSON.parse(res[0].title).english + " / " + JSON.parse(res[0].title).romaji + " / " + JSON.parse(res[0].title).native);
+                        } else if (provider == providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                            node = res[0].title;
                         }
+
                         const invertedPath = path.replaceAll("\\", "/");
                         let imagelink;
                         if (provider === providerEnum.Marvel) {
@@ -389,6 +393,7 @@ export default function MiniDrawer({
                             ID_book: res[0]["ID_Series"],
                             URLCover: imagelink.toString(),
                             NOM: node,
+                            raw_title: res[0]["title"],
                             favorite: res[0]["favorite"],
                             PATH: invertedPath,
                             folder: 0,
@@ -1196,7 +1201,7 @@ export default function MiniDrawer({
                 </div> : <></>}
                 {
                     openExplorer && openExplorer.open ? <ContainerExplorer stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={openExplorer.type === "series" ? handleOpenSeries : handleOpenDetails} /> :
-                        openSeries && openSeries.open ? <Series stateSeries={openSeries} handleAddBreadcrumbs={handleAddBreadcrumbs} handleChangeToDetails={handleChangeToDetails} /> :
+                        openSeries && openSeries.open ? <Series stateSeries={openSeries} handleAddBreadcrumbs={handleAddBreadcrumbs} handleChangeToDetails={handleChangeToDetails} handleChangeToSeries={handleChangeToSeries} /> :
                             openDetails && openDetails.open ? <Details stateDetails={openDetails} handleAddBreadcrumbs={handleAddBreadcrumbs} /> : <HomeContainer handleOpenDetails={handleOpenDetails} />
                 }
             </Box>
