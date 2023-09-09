@@ -151,7 +151,7 @@ export default function RematchSkeleton({ provider, type, oldID }: {
             >Search</Button>
             <div id="resultRematch">
                 {
-                    rematchResult.map(({ book, onclick }, index) => { return <Card provider={provider} key={index} book={book} onClick={onclick} />; })
+                    rematchResult.map(({ book, onclick }, index) => { return <Card provider={provider} key={index} book={book} onClick={onclick} type='lite' />; })
                 }
             </div>
         </Stack>

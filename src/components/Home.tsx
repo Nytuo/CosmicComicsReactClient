@@ -45,7 +45,7 @@ function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
             readingBooks.length === 0 ? <p>{t("nothingHere")}</p> :
                 <div className="cards-list">
                     {readingBooks.map((book: IBook, index) => {
-                        return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                        return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} type="book" />;
                     })}
                 </div>
         }
@@ -55,7 +55,7 @@ function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
             <div className="cards-list">
                 {
                     myFavorite.map((book: IBook, index) => {
-                        return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                        return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} type="book" />;
                     })
                 }
             </div>
@@ -64,7 +64,7 @@ function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
         {recentlyAdded.length === 0 ? <p>{t("nothingHere")}</p> :
             <div className="cards-list">
                 {recentlyAdded.map((book: IBook, index) => {
-                    return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                    return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} type="book" />;
                 })}
             </div>
         }
@@ -72,7 +72,7 @@ function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
         {toRead.length === 0 ? <p>{t("nothingHere")}</p> :
             <div className="cards-list">
                 {toRead.map((book: IBook, index) => {
-                    return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} />;
+                    return <Card provider={book.API_ID} handleOpenDetails={handleOpenDetails} book={book} key={index} type="book" />;
                 })}
             </div>
         }

@@ -900,7 +900,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                             type === "series" && openExplorer.explorer.length > 0
                             && <div>
                                 <h1>{t("volumes")}</h1>
-                                <ContainerExplorer stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={handleChangeToDetails} />
+                                <ContainerExplorer type="book" stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={handleChangeToDetails} />
                             </div>
                         }
                         {
@@ -998,7 +998,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
 
                                     {
                                         relations.map((el: any, index: number) => {
-                                            return <Card key={index} onClick={
+                                            return <Card key={index} type="lite" onClick={
                                                 () => {
                                                     if (provider === providerEnum.Marvel) {
                                                         handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url, "cover");

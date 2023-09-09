@@ -1200,7 +1200,7 @@ export default function MiniDrawer({
                     </div>
                 </div> : <></>}
                 {
-                    openExplorer && openExplorer.open ? <ContainerExplorer stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={openExplorer.type === "series" ? handleOpenSeries : handleOpenDetails} /> :
+                    openExplorer && openExplorer.open ? <ContainerExplorer type='lite' stateExplorer={openExplorer} handleAddBreadcrumbs={handleAddBreadcrumbs} handleOpenDetails={openExplorer.type === "series" ? handleOpenSeries : handleOpenDetails} /> :
                         openSeries && openSeries.open ? <Series stateSeries={openSeries} handleAddBreadcrumbs={handleAddBreadcrumbs} handleChangeToDetails={handleChangeToDetails} handleChangeToSeries={handleChangeToSeries} /> :
                             openDetails && openDetails.open ? <Details stateDetails={openDetails} handleAddBreadcrumbs={handleAddBreadcrumbs} /> : <HomeContainer handleOpenDetails={handleOpenDetails} />
                 }

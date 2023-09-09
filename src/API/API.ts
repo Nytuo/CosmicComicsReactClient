@@ -48,7 +48,7 @@ class API {
                 "token": currentProfile.getToken,
                 "table": isSeries ? "Series" : "Books",
                 "type": "noedit",
-                "column": isSeries ? "ID_Series" : "API_ID",
+                "column": isSeries ? "ID_Series" : "ID_book",
                 "whereEl": old_id,
                 "value": `'${new_id}'`,
                 "where": isSeries ? "ID_Series" : "ID_book"
