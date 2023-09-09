@@ -485,9 +485,9 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                         >
                             {
                                 type === "volume" ?
-                                    (TheBook.dates !== "null" ? t("dates") + tryToParse(TheBook.dates).map((date: { type: string; date: string; }, index: number) => {
+                                    (TheBook.dates !== "null" ? typeof tryToParse(TheBook.dates) === "object" ? t("dates") + tryToParse(TheBook.dates).map((date: { type: string; date: string; }, index: number) => {
                                         return <p key={index}>{date.type.replace(/([A-Z])/g, ' $1').trim() + " : " + date.date}</p>;
-                                    }) : "?") : ""
+                                    }) : "?" : "?") : ""
                             }
                             {
                                 type === "series" ? (!APINOTFOUND) ? ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.start_date)) + " -" : (tryToParse(TheBook.start_date).year)) == null ? "? -" : ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.start_date)) + " -" : (tryToParse(TheBook.start_date).year)) + " -" : "" : ""
