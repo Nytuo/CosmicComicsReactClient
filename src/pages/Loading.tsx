@@ -8,7 +8,7 @@ export function Loading() {
 		document.title = "Loading...";
 		setTimeout(() => {
 			window.location.href = "/login";
-		}, 15000);
+		}, 1000);
 	});
 	useLayoutEffect(() => {
 		document.querySelector("#navbar")?.classList.add("hidden");

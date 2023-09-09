@@ -13,7 +13,7 @@ function Details({ stateDetails, handleAddBreadcrumbs }: { stateDetails: { open:
         handleAddBreadcrumbs(stateDetails.book.NOM, () => { });
     }, []);
     return (<>
-        {stateDetails && stateDetails.open ? <ContentViewer type={"volume"} provider={stateDetails.provider} TheBook={stateDetails.book} handleAddBreadcrumbs={handleAddBreadcrumbs} /> : <></>}
+        {stateDetails && stateDetails.open ? <ContentViewer type={"volume"} provider={parseInt(stateDetails.book.API_ID)} TheBook={stateDetails.book} handleAddBreadcrumbs={handleAddBreadcrumbs} /> : <></>}
     </>);
 }
 

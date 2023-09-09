@@ -68,7 +68,7 @@ export default function APISelectorDialog({ onClose, openModal }: {
 							label={t("selectAProvider")}
 							onChange={async (provider: any) => {
 								setProvider(provider.target.value);
-								await InsertIntoDB("Books", "", `(?,${null},'REPLACE THIS BY A VALUE',null,${0},${0},${1},${0},${0},${0},'${null}','${null}','${null}','${null}','${null}',${null},'${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}',0)`);
+								await InsertIntoDB("Books", "", `(${Math.floor(Math.random() * 100000)},${null},'REPLACE THIS BY A VALUE',null,${0},${0},${1},${0},${0},${0},'${null}','${null}','${null}','${null}','${null}',${null},'${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}',0)`);
 								const TheBookTemp = await getFromDB("Books", "* FROM Books WHERE NOM = 'REPLACE THIS BY A VALUE'");
 								if (TheBookTemp && TheBookTemp !== undefined && TheBookTemp !== null && typeof TheBookTemp === "string") {
 									setTheBook(tryToParse(TheBookTemp)[0]);

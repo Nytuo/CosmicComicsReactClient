@@ -23,6 +23,7 @@ function Card({ book, provider, handleOpenDetails, onClick, type }: { book: IBoo
             width: "250px",
             height: "380px",
             transition: "all 0.3s ease-in-out",
+            margin: "15px",
             "&:hover": {
                 transform: "scale(1.1,1.1)",
             },
