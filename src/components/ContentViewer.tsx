@@ -586,7 +586,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                                         if (!resa) return;
                                                         const bookList = tryToParse(resa);
                                                         for (let i = 0; i < bookList.length; i++) {
-                                                            if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
+                                                            if (bookList[i].ID_book === TheBook.ID_book) {
                                                                 const options = {
                                                                     method: "POST", headers: {
                                                                         "Content-Type": "application/json"
@@ -594,9 +594,9 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                                                         "token": currentProfile.getToken,
                                                                         "table": "Books",
                                                                         "column": "favorite",
-                                                                        "whereEl": bookList[i].PATH,
+                                                                        "whereEl": bookList[i].ID_book,
                                                                         "value": false,
-                                                                        "where": "PATH"
+                                                                        "where": "ID_book"
                                                                     }, null, 2)
                                                                 };
                                                                 await fetch(PDP + "/DB/update", options);
@@ -610,7 +610,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                                         if (!resa) return;
                                                         const bookList = tryToParse(resa);
                                                         for (let i = 0; i < bookList.length; i++) {
-                                                            if (bookList[i].PATH.toLowerCase().includes(TheBook.NOM.toLowerCase().replaceAll('"', ''))) {
+                                                            if (bookList[i].ID_book === TheBook.ID_book) {
                                                                 const options = {
                                                                     method: "POST", headers: {
                                                                         "Content-Type": "application/json"
@@ -618,9 +618,9 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                                                         "token": currentProfile.getToken,
                                                                         "table": "Books",
                                                                         "column": "favorite",
-                                                                        "whereEl": bookList[i].PATH,
+                                                                        "whereEl": bookList[i].ID_book,
                                                                         "value": true,
-                                                                        "where": "PATH"
+                                                                        "where": "ID_book"
                                                                     }, null, 2)
                                                                 };
                                                                 await fetch(PDP + "/DB/update", options);

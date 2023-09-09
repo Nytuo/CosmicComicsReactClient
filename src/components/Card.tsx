@@ -65,7 +65,7 @@ function Card({ book, provider, handleOpenDetails, onClick }: { book: IBook; pro
                                     if (!resa) return;
                                     const bookList = JSON.parse(resa);
                                     for (let i = 0; i < bookList.length; i++) {
-                                        if (bookList[i].PATH.toLowerCase().includes(book.NOM.toLowerCase().replaceAll('"', ''))) {
+                                        if (bookList[i].ID_book === book.ID_book) {
                                             const options = {
                                                 method: "POST", headers: {
                                                     "Content-Type": "application/json"
@@ -73,9 +73,9 @@ function Card({ book, provider, handleOpenDetails, onClick }: { book: IBook; pro
                                                     "token": currentProfile.getToken,
                                                     "table": "Books",
                                                     "column": "favorite",
-                                                    "whereEl": bookList[i].PATH,
+                                                    "whereEl": bookList[i].ID_book,
                                                     "value": false,
-                                                    "where": "PATH"
+                                                    "where": "ID_book"
                                                 }, null, 2)
                                             };
                                             await fetch(PDP + "/DB/update", options);
@@ -89,7 +89,7 @@ function Card({ book, provider, handleOpenDetails, onClick }: { book: IBook; pro
                                     if (!resa) return;
                                     const bookList = JSON.parse(resa);
                                     for (let i = 0; i < bookList.length; i++) {
-                                        if (bookList[i].PATH.toLowerCase().includes(book.NOM.toLowerCase().replaceAll('"', ''))) {
+                                        if (bookList[i].ID_book === book.ID_book) {
                                             const options = {
                                                 method: "POST", headers: {
                                                     "Content-Type": "application/json"
@@ -97,9 +97,9 @@ function Card({ book, provider, handleOpenDetails, onClick }: { book: IBook; pro
                                                     "token": currentProfile.getToken,
                                                     "table": "Books",
                                                     "column": "favorite",
-                                                    "whereEl": bookList[i].PATH,
+                                                    "whereEl": bookList[i].ID_book,
                                                     "value": true,
-                                                    "where": "PATH"
+                                                    "where": "ID_book"
                                                 }, null, 2)
                                             };
                                             await fetch(PDP + "/DB/update", options);

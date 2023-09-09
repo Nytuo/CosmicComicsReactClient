@@ -94,9 +94,9 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
                 "table": type === 'series' ? "Series" : "Books",
                 "type": "edit",
                 "column": columns,
-                "whereEl": trackedMode ? "REPLACE THIS BY A VALUE" : TheBook.PATH,
+                "whereEl": trackedMode ? "REPLACE THIS BY A VALUE" : TheBook.ID_book,
                 "value": values,
-                "where": trackedMode ? "NOM" : "PATH"
+                "where": trackedMode ? "NOM" : type === 'series' ? "ID_Series" : "ID_book"
             }, null, 2)
         }).then(async (res) => {
             if (res.status === 200) {
