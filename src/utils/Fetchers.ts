@@ -89,11 +89,21 @@ async function updateLibrary(forma: HTMLFormElement, id: string) {
  * @param title - The title of the book to update.
  */
 function updateBookStatusForAll(setTo: "unread" | "read" | "reading", title: string) {
-    const allPosibleValues = ["unread", "reading", "read"];
-    for (let i = 0; i < allPosibleValues.length; i++) {
-        if (allPosibleValues[i] !== setTo) {
-            allPosibleValues.splice(i, 1);
-        }
+    let W1;
+    let W2;
+    switch (setTo) {
+        case "unread":
+            W1 = "read";
+            W2 = "reading";
+            break;
+        case "read":
+            W1 = "unread";
+            W2 = "reading";
+            break;
+        case "reading":
+            W1 = "unread";
+            W2 = "read";
+            break;
     }
     fetch(PDP + "/DB/update/OneForAll", {
         method: "POST",
@@ -101,8 +111,8 @@ function updateBookStatusForAll(setTo: "unread" | "read" | "reading", title: str
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            "W1": allPosibleValues[0],
-            "W2": allPosibleValues[1],
+            "W1": W1,
+            "W2": W2,
             "A": setTo,
             "title": title,
             "token": currentProfile.getToken,

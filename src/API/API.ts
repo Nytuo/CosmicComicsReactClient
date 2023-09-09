@@ -40,6 +40,7 @@ class API {
      * @param {boolean} isSeries Is the element a series
      */
     async rematch(new_id: string, provider: number, type: string, old_id: string, isSeries = false) {
+        logger.info("Rematching " + old_id + " to " + new_id + " from " + provider + " (" + type + ")");
         await fetch(PDP + "/DB/update", {
             method: "POST", headers: {
                 "Content-Type": "application/json"

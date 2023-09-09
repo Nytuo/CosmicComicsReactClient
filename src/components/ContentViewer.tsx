@@ -1,5 +1,5 @@
 import { PDP, currentProfile } from "@/utils/Common.ts";
-import { updateBookStatusForOne, InsertIntoDB, changeRating, downloadBook, getFromDB } from "@/utils/Fetchers.ts";
+import { updateBookStatusForOne, InsertIntoDB, changeRating, downloadBook, getFromDB, updateBookStatusForAll } from "@/utils/Fetchers.ts";
 import { IBook } from "@/interfaces/IBook.ts";
 import { providerEnum, resolveTitle, tryToParse } from "@/utils/utils.ts";
 import { ArrowBack, ArrowForward, AutoStories, Check, Close, Done, Download, Edit, Favorite, OpenInNew, PlayArrow, QuestionMark, Refresh, YoutubeSearchedFor } from "@mui/icons-material";
@@ -20,6 +20,7 @@ import { GoogleBooks } from "@/API/GoogleBooks.ts";
 import { Marvel } from "@/API/Marvel.ts";
 import { OpenLibrary } from "@/API/OpenLibrary.ts";
 import ContainerExplorer from "./ContainerExplorer.tsx";
+import RematchDialog from "./Dialogs/RematchDialog.tsx";
 
 
 //providerEnum to type
@@ -316,9 +317,18 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
     const handleCloseDatabaseEditorDialog = () => {
         setOpenDatabaseEditorDialog(false);
     };
+
+    const [openRematchDialog, setOpenRematchDialog] = useState(false);
+    const handleCloseRematchDialog = () => {
+        setOpenRematchDialog(false);
+    };
+    const handleOpenRematchDialog = () => {
+        setOpenRematchDialog(true);
+    };
     return (<>
-        <DatabaseEditorDialog openModal={openDatabaseEditorDialog} onClose={handleCloseDatabaseEditorDialog} TheBook={TheBook} type={'book'} />
+        <DatabaseEditorDialog openModal={openDatabaseEditorDialog} onClose={handleCloseDatabaseEditorDialog} TheBook={TheBook} type={type === "volume" ? "book" : "series"} />
         <MoreInfoDialog openModal={openMoreInfo} onClose={() => { closeMoreInfo(); }} desc={moreInfoContent.desc} name={moreInfoContent.name} hrefURL={moreInfoContent.href} image={moreInfoContent.image} type={moreInfoContent.type} />
+        <RematchDialog openModal={openRematchDialog} onClose={handleCloseRematchDialog} provider={provider} type={type === "volume" ? "book" : "serie"} oldID={TheBook.ID_book} />
         <div
             style={
                 {
@@ -372,7 +382,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 (provider === providerEnum.Marvel) ?
                                     <h1><a target='_blank' href={((TheBook.URLs == "null") ? ("#") : (tryToParse(TheBook.URLs)[0].url))} >{TheBook.NOM}<i style={{ fontSize: '18px', top: '-10px', position: 'relative' }} className='material-icons'>open_in_new</i></a></h1> :
                                     (provider === providerEnum.Anilist) ?
-                                        <h1><a target='_blank' href={(TheBook.URLs == "null") ? ("#") : (TheBook.URLs)}>{TheBook.NOM}<OpenInNew /></a></h1> :
+                                        <h1><a target='_blank' href={(TheBook.URLs == "null") ? ("#") : tryToParse(TheBook.URLs)}>{TheBook.NOM}<OpenInNew /></a></h1> :
                                         <h1><a target='_blank'>{TheBook.NOM}<OpenInNew /></a></h1>
                         }
                         <Grid2 container sx={
@@ -527,7 +537,11 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 <IconButton
                                     onClick={
                                         () => {
-                                            updateBookStatusForOne("read", TheBook.ID_book);
+                                            if (type == "volume") {
+                                                updateBookStatusForOne("read", TheBook.ID_book);
+                                            } else {
+                                                updateBookStatusForAll("read", TheBook.raw_title);
+                                            }
                                             Toaster(t("mkread"), "success");
                                         }
                                     }
@@ -537,7 +551,11 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 <IconButton id="readingbtndetails" style={{ display: type === "series" ? "none" : "block" }}
                                     onClick={
                                         () => {
-                                            updateBookStatusForOne("reading", TheBook.ID_book);
+                                            if (type == "volume") {
+                                                updateBookStatusForOne("reading", TheBook.ID_book);
+                                            } else {
+                                                updateBookStatusForAll("reading", TheBook.raw_title);
+                                            }
                                             Toaster(t("mkreading"), "success");
                                         }
                                     }
@@ -546,7 +564,11 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 <IconButton id="decheckbtn"
                                     onClick={
                                         () => {
-                                            updateBookStatusForOne("unread", TheBook.ID_book);
+                                            if (type == "volume") {
+                                                updateBookStatusForOne("unread", TheBook.ID_book);
+                                            } else {
+                                                updateBookStatusForAll("unread", TheBook.raw_title);
+                                            }
                                             Toaster(t("mkunread"), "success");
                                         }
                                     }
@@ -679,21 +701,38 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                 <IconButton id="refreshBtn"
                                     onClick={
                                         async () => {
-                                            if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL) {
-                                                Toaster(t("providerCannotRematch"), "error");
-                                            } else {
-                                                if (TheBook.lock !== 1) {
-                                                    await new API().refreshMeta(TheBook.ID_book, provider, type === "series" ? "series" : "book");
+                                            if (type === "volume") {
+                                                if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL) {
+                                                    Toaster(t("providerCannotRematch"), "error");
                                                 } else {
-                                                    Toaster(type === "series" ? t("seriesLocked") : t("bookLocked"), "error");
+                                                    if (TheBook.lock !== 1) {
+                                                        await new API().refreshMeta(TheBook.ID_book, provider, type === "series" ? "series" : "book");
+                                                    } else {
+                                                        Toaster(type === "series" ? t("seriesLocked") : t("bookLocked"), "error");
+                                                    }
+                                                }
+                                            } else {
+                                                if (provider === providerEnum.MANUAL) {
+                                                    Toaster(t("providerCannotRematch"), "error");
+                                                } else {
+                                                    if (TheBook.lock !== 1) {
+                                                        await new API().refreshMeta(TheBook.ID_book, provider, type === "series" ? "series" : "book");
+                                                    } else {
+                                                        Toaster(type === "series" ? t("seriesLocked") : t("bookLocked"), "error");
+                                                    }
                                                 }
                                             }
+
                                         }
                                     }
                                 > <Refresh /></IconButton>
                             </Tooltip>
                             <Tooltip title={t('rematch')}>
-                                <IconButton id="rematchBtn"> <YoutubeSearchedFor /></IconButton>
+                                <IconButton id="rematchBtn"
+                                    onClick={
+                                        () => handleOpenRematchDialog()
+                                    }
+                                > <YoutubeSearchedFor /></IconButton>
                             </Tooltip>
                         </Grid2>
                             <div id="ratingContainer" className="rating">

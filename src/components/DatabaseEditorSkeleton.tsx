@@ -24,6 +24,7 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
 
     useLayoutEffect(() => {
         if (TheBook) {
+            console.log(TheBook);
             document.querySelectorAll("#commonEdit>div>div>input").forEach((e: any) => {
                 e.value = TheBook[e.id.replaceAll("edit_", "")];
             });
@@ -33,6 +34,8 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
                 });
             } else if (type === 'book') {
                 document.querySelectorAll("#bookEdit>div>div>input").forEach((e: any) => {
+                    console.log(e.id.replaceAll("edit_", ""), TheBook[e.id.replaceAll("edit_", "")]);
+
                     e.value = TheBook[e.id.replaceAll("edit_", "")];
                 });
             }
@@ -43,21 +46,42 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
         const values = [];
         const columns = [];
         document.querySelectorAll("#commonEdit>div>div>input").forEach((e: any) => {
-            console.log(e.value);
-            values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
+            values.push(e.value);
             columns.push(e.id.replaceAll("edit_", ""));
         });
         if (type === 'series') {
             document.querySelectorAll("#seriesEdit>div>div>input").forEach((e: any) => {
-                values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
-                columns.push(e.id.replaceAll("edit_", ""));
+                values.push(e.value);
+                switch (e.id.replaceAll("edit_", "")) {
+                    case "raw_title":
+                        columns.push("title");
+                        break;
+                    case "URLCover":
+                        columns.push("cover");
+                        break;
+                    case "URLs":
+                        columns.push("source");
+                        break;
+                    case "BG_cover":
+                        columns.push("BG");
+                        break;
+                    case "issueNumber":
+                        columns.push("chapters");
+                        break;
+                    case "score":
+                        columns.push("Score");
+                        break;
+                    default:
+                        columns.push(e.id.replaceAll("edit_", ""));
+                }
             });
         } else if (type === 'book') {
             document.querySelectorAll("#bookEdit>div>div>input").forEach((e: any) => {
-                values.push(e.value.replaceAll("'", "''").replaceAll('"', "'"));
+                values.push(e.value);
                 columns.push(e.id.replaceAll("edit_", ""));
             });
         }
+
         const lockCheck = document.getElementById("lockCheck") as HTMLInputElement;
         values.push(lockCheck ? lockCheck.checked : false);
         columns.push("lock");
@@ -129,7 +153,7 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
                     <TextField
                         required
                         margin="dense"
-                        id="edit_title"
+                        id="edit_raw_title"
                         label={'Title'}
                         type="text"
                         fullWidth
@@ -137,7 +161,7 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
                     /><TextField
                         required
                         margin="dense"
-                        id="edit_cover"
+                        id="edit_URLCover"
                         label={'Cover'}
                         type="text"
                         fullWidth
@@ -145,7 +169,7 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
                     /><TextField
                         required
                         margin="dense"
-                        id="edit_SOURCE"
+                        id="edit_URLs"
                         label={'Source'}
                         type="text"
                         fullWidth
@@ -153,7 +177,7 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
                     /><TextField
                         required
                         margin="dense"
-                        id="edit_BG"
+                        id="edit_BG_cover"
                         label={'Link BG'}
                         type="text"
                         fullWidth
@@ -187,7 +211,7 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
                     <TextField
                         required
                         margin="dense"
-                        id="edit_Score"
+                        id="edit_score"
                         label={'Score'}
                         type="text"
                         fullWidth
@@ -213,7 +237,7 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
                     />	<TextField
                         required
                         margin="dense"
-                        id="edit_TRENDING"
+                        id="edit_trending"
                         label={'Trending'}
                         type="text"
                         fullWidth
@@ -221,7 +245,7 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
                     />	<TextField
                         required
                         margin="dense"
-                        id="edit_chapters"
+                        id="edit_issueNumber"
                         label={'Chapters'}
                         type="text"
                         fullWidth

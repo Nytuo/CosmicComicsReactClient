@@ -52,7 +52,12 @@ export default function DatabaseEditorDialog({ onClose, openModal, TheBook, type
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("cancel")}</Button>
-					<Button onClick={() => { setSend(true); }}>{t("send")}</Button>
+					<Button onClick={() => {
+						setSend(true);
+						setTimeout(() => {
+							handleClose();
+						}, 500);
+					}}>{t("send")}</Button>
 				</DialogActions>
 			</Dialog>
 		</div >

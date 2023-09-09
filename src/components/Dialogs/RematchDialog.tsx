@@ -17,11 +17,12 @@ import RematchSkeleton from '../RematchSkeleton';
  * @param type - A string value to indicate the type of rematch ("book" or "serie").
  * @returns A React component.
  */
-export default function RematchDialog({ onClose, openModal, provider, type }: {
+export default function RematchDialog({ onClose, openModal, provider, type, oldID }: {
 	onClose: any,
 	openModal: boolean,
 	provider: any,
 	type: "book" | "serie",
+	oldID: string;
 }) {
 	const { t } = useTranslation();
 	const [open, setOpen] = React.useState(openModal);
@@ -45,9 +46,7 @@ export default function RematchDialog({ onClose, openModal, provider, type }: {
 				maxWidth="md">
 				<DialogTitle>{t("rematchTitle")}</DialogTitle>
 				<DialogContent>
-					<DialogContentText>
-						<RematchSkeleton provider={provider} type={type} />
-					</DialogContentText>
+					<RematchSkeleton provider={provider} type={type} oldID={oldID} />
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("done")}</Button>

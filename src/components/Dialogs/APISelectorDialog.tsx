@@ -88,13 +88,13 @@ export default function APISelectorDialog({ onClose, openModal }: {
 							provider === providerEnum.MANUAL ?
 								<DatabaseEditorSkeleton TheBook={TheBook} type={"book"} triggerSend={send} trackedMode={true} />
 								: provider === providerEnum.Marvel ?
-									<RematchSkeleton provider={provider} type={"book"} />
+									<RematchSkeleton provider={provider} type={"book"} oldID={TheBook.ID_book} />
 									: provider === providerEnum.Anilist ?
 										<DatabaseEditorSkeleton TheBook={TheBook} type={"book"} triggerSend={send} trackedMode={true} />
 										: provider === providerEnum.GBooks ?
-											<RematchSkeleton TheBook={TheBook} type={"book"} />
+											<RematchSkeleton provider={provider} type={"book"} oldID={TheBook.ID_book} />
 											: provider === providerEnum.OL ?
-												<RematchSkeleton TheBook={TheBook} type={"book"} />
+												<RematchSkeleton provider={provider} type={"book"} oldID={TheBook.ID_book} />
 												: <p>
 													{t("error")}
 												</p> : <></>

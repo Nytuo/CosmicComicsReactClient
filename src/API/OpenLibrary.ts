@@ -36,9 +36,9 @@ class OpenLibrary {
         return fetch(PDP + "/api/ol/getComics/" + name).then(function (response) {
             return response.text();
         }).then(function (data) {
-            data = JSON.parse(data);
-            logger.debug("Open Library search result: " + data);
-            return data;
+            const parsedData = JSON.parse(data);
+            logger.debug("Open Library search result: " + parsedData);
+            return parsedData;
         }).catch(function (error) {
             logger.error(error);
         });

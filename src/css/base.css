@@ -970,15 +970,15 @@ a[href^="http://marvel.com"] {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--snackBarTrack);
+    background-color: "#1e1e24";
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--snackBarThumb);
+    background-color: "#7A7A7A";
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--snackBarThumbHover);
+    background-color: "#373737";
 }
 
 
