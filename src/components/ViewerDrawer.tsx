@@ -6,26 +6,17 @@ import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import { AlignHorizontalCenter, ArrowBack, Bookmark, BookmarkBorder, FirstPage, Fullscreen, FullscreenExit, LastPage, MenuBook, NavigateBefore, NavigateNext, Pageview, RotateLeft, RotateRight, VerticalAlignCenter, ZoomIn, ZoomOut } from '@mui/icons-material';
 import { Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import Canvas from './Canvas';
-import MovableImageCanvas from './Canvas';
 import MovableImage from './MovableImage.tsx';
 import { Toaster } from './Toaster.tsx';
-import { PDP, currentProfile, getCookie } from '@/utils/Common.ts';
+import { PDP, getCookie } from '@/utils/Common.ts';
 import { ModifyDB, getFromDB } from '@/utils/Fetchers.ts';
 import Logger from '@/logger.ts';
 import { useEffectOnce } from '@/utils/UseEffectOnce.tsx';
@@ -86,7 +77,7 @@ export default function PersistentDrawerLeft() {
     const [open, setOpen] = React.useState(false);
     const [imageOne, setImageOne] = React.useState<string | null>(null);
     const [imageTwo, setImageTwo] = React.useState<string | null>(null);
-    const [currentPage, setCurrentPage] = React.useState<number>(1);
+    const [currentPage, setCurrentPage] = React.useState<number>(0);
     const [bookLoaded, setBookLoaded] = React.useState(false);
     const CosmicComicsTemp = localStorage.getItem("CosmicComicsTemp") || "";
     let CosmicComicsTempI = localStorage.getItem("CosmicComicsTempI") || "";
@@ -94,6 +85,7 @@ export default function PersistentDrawerLeft() {
     const [isFullscreen, setIsFullscreen] = React.useState(false);
     const [rotation, setRotation] = React.useState(0);
     const [zoomLevel, setZoomLevel] = React.useState(1);
+    const [totalPages, setTotalPages] = React.useState(0);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -221,7 +213,7 @@ export default function PersistentDrawerLeft() {
         (response) => {
             response.json().then((data) => {
                 listofImg = data;
-                console.log(listofImg);
+                setTotalPages(listofImg.length);
             }
             ).catch(function (error) {
                 console.log(error);
@@ -332,7 +324,6 @@ export default function PersistentDrawerLeft() {
                 );
             });
         });
-        console.log(listOfImg);
         LoadBMI(page);
         // document.getElementById("sps").value = page + 1;
         // document.getElementById("sps").min = 1;
@@ -477,10 +468,9 @@ export default function PersistentDrawerLeft() {
                     DoublePageMode = false;
                 }
             }
-            const max: number = listofImg.length;
-            if (currentPage < max - 1) {
+            if (currentPage < totalPages) {
                 setCurrentPage(currentPage + 1);
-                if (currentPage === max - 1) {
+                if (currentPage === totalPages - 1) {
                     ModifyDB(
                         "Books",
                         "reading",
@@ -501,7 +491,7 @@ export default function PersistentDrawerLeft() {
                     currentPage.toString(),
                     shortname
                 ).then(() => {
-                    Reader(listofImg, currentPage);
+                    Reader(listofImg, currentPage + 1);
                 });
             }
         }
@@ -511,7 +501,7 @@ export default function PersistentDrawerLeft() {
     function PreviousPage(override = false) {
         if (mangaMode === true) {
             if (override === false) {
-                NextPage(true);
+                //NextPage(true);
                 return false;
             }
         }
@@ -618,7 +608,7 @@ export default function PersistentDrawerLeft() {
             } else {
                 if (currentPage !== 0) {
                     setCurrentPage(currentPage - 1);
-                    Reader(listofImg, currentPage);
+                    Reader(listofImg, currentPage - 1);
                 }
             }
         }
@@ -811,6 +801,7 @@ export default function PersistentDrawerLeft() {
                         <IconButton
                             onClick={
                                 () => {
+                                    setCurrentPage(0);
                                     Reader(listofImg, 0);
                                 }
                             }
@@ -856,10 +847,11 @@ export default function PersistentDrawerLeft() {
                                 () => {
                                     let max;
                                     if (DoublePageMode === true) {
-                                        max = listofImg.length - 2;
+                                        max = totalPages - 2;
                                     } else {
-                                        max = listofImg.length - 1;
+                                        max = totalPages - 1;
                                     }
+                                    setCurrentPage(totalPages);
                                     ModifyDB(
                                         "Books",
                                         "reading",
@@ -1073,7 +1065,9 @@ export default function PersistentDrawerLeft() {
                 {
                     imageTwo !== null ? <MovableImage src={imageTwo} width={100 + zoomLevel + "%"} height={100 + zoomLevel + "%"} rotation={rotation} alt="Logo" /> : null
                 }
-                <p>{currentPage}</p>
+                <p style={{
+                    color: "white", position: "fixed", backgroundColor: "rgba(0,0,0,0.50)", textAlign: "right", bottom: 0, right: "5px", zIndex: 5
+                }}>{currentPage + 1} / {totalPages + 1}</p>
             </Main>
         </Box>
     );
