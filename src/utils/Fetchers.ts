@@ -165,6 +165,15 @@ async function TrueDeleteFromDB(dbName: string, id: string) {
     return fetch(PDP + '/DB/truedelete/' + currentProfile.getToken + "/" + dbName + "/" + id);
 }
 
+async function ModifyDB(dbName: string, ColName: string, value: string, id: string) {
+    const connected = currentProfile.getToken;
+    return fetch(PDP + '/DB/update/' + connected + "/" + dbName + "/" + ColName + "/" + value + "/" + id);
+}
+
+async function DeleteFromDB(dbName: string, id: string, option: string) {
+    const connected = currentProfile.getToken;
+    return fetch(PDP + '/DB/delete/' + connected + "/" + dbName + "/" + id + "/" + option);
+}
 /**
  * Download a book from the server
  * @param path the path of the book
@@ -297,4 +306,4 @@ async function AllBooks(filters = ""): Promise<null | any> {
     });
 }
 
-export { getFromDB, InsertIntoDB, DetectFolderInLibrary, addLibrary, updateLibrary, updateBookStatusForAll, updateBookStatusForOne, TrueDeleteFromDB, downloadBook, logout, changeRating, modifyConfigJson, deleteLib, AllBooks };
+export { getFromDB, InsertIntoDB, DetectFolderInLibrary, addLibrary, updateLibrary, updateBookStatusForAll, updateBookStatusForOne, TrueDeleteFromDB, downloadBook, logout, changeRating, modifyConfigJson, deleteLib, AllBooks, ModifyDB, DeleteFromDB };

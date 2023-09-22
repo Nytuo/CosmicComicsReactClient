@@ -163,7 +163,10 @@ function generateBookTemplate(API_ID = "null", ID_book = "null", NOM = null, ID 
 }
 //Open a book in the bookmarks
 function openBOOKM(path: string, page: string) {
-    window.location.href = "viewer.html?" + encodeURIComponent(path.replaceAll("/", "%C3%B9")) + "&page=" + page;
+    localStorage.setItem("currentBook", path);
+    localStorage.setItem("currentPage", page);
+    window.location.href = "/viewer";
+
 }
 
 

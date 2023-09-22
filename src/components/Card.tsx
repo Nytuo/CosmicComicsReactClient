@@ -55,8 +55,8 @@ function Card({ book, provider, handleOpenDetails, onClick, type }: { book: IBoo
                     <span className="card__play js-play"
                         onClick={() => {
                             updateBookStatusForOne("reading", book.ID_book);
-                            const encoded = encodeURIComponent(book.PATH.replaceAll("/", "%C3%B9"));
-                            window.location.href = "viewer.html?" + encoded;
+                            localStorage.setItem("currentBook", book.PATH);
+                            window.location.href = "/viewer";
                         }
                         }
 

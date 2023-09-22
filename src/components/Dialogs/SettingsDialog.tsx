@@ -105,12 +105,12 @@ export default function SettingsDialog({ onClose, openModal }: {
 									onChange={(e) => {
 										setTheme(e.target.value);
 										localStorage.setItem("theme", e.target.value);
-										window.location.reload();
+										window.dispatchEvent(new Event('storage'));
 									}}
 								>
 									{
-										themes.map((theme: any) => {
-											return <MenuItem value={theme}>{resolveThemeNameByCode(theme)}</MenuItem>;
+										themes.map((theme: any, index: number) => {
+											return <MenuItem key={index} value={theme}>{resolveThemeNameByCode(theme)}</MenuItem>;
 										})
 									}
 								</Select>
@@ -134,8 +134,8 @@ export default function SettingsDialog({ onClose, openModal }: {
 									}}
 								>
 									{
-										locales.map((lang: any) => {
-											return <MenuItem value={lang}>{resolveLanguageNameByCode(lang)}</MenuItem>;
+										locales.map((lang: any, index: number) => {
+											return <MenuItem key={index} value={lang}>{resolveLanguageNameByCode(lang)}</MenuItem>;
 										})
 									}
 								</Select>

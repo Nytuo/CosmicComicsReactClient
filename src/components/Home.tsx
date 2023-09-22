@@ -38,7 +38,7 @@ function Home({ handleOpenDetails }: { handleOpenDetails: any; }) {
             const TheBookun = JSON.parse(resa);
             setMyFavorite(TheBookun);
         });
-    }, []);
+    }, [theme.palette.background.default]);
     return (<div id="home">
         <h2 id="continueReading">{t("continue_reading")}</h2>
         {

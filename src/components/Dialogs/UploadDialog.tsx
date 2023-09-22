@@ -56,8 +56,9 @@ export default function UploadDialog({ onClose, openModal, cosmicComicsTemp }: {
 					if (!fileUPElement || fileUPElement === null) return;
 					if (!fileUPElement.files || fileUPElement.files === null) return;
 					const url = cosmicComicsTemp + "/uploads/" + fileUPElement.files[0].name;
-					const encoded = encodeURIComponent(url.replaceAll("/", "%C3%B9"));
-					window.location.href = "viewer.html?" + encoded;
+					localStorage.setItem("currentBook", url);
+					window.location.href = "/viewer";
+
 				} else {
 					Toaster(t("Failedtoloadfile"), "error");
 				}

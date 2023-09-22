@@ -74,7 +74,9 @@ export default function DownloadDialog({ onClose, openModal, CosmicComicsTemp }:
 	 * Redirects the user to the downloaded book directory.
 	 */
 	function OpenDownloadDir() {
-		window.location.href = "viewer.html?" + CosmicComicsTemp + "/downloaded_book/";
+		localStorage.setItem("currentBook", CosmicComicsTemp + "/downloaded_book/");
+		window.location.href = "/viewer";
+
 	}
 
 	return (

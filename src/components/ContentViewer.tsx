@@ -511,8 +511,9 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                     async () => {
                                         if (type == "volume") {
                                             updateBookStatusForOne("reading", TheBook.ID_book);
-                                            const encoded = encodeURIComponent(TheBook.PATH.replaceAll("/", "%C3%B9"));
-                                            window.location.href = "viewer.html?" + encoded;
+                                            localStorage.setItem("currentBook", TheBook.PATH);
+                                            window.location.href = "/viewer";
+
                                         } else {
                                             await getFromDB("Books", "PATH FROM Books WHERE unread=1 OR reading=1").then(async (resa) => {
                                                 if (!resa) return;
@@ -525,8 +526,9 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                                         break;
                                                     }
                                                 }
-                                                const encoded = encodeURIComponent(continueSeriesReading.replaceAll("/", "%C3%B9"));
-                                                window.location.href = "viewer.html?" + encoded;
+                                                localStorage.setItem("currentBook", continueSeriesReading);
+                                                window.location.href = "/viewer";
+
                                             });
 
                                         }
