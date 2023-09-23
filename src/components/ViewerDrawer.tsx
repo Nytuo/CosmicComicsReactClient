@@ -12,7 +12,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { AlignHorizontalCenter, ArrowBack, Bookmark, BookmarkBorder, FirstPage, Fullscreen, FullscreenExit, LastPage, MenuBook, NavigateBefore, NavigateNext, Pageview, RotateLeft, RotateRight, SettingsAccessibilityOutlined, Tune, VerticalAlignCenter, ZoomIn, ZoomOut } from '@mui/icons-material';
-import { ButtonGroup, Grid, Tooltip } from '@mui/material';
+import { ButtonGroup, Grid, Stack, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import MovableImage from './MovableImage.tsx';
 import { Toaster } from './Toaster.tsx';
@@ -157,6 +157,7 @@ export default function PersistentDrawerLeft() {
     async function prepareReader() {
         Toaster(t("loading_cache"), "info");
         Logger.info("Preparing Reader");
+        await constructImgSideBar();
         await fetch(PDP + "/viewer/view/current/" + connected).then(
             (response) => {
                 response.json().then(async (data) => {
@@ -803,6 +804,56 @@ export default function PersistentDrawerLeft() {
 
     const [opacityForNavigation, setOpacityForNavigation] = React.useState("0.1");
 
+    const [imgSideBar, setImgSideBar] = React.useState([]);
+
+
+
+    async function constructImgSideBar() {
+        const imgSideBarTemp = [];
+        for (let i = 0; i < listofImg.length; i++) {
+            const options = {
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "path": localStorage.getItem("currentBook"),
+                    "token": connected,
+                    "met": isADirectory ? "DL" : "CLASSIC",
+                    "page": listofImg[i]
+                }
+            };
+            await fetch(PDP + "/view/readImage", options).then(async (response) => {
+                imgSideBarTemp.push(
+                    <div
+                        key={i}
+                        id={"id_img_" + i}
+                        className="SideBar_img"
+                        onClick={() => {
+                            setCurrentPage(i);
+                            Reader(listofImg, i);
+                        }}
+                        style={{
+                            cursor: "pointer",
+                            textAlign: "center",
+                        }}
+                    >
+                        <img
+                            height={120}
+                            id={"imgSideBar_" + i}
+                            className="SideBar_img"
+                            src={URL.createObjectURL(await response.blob())}
+                            alt={i + 1 + "th page"}
+                        />
+                        <p className="SideBar_img_text">{i + 1}</p>
+                    </div>
+                );
+            });
+
+        }
+        Logger.info("imgSideBarTemp : " + imgSideBarTemp);
+        setImgSideBar(prevState => [...prevState, imgSideBarTemp]);
+    }
+
+
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
@@ -987,13 +1038,16 @@ export default function PersistentDrawerLeft() {
                     </IconButton>
                 </DrawerHeader>
                 <Divider />
-                <List>
+                {
+                    imgSideBar.map((el, index) => {
+                        return (
+                            <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />} key={index}
+                            >
+                                {el}
+                            </Stack>
 
-                </List>
-                <Divider />
-                <List>
-
-                </List>
+                        );
+                    })}
             </Drawer>
             <Main open={open}>
                 <DrawerHeader />

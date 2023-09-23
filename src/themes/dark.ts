@@ -25,6 +25,6 @@ export const DarkTheme: ThemeOptions = {
     success: {
       main: '#1b5e20',
     },
-    divider: 'rgba(39,39,39,0.12)',
+    divider: 'rgba(53,53,53,0.6)',
   },
 };

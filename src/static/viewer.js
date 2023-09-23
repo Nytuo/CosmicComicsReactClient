@@ -31,86 +31,8 @@ let Dpath = GetFilePath();
 var DPageTotal = GetListOfImg(CosmicComicsTempI).length;
 */
 
-
-
-new bootstrap.Tooltip(document.getElementById("id_mkread"), {
-	title: language["mkread"],
-	placement: "bottom"
-});
-new bootstrap.Tooltip(document.getElementById("id_mkreading"), {
-	title: language["mkreading"],
-	placement: "bottom"
-});
-new bootstrap.Tooltip(document.getElementById("id_mkunread"), {
-	title: language["mkunread"],
-	placement: "bottom"
-});
-new bootstrap.Tooltip(document.getElementById("id_togglefav"), {
-	title: language["toogle_fav"],
-	placement: "bottom"
-});
-
-new bootstrap.Tooltip(document.getElementById("id_autobgcolor"), {
-	title: language["auto_bg_color"],
-	placement: "bottom"
-});
-
-(document.getElementById("id_magnifiermod").innerText =
-	language["magnifier_mod"]),
-	(document.getElementById("zoomlvl").innerText = language["zoom"]);
-document.getElementById("widthlvl").innerText = language["width"];
-document.getElementById("heightlvl").innerText = language["height"];
-document.getElementById("BGBTTXT").innerText =
-	language["background_by_theme"];
-document.getElementById("Radiuslvl").innerText = language["radius"];
-new bootstrap.Tooltip(document.getElementById("magnifier_note"), {
-	title: language["magnifier_note"],
-	placement: "bottom"
-});
-document.getElementById("id_spawnmagnifier").innerText =
-	language["spawn_magnifier"];
-document.getElementById("id_destroymagnifier").innerText =
-	language["destroy_magnifier"];
-document.getElementById("id_booksettings").innerText =
-	language["book_settings"];
-console.log(language["book_settings"]);
-document.getElementById("DPMTXT").innerText = language["double_page_mode"];
-document.getElementById("BPABTXT").innerText =
-	language["blank_at_beggining"];
-document.getElementById("NDPFHTXT").innerText =
-	language["no_dpm_horizontal"];
-document.getElementById("MMTXT").innerText = language["manga_mode"];
-document.getElementById("SSTXT").innerText = language["Slideshow"];
-document.getElementById("NBARTXT").innerText = language["nobar"];
-document.getElementById("SSBTXT").innerText = language["sideBar"];
-document.getElementById("PCTXT").innerText = language["PageCount"];
-document.getElementById("VIVTXT").innerText = language["vertical_reader"];
-document.getElementById("WTMTXT").innerText = language["Webtoon_Mode"];
-document.getElementById("RZPSTXT").innerText = language["reset_zoom"];
-document.getElementById("SBVSTXT").innerText = language["scrollBar_visible"];
-document.getElementById("marginlvl").innerText = language["margin"];
-document.getElementById("rotlvl").innerText = language["rotation"];
-document.getElementById("zlvll").innerText = language["zoomlvl"];
-document.getElementById("sstxt").innerText = language["slideshow_interval"];
-document.getElementById("lsps").innerText = language["page_slider"];
-document.getElementById("colorpicker_txt_id").innerText =
-	language["color_picker"];
-document.getElementById("close_id_books").innerText = language["close"];
-
 let BGBT = false; // Background By Theme
 
-//#endregion
-//Send BE
-//get language reference for the selected language
-function lang(langg) {
-	fetch(PDP + "/lang/" + langg).then(
-		(response) => {
-			response.json().then((data) => {
-				return data;
-			});
-		}
-	);
-}
 
 //get element from config.json
 function GetElFromInforPath(search, info) {
@@ -121,10 +43,6 @@ function GetElFromInforPath(search, info) {
 	}
 	return null;
 }
-
-
-
-
 
 function BGBTF() {
 	if (BGBT === true) {
@@ -678,21 +596,6 @@ function ShowOnChangeSlideShow() {
 		"):";
 }
 
-//FullScreen
-let fsOn = false;
-
-function fullscreen() {
-	if (fsOn === true) {
-		fsOn = false;
-		document.exitFullscreen();
-		document.getElementById("fullscreen_i_id").innerText = "fullscreen";
-	} else {
-		fsOn = true;
-		document.documentElement.requestFullscreen();
-		document.getElementById("fullscreen_i_id").innerText = "fullscreen_exit";
-	}
-}
-
 //Send BE
 //No bar Mode
 let BarOn = true;
@@ -723,78 +626,6 @@ function NoBAR() {
 	}
 }
 
-let SideBarOn = false;
-//Send BE
-//Toggle SideBar
-function TSB() {
-	if (SideBarOn === true) {
-		SideBarOn = false;
-		modifyConfigJson(CosmicComicsData + "/config.json", "SideBar", false);
-		document.getElementById("SideBar").style.display = "none";
-		document.getElementById("viewport").style = "text-align: center;";
-	} else {
-		SideBarOn = true;
-		modifyConfigJson(CosmicComicsData + "/config.json", "SideBar", true);
-		document.getElementById("SideBar").style.display = "block";
-		document.getElementById("viewport").style =
-			"text-align: center;padding-left: 200px;";
-		ConstructSideBar();
-	}
-}
-
-//Construct the SideBar
-function ConstructSideBar() {
-	if (document.getElementById("SideBar").childElementCount === 0) {
-		console.log(listofImg);
-		listofImg.forEach((image, index) => {
-			let el = document.getElementById("SideBar");
-			const divcontainer = document.createElement("div");
-			const acontainer = document.createElement("a");
-			const pel = document.createElement("p");
-			const img = document.createElement("img");
-			let options = {
-				"method": "GET",
-				"headers": {
-					"Content-Type": "application/json",
-					"path": DirectoryPath,
-					"token": connected,
-					"met": isADirectory ? "DL" : "CLASSIC",
-					"page": image
-				}
-			};
-			fetch(PDP + "/view/readImage", options).then(async (response) => {
-				img.src = URL.createObjectURL(await response.blob());
-			});
-			img.height = "120";
-			pel.innerText = index + 1;
-			acontainer.appendChild(img);
-			acontainer.appendChild(pel);
-			divcontainer.id = "id_img_" + index;
-			acontainer.style.color = "white";
-			acontainer.style.width = "100%";
-			divcontainer.style.cursor = "pointer";
-			divcontainer.addEventListener("click", function (e) {
-				e.preventDefault();
-				if (VIV_On === true) {
-					window.scrollTo(
-						0,
-						document.getElementById("imgViewer_" + index).offsetTop -
-						document.getElementsByTagName("header")[0].offsetHeight
-					);
-				} else {
-					Reader(listofImg, index);
-				}
-			});
-			acontainer.href = "#";
-			divcontainer.appendChild(acontainer);
-			el.appendChild(divcontainer);
-		});
-	}
-}
-
-//Fix view by Height by default
-FixHeight();
-//Send BE
 //Page Counter on/off
 let DM_CurrentPage = true;
 
