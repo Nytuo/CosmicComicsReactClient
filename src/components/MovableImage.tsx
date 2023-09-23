@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 class MovableImage extends Component {
     state = {
         dragging: false,
-        initialX: 0,
-        initialY: 0,
+        initialX: this.props.origin[0],
+        initialY: this.props.origin[1],
         offsetX: 0,
         offsetY: 0,
     };
@@ -46,7 +46,7 @@ class MovableImage extends Component {
                 src={this.props.src}
                 alt={this.props.alt}
                 style={{
-                    position: 'absolute', left: '0', top: '0', cursor: 'move',
+                    position: 'absolute', left: this.props.origin[0], top: this.props.origin[1], cursor: 'move',
                     width: this.props.width, height: this.props.height, objectFit: 'contain',
                     transform: `rotate(${this.props.rotation}deg)`,
                 }}

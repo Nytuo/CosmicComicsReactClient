@@ -137,29 +137,6 @@ function BGBTF() {
 }
 
 
-//Display by Height
-function FixHeight() {
-	let height =
-		window.innerHeight - document.getElementsByTagName("nav")[0].offsetHeight;
-	if (VIV_On === true) {
-		for (let i = 0; i < VIV_Count; i++) {
-			document.getElementById("imgViewer_" + i).style.height = height + "px";
-			document.getElementById("imgViewer_" + i).style.width = "auto";
-		}
-	}
-	if (BarOn === false) {
-		document.getElementById("imgViewer_0").style.height = window.innerHeight + "px";
-		document.getElementById("imgViewer_0").style.width = "auto";
-		document.getElementById("imgViewer_1").style.height = window.innerHeight + "px";
-		document.getElementById("imgViewer_1").style.width = "auto";
-	} else {
-		document.getElementById("imgViewer_0").style.height = height + "px";
-		document.getElementById("imgViewer_0").style.width = "auto";
-		document.getElementById("imgViewer_1").style.height = height + "px";
-		document.getElementById("imgViewer_1").style.width = "auto";
-	}
-}
-
 //Search in the object getted
 async function getFromDB(dbname, request) {
 	const option = {
@@ -393,42 +370,6 @@ function AutoBGC() {
 		);
 	}
 	console.log("clicked", toogleBGC);
-}
-
-//Fix the view to width
-function FixWidth() {
-	document.getElementById("imgViewer_0").style.width =
-		window.innerWidth - 5 + "px";
-	document.getElementById("imgViewer_0").style.height = "auto";
-	if (DoublePageMode === true) {
-		document.getElementById("imgViewer_0").style.width =
-			(window.innerWidth - 5) / 2 + "px";
-		document.getElementById("imgViewer_0").style.height = "auto";
-		document.getElementById("imgViewer_1").style.width =
-			(window.innerWidth - 5) / 2 + "px";
-		document.getElementById("imgViewer_1").style.height = "auto";
-	}
-	if (SideBarOn === true) {
-		document.getElementById("imgViewer_0").style.width =
-			window.innerWidth - 205 + "px";
-		document.getElementById("imgViewer_0").style.height = "auto";
-		document.getElementById("imgViewer_1").style.width =
-			window.innerWidth - 205 + "px";
-		document.getElementById("imgViewer_1").style.height = "auto";
-	}
-	if (VIV_On === true) {
-		for (let i = 0; i < VIV_Count; i++) {
-			if (SideBarOn === true) {
-				document.getElementById("imgViewer_" + i).style.width =
-					window.innerWidth - 205 + "px";
-				document.getElementById("imgViewer_" + i).style.height = "auto";
-			} else {
-				document.getElementById("imgViewer_" + i).style.width =
-					window.innerWidth - 5 + "px";
-				document.getElementById("imgViewer_" + i).style.height = "auto";
-			}
-		}
-	}
 }
 
 //Toogle mark as Bookmarks

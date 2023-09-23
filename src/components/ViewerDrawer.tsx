@@ -86,6 +86,17 @@ export default function PersistentDrawerLeft() {
     const [rotation, setRotation] = React.useState(0);
     const [zoomLevel, setZoomLevel] = React.useState(1);
     const [totalPages, setTotalPages] = React.useState(0);
+    const [baseHeight, setBaseHeight] = React.useState<number | string>(window.innerHeight - 100);
+    const [baseWidth, setBaseWidth] = React.useState<number | string>("auto");
+    const [actionbarON, setActionbarON] = React.useState(true);
+    const [sidebarON, setSidebarON] = React.useState(false);
+    const [origins, setOrigins] = React.useState([window.innerWidth / 3, 70]);
+    const [originsKept, setOriginsKept] = React.useState([window.innerWidth / 3, 70]);
+
+    React.useLayoutEffect(() => {
+        setOrigins([window.innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]);
+        setOriginsKept([window.innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]);
+    }, []);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -879,8 +890,29 @@ export default function PersistentDrawerLeft() {
 
                         <IconButton
                             color="inherit"
-
-
+                            onClick={
+                                () => {
+                                    setBaseWidth(window.innerWidth - 5);
+                                    setBaseHeight("auto");
+                                    setZoomLevel(0);
+                                    setOrigins([0, 0]);
+                                    if (DoublePageMode === true) {
+                                        setBaseWidth((window.innerWidth - 5) / 2);
+                                    }
+                                    if (sidebarON === true) {
+                                        setBaseWidth(window.innerWidth - 205);
+                                    }
+                                    if (VIV_On === true) {
+                                        for (let i = 0; i < VIV_Count; i++) {
+                                            if (sidebarON === true) {
+                                                setBaseWidth(window.innerWidth - 205);
+                                            } else {
+                                                setBaseWidth(window.innerWidth - 5);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             edge="start"
                             sx={{ mr: 2, }}
                         >
@@ -891,8 +923,37 @@ export default function PersistentDrawerLeft() {
 
                         <IconButton
                             color="inherit"
-
-
+                            onClick={
+                                () => {
+                                    const navbar = document.getElementById("navbar");
+                                    if (navbar === null) return;
+                                    if (VIV_On === true) {
+                                        for (let i = 0; i < VIV_Count; i++) {
+                                            setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
+                                            setZoomLevel(0);
+                                            setBaseWidth("auto");
+                                        }
+                                    }
+                                    if (!actionbarON) {
+                                        setBaseHeight(window.innerHeight);
+                                        setZoomLevel(0);
+                                        setBaseWidth("auto");
+                                    } else {
+                                        setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
+                                        setZoomLevel(0);
+                                        setBaseWidth("auto");
+                                        const tempOrigin = origins;
+                                        if (origins[0] !== 0 || origins[1] !== 0) {
+                                            setOrigins([0, 0]);
+                                            setTimeout(() => {
+                                                setOrigins(tempOrigin);
+                                            }, 50);
+                                        } else {
+                                            setOrigins(originsKept);
+                                        }
+                                    }
+                                }
+                            }
                             edge="start"
                             sx={{ mr: 2, }}
                         >
@@ -917,7 +978,7 @@ export default function PersistentDrawerLeft() {
                             color="inherit"
                             onClick={
                                 () => {
-                                    const zoom = zoomLevel + 0.5;
+                                    const zoom = zoomLevel + 20;
                                     setZoomLevel(zoom);
                                 }
                             }
@@ -933,7 +994,7 @@ export default function PersistentDrawerLeft() {
                             color="inherit"
                             onClick={
                                 () => {
-                                    const zoom = zoomLevel - 0.5;
+                                    const zoom = zoomLevel - 20;
                                     setZoomLevel(zoom);
                                 }
                             }
@@ -1061,9 +1122,9 @@ export default function PersistentDrawerLeft() {
             </Drawer>
             <Main open={open}>
                 <DrawerHeader />
-                <MovableImage src={imageOne} width={100 + zoomLevel + "%"} height={100 + zoomLevel + "%"} rotation={rotation} alt="Logo" />
+                <MovableImage src={imageOne} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
                 {
-                    imageTwo !== null ? <MovableImage src={imageTwo} width={100 + zoomLevel + "%"} height={100 + zoomLevel + "%"} rotation={rotation} alt="Logo" /> : null
+                    imageTwo !== null ? <MovableImage src={imageTwo} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
                 }
                 <p style={{
                     color: "white", position: "fixed", backgroundColor: "rgba(0,0,0,0.50)", textAlign: "right", bottom: 0, right: "5px", zIndex: 5
