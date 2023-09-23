@@ -372,39 +372,6 @@ function AutoBGC() {
 	console.log("clicked", toogleBGC);
 }
 
-//Toogle mark as Bookmarks
-//Send BE
-function TBM() {
-	//check if bookmark is already bookmarked
-	let thepage = GetCurrentPage();
-	let filePath = GetFilePath();
-	getFromDB("Bookmarks", "PATH,page FROM Bookmarks WHERE BOOK_ID='" + bookID + "' AND PATH='" + filePath + "' AND page=" + thepage + ";").then((res1) => {
-		let jres = JSON.parse(res1);
-		if (jres.length !== 0) {
-			console.log(jres);
-			if (jres[0]["page"] === GetCurrentPage()) {
-				DeleteFromDB(
-					"Bookmarks",
-					bookID,
-					"AND page=" + GetCurrentPage()
-				);
-				document.getElementById("BMI").innerText = "bookmark_border";
-			}
-		} else {
-			console.log("Bookmarks doesn't exist yet!");
-			InsertIntoDB(
-				"bookmarks",
-				"(BOOK_ID,PATH,page)",
-				"('" + bookID + "','" + GetFilePath() + "','" + GetCurrentPage() + "')"
-			);
-			document.getElementById("BMI").innerText = "bookmark";
-		}
-	});
-}
-
-//Send BE
-
-
 //Hide the Double Pages
 function HideDB() {
 	document.getElementById("imgViewer_1").style.display = "none";

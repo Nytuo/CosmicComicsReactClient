@@ -11,15 +11,17 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { AlignHorizontalCenter, ArrowBack, Bookmark, BookmarkBorder, FirstPage, Fullscreen, FullscreenExit, LastPage, MenuBook, NavigateBefore, NavigateNext, Pageview, RotateLeft, RotateRight, VerticalAlignCenter, ZoomIn, ZoomOut } from '@mui/icons-material';
-import { Tooltip } from '@mui/material';
+import { AlignHorizontalCenter, ArrowBack, Bookmark, BookmarkBorder, FirstPage, Fullscreen, FullscreenExit, LastPage, MenuBook, NavigateBefore, NavigateNext, Pageview, RotateLeft, RotateRight, SettingsAccessibilityOutlined, Tune, VerticalAlignCenter, ZoomIn, ZoomOut } from '@mui/icons-material';
+import { ButtonGroup, Grid, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import MovableImage from './MovableImage.tsx';
 import { Toaster } from './Toaster.tsx';
 import { PDP, getCookie } from '@/utils/Common.ts';
-import { ModifyDB, getFromDB } from '@/utils/Fetchers.ts';
+import { DeleteFromDB, InsertIntoDB, ModifyDB, getFromDB } from '@/utils/Fetchers.ts';
 import Logger from '@/logger.ts';
 import { useEffectOnce } from '@/utils/UseEffectOnce.tsx';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import SubMenu from './SubMenu.tsx';
 
 const drawerWidth = 240;
 
@@ -508,6 +510,38 @@ export default function PersistentDrawerLeft() {
         }
     }
 
+    //Toogle mark as Bookmarks
+    function TBM() {
+        //check if bookmark is already bookmarked
+        getFromDB("Bookmarks", "PATH,page FROM Bookmarks WHERE BOOK_ID='" + bookID + "' AND PATH='" + CosmicComicsTempI + "' AND page=" + currentPage + ";").then((res1) => {
+            if (!res1) return;
+            const jres = JSON.parse(res1);
+            if (jres.length !== 0) {
+                console.log(jres);
+                if (jres[0]["page"] === currentPage) {
+                    DeleteFromDB(
+                        "Bookmarks",
+                        bookID,
+                        "AND page=" + currentPage
+                    ).then(() => {
+                        Toaster(t("bookmark_removed"), "info");
+                    });
+                    setBookmarked(false);
+                }
+            } else {
+                console.log("Bookmarks doesn't exist yet!");
+                InsertIntoDB(
+                    "bookmarks",
+                    "(BOOK_ID,PATH,page)",
+                    "('" + bookID + "','" + CosmicComicsTempI + "','" + currentPage + "')"
+                ).then(() => {
+                    Toaster(t("bookmark_added"), "success");
+                });
+                setBookmarked(true);
+            }
+        });
+    }
+
     //Going to the previous page
     function PreviousPage(override = false) {
         if (mangaMode === true) {
@@ -767,6 +801,8 @@ export default function PersistentDrawerLeft() {
         }
     });
 
+    const [opacityForNavigation, setOpacityForNavigation] = React.useState("0.1");
+
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
@@ -783,17 +819,6 @@ export default function PersistentDrawerLeft() {
                             <MenuIcon />
                         </IconButton>
                     </Tooltip>
-                    <img
-                        src="Images/Logo.png"
-                        alt=""
-                        width="auto"
-                        height="40px"
-                        id="logo_id"
-                        className="navbar-brand rotate linear infinite"
-                        style={{
-                            marginRight: "10px",
-                        }}
-                    />
                     <Tooltip title={t("go_back")}>
                         <IconButton
                             onClick={
@@ -807,6 +832,192 @@ export default function PersistentDrawerLeft() {
                         >
                             <ArrowBack />
                         </IconButton></Tooltip>
+
+                    <div
+                        style={{
+                            position: "absolute",
+                            left: "50%",
+                            transform: "translate(-50%, 0)",
+                            width: "auto",
+                            height: "auto",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }}
+                    >
+                        <Tooltip title={t("fix_width")}>
+
+                            <IconButton
+                                color="inherit"
+                                onClick={
+                                    () => {
+                                        setBaseWidth(window.innerWidth - 5);
+                                        setBaseHeight("auto");
+                                        setZoomLevel(0);
+                                        setOrigins([0, 0]);
+                                        if (DoublePageMode === true) {
+                                            setBaseWidth((window.innerWidth - 5) / 2);
+                                        }
+                                        if (sidebarON === true) {
+                                            setBaseWidth(window.innerWidth - 205);
+                                        }
+                                        if (VIV_On === true) {
+                                            for (let i = 0; i < VIV_Count; i++) {
+                                                if (sidebarON === true) {
+                                                    setBaseWidth(window.innerWidth - 205);
+                                                } else {
+                                                    setBaseWidth(window.innerWidth - 5);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                edge="start"
+                                sx={{ mr: 2, }}
+                            >
+                                <AlignHorizontalCenter />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t("fix_height")}>
+
+                            <IconButton
+                                color="inherit"
+                                onClick={
+                                    () => {
+                                        const navbar = document.getElementById("navbar");
+                                        if (navbar === null) return;
+                                        if (VIV_On === true) {
+                                            for (let i = 0; i < VIV_Count; i++) {
+                                                setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
+                                                setZoomLevel(0);
+                                                setBaseWidth("auto");
+                                            }
+                                        }
+                                        if (!actionbarON) {
+                                            setBaseHeight(window.innerHeight);
+                                            setZoomLevel(0);
+                                            setBaseWidth("auto");
+                                        } else {
+                                            setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
+                                            setZoomLevel(0);
+                                            setBaseWidth("auto");
+                                            const tempOrigin = origins;
+                                            if (origins[0] !== 0 || origins[1] !== 0) {
+                                                setOrigins([0, 0]);
+                                                setTimeout(() => {
+                                                    setOrigins(tempOrigin);
+                                                }, 50);
+                                            } else {
+                                                setOrigins(originsKept);
+                                            }
+                                        }
+                                    }
+                                }
+                                edge="start"
+                                sx={{ mr: 2, }}
+                            >
+                                <VerticalAlignCenter />
+                            </IconButton>
+                        </Tooltip>
+
+
+
+                        <Tooltip title={t("full_screen")}>
+
+                            <IconButton
+                                color="inherit"
+                                onClick={
+                                    () => {
+                                        if (document.fullscreenElement) {
+                                            document.exitFullscreen();
+                                            setIsFullscreen(false);
+                                        } else {
+                                            document.documentElement.requestFullscreen();
+                                            setIsFullscreen(true);
+                                        }
+                                    }
+                                }
+                                edge="start"
+                                sx={{ mr: 2, }}
+                            >
+                                {
+                                    isFullscreen ? <FullscreenExit /> : <Fullscreen />
+                                }
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t("book_settings")}>
+
+                            <IconButton
+                                color="inherit"
+
+
+                                edge="start"
+                                sx={{ mr: 2, }}
+                            >
+                                <Tune />
+                            </IconButton>
+                        </Tooltip>
+                        <SubMenu
+                            TBM={TBM}
+                            bookmarked={bookmarked}
+                            rotation={rotation}
+                            setRotation={setRotation}
+                            zoomLevel={zoomLevel}
+                            setZoomLevel={setZoomLevel}
+                        />
+                    </div>
+                </Toolbar>
+            </AppBar>
+            <Drawer
+                sx={{
+                    width: drawerWidth,
+                    flexShrink: 0,
+                    '& .MuiDrawer-paper': {
+                        width: drawerWidth,
+                        boxSizing: 'border-box',
+                    },
+                }}
+                variant="persistent"
+                anchor="left"
+                open={open}
+            >
+                <DrawerHeader>
+                    <IconButton onClick={handleDrawerClose}>
+                        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                    </IconButton>
+                </DrawerHeader>
+                <Divider />
+                <List>
+
+                </List>
+                <Divider />
+                <List>
+
+                </List>
+            </Drawer>
+            <Main open={open}>
+                <DrawerHeader />
+                <MovableImage src={imageOne} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
+                {
+                    imageTwo !== null ? <MovableImage src={imageTwo} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
+                }
+                <p style={{
+                    color: "white", position: "fixed", backgroundColor: "rgba(0,0,0,0.50)", textAlign: "right", bottom: 0, right: "5px", zIndex: 5
+                }}>{currentPage + 1} / {totalPages + 1}</p>
+                <div style={{
+                    backgroundColor: "rgba(0,0,0,0.8)",
+                    opacity: opacityForNavigation, position: "absolute", bottom: "50px", left: "50%", transform: "translateX(-50%)", zIndex: 5,
+                    transition: "opacity 0.2s ease-in-out", borderRadius: "10px", padding: "5px"
+                }}
+                    onMouseEnter={() => {
+                        setOpacityForNavigation("1");
+                    }
+                    }
+                    onMouseLeave={() => {
+                        setOpacityForNavigation("0.1");
+                    }
+                    }
+                >
                     <Tooltip title={t("go_start")}>
 
                         <IconButton
@@ -818,7 +1029,7 @@ export default function PersistentDrawerLeft() {
                             }
                             color="inherit"
                             edge="start"
-                            sx={{ mr: 2 }}
+                            sx={{ mr: 2, ml: 2 }}
                         >
                             <FirstPage />
                         </IconButton>
@@ -886,249 +1097,7 @@ export default function PersistentDrawerLeft() {
                             <LastPage />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title={t("fix_width")}>
-
-                        <IconButton
-                            color="inherit"
-                            onClick={
-                                () => {
-                                    setBaseWidth(window.innerWidth - 5);
-                                    setBaseHeight("auto");
-                                    setZoomLevel(0);
-                                    setOrigins([0, 0]);
-                                    if (DoublePageMode === true) {
-                                        setBaseWidth((window.innerWidth - 5) / 2);
-                                    }
-                                    if (sidebarON === true) {
-                                        setBaseWidth(window.innerWidth - 205);
-                                    }
-                                    if (VIV_On === true) {
-                                        for (let i = 0; i < VIV_Count; i++) {
-                                            if (sidebarON === true) {
-                                                setBaseWidth(window.innerWidth - 205);
-                                            } else {
-                                                setBaseWidth(window.innerWidth - 5);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <AlignHorizontalCenter />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("fix_height")}>
-
-                        <IconButton
-                            color="inherit"
-                            onClick={
-                                () => {
-                                    const navbar = document.getElementById("navbar");
-                                    if (navbar === null) return;
-                                    if (VIV_On === true) {
-                                        for (let i = 0; i < VIV_Count; i++) {
-                                            setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
-                                            setZoomLevel(0);
-                                            setBaseWidth("auto");
-                                        }
-                                    }
-                                    if (!actionbarON) {
-                                        setBaseHeight(window.innerHeight);
-                                        setZoomLevel(0);
-                                        setBaseWidth("auto");
-                                    } else {
-                                        setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
-                                        setZoomLevel(0);
-                                        setBaseWidth("auto");
-                                        const tempOrigin = origins;
-                                        if (origins[0] !== 0 || origins[1] !== 0) {
-                                            setOrigins([0, 0]);
-                                            setTimeout(() => {
-                                                setOrigins(tempOrigin);
-                                            }, 50);
-                                        } else {
-                                            setOrigins(originsKept);
-                                        }
-                                    }
-                                }
-                            }
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <VerticalAlignCenter />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("magnifier_toggle")}>
-
-                        <IconButton
-                            color="inherit"
-
-
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <Pageview />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("zoom_in")}>
-
-                        <IconButton
-                            color="inherit"
-                            onClick={
-                                () => {
-                                    const zoom = zoomLevel + 20;
-                                    setZoomLevel(zoom);
-                                }
-                            }
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <ZoomIn />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("zoom_out")}>
-
-                        <IconButton
-                            color="inherit"
-                            onClick={
-                                () => {
-                                    const zoom = zoomLevel - 20;
-                                    setZoomLevel(zoom);
-                                }
-                            }
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <ZoomOut />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("Bookmark")}>
-
-                        <IconButton
-                            color="inherit"
-
-
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            {
-                                bookmarked ? <BookmarkBorder /> : <Bookmark />
-                            }
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("book_settings")}>
-
-                        <IconButton
-                            color="inherit"
-
-
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <MenuBook />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("rotate_right")}>
-
-                        <IconButton
-                            color="inherit"
-                            onClick={
-                                () => {
-                                    let rotate = rotation + 90;
-                                    if (rotate === 360) {
-                                        rotate = 0;
-                                    }
-                                    setRotation(rotate);
-                                }
-                            }
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <RotateRight />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("rotate_left")}>
-
-                        <IconButton
-                            color="inherit"
-                            onClick={
-                                () => {
-                                    let rotate = rotation - 90;
-                                    if (rotate === -90) {
-                                        rotate = 270;
-                                    }
-                                    setRotation(rotate);
-                                }
-                            }
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <RotateLeft />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("full_screen")}>
-
-                        <IconButton
-                            color="inherit"
-                            onClick={
-                                () => {
-                                    if (document.fullscreenElement) {
-                                        document.exitFullscreen();
-                                        setIsFullscreen(false);
-                                    } else {
-                                        document.documentElement.requestFullscreen();
-                                        setIsFullscreen(true);
-                                    }
-                                }
-                            }
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            {
-                                isFullscreen ? <FullscreenExit /> : <Fullscreen />
-                            }
-                        </IconButton>
-                    </Tooltip>
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
-                        width: drawerWidth,
-                        boxSizing: 'border-box',
-                    },
-                }}
-                variant="persistent"
-                anchor="left"
-                open={open}
-            >
-                <DrawerHeader>
-                    <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                    </IconButton>
-                </DrawerHeader>
-                <Divider />
-                <List>
-
-                </List>
-                <Divider />
-                <List>
-
-                </List>
-            </Drawer>
-            <Main open={open}>
-                <DrawerHeader />
-                <MovableImage src={imageOne} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
-                {
-                    imageTwo !== null ? <MovableImage src={imageTwo} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
-                }
-                <p style={{
-                    color: "white", position: "fixed", backgroundColor: "rgba(0,0,0,0.50)", textAlign: "right", bottom: 0, right: "5px", zIndex: 5
-                }}>{currentPage + 1} / {totalPages + 1}</p>
+                </div>
             </Main>
         </Box>
     );
