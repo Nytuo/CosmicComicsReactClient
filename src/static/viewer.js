@@ -73,198 +73,12 @@ async function getFromDB(dbname, request) {
 	});
 }
 
-//mark as read
-function markasread() {
-	Toastifycation(language["marked_as_read"], "#00C33C");
-	ModifyDB(
-		"Books",
-		"reading",
-		false,
-		shortname
-	).then(() => {
-		ModifyDB(
-			"Books",
-			"unread",
-			false,
-			shortname
-		).then(() => {
-			ModifyDB(
-				"Books",
-				"read",
-				true,
-				shortname
-			);
-		});
-	});
-}
-
-//Mark as unread
-function markasunread() {
-	Toastifycation(language["marked_as_unread"], "#00C33C");
-	ModifyDB(
-		"Books",
-		"reading",
-		false,
-		shortname
-	).then(() => {
-		ModifyDB(
-			"Books",
-			"read",
-			false,
-			shortname
-		).then(() => {
-			ModifyDB(
-				"Books",
-				"unread",
-				true,
-				shortname
-			);
-		});
-	});
-}
-
-
-//Send BE
-//mark as reading
-function markasreading() {
-	console.log("reading");
-	Toastifycation(language["marked_as_reading"], "#00C33C");
-	ModifyDB(
-		"Books",
-		"reading",
-		true,
-		shortname
-	).then(() => {
-		ModifyDB(
-			"Books",
-			"read",
-			false,
-			shortname
-		).then(() => {
-			ModifyDB(
-				"Books",
-				"unread",
-				false,
-				shortname
-			);
-		});
-	});
-}
-
-//Send BE
-//Toggle the favorite status
-function ToogleFav() {
-	getFromDB("Books", "favorite FROM Books WHERE PATH='" + path + "'").then((res) => {
-		console.log(info);
-		res = JSON.parse(res)[0]["favorite"];
-		console.log(res);
-		if (res) {
-			Toastifycation(language["remove_fav"], "#00C33C");
-			document.getElementById("favoicon").innerText = "favorite_border";
-			ModifyDB(
-				"Books",
-				"favorite",
-				false,
-				shortname
-			);
-		} else {
-			Toastifycation(language["add_fav"], "#00C33C");
-			document.getElementById("favoicon").innerText = "favorite";
-			ModifyDB(
-				"Books",
-				"favorite",
-				true,
-				shortname
-			);
-		}
-	});
-}
-
 document.getElementById('viewport').addEventListener('touchstart', handleTouchStart, false);
 document.getElementById('viewport').addEventListener('touchmove', handleTouchMove, false);
 
-let xDown = null;
-let yDown = null;
-
-function getTouches(evt) {
-	return evt.touches ||             // browser API
-		evt.originalEvent.touches; // jQuery
-}
-
-function handleTouchStart(evt) {
-	const firstTouch = getTouches(evt)[0];
-	xDown = firstTouch.clientX;
-	yDown = firstTouch.clientY;
-};
-
-function handleTouchMove(evt) {
-	if (!xDown || !yDown) {
-		return;
-	}
-
-	let xUp = evt.touches[0].clientX;
-	let yUp = evt.touches[0].clientY;
-
-	let xDiff = xDown - xUp;
-	let yDiff = yDown - yUp;
-
-	if (Math.abs(xDiff) > Math.abs(yDiff)) {/*most significant*/
-		if (xDiff > 0) {
-			NextPage();
-		} else {
-			PreviousPage();
-		}
-	}
-	/* reset values */
-	xDown = null;
-	yDown = null;
-};
-
 
 //Send BE
-//Modify the JSON for config.json
-function modifyConfigJson(json, tomod, mod) {
-	//check si obj exist pour remplacer valeur
-	fetch(PDP + "/config/getConfig/" + connected).then(function (response) {
-		return response.text();
-	}).then(function (data) {
-		let configFile = data;
-		let config = JSON.parse(configFile);
-		for (let i in config) {
-			config[tomod] = mod;
-		}
-		const option = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(config, null, 2)
-		};
-		fetch('/config/writeConfig/' + connected, option);
-	}).catch(function (error) {
-		console.log(error);
-	});
-}
 
-
-//Detect where the wheel go
-function detectMouseWheelDirection(e) {
-	let delta = null,
-		direction = false;
-	if (!e) {
-		// if the event is not provided, we get it from the window object
-		e = window.event;
-	}
-	if (e.wheelDelta) {
-		// will work in most cases
-		delta = e.wheelDelta / 60;
-	} else if (e.detail) {
-		// fallback for Firefox
-		delta = -e.detail / 2;
-	}
-	if (delta !== null) {
-		direction = delta > 0 ? "up" : "down";
-	}
-	return direction;
-}
 
 let ctrlisDown = false;
 let maxHeight = 10000000;
@@ -392,15 +206,6 @@ function MarginSlider() {
 	}
 }
 
-//Not working apply a shadow btw the pages (when Double page mode is actived)
-function showShadow() {
-	if (
-		document.getElementById("id_checkshadow").getAttribute("checked") != null
-	) {
-		document.getElementById("imgViewer_1").classList.add("pageShadow");
-	}
-}
-
 //Send BE
 //Blank first page at begginning
 function BPAB() {
@@ -476,23 +281,6 @@ function NDPFH() {
 	}
 }
 
-
-//Error When loading images
-document.getElementById("imgViewer_0").onerror = function () {
-	Toastifycation(language["error"], "#ff0000");
-	document.getElementById("imgViewer_0").src = "Images/fileDefault.webp";
-};
-document.getElementById("imgViewer_1").onerror = function () {
-	Toastifycation(language["error"], "#ff0000");
-	document.getElementById("imgViewer_1").src = "Images/fileDefault.webp";
-};
-document.getElementById("imgViewer_0").addEventListener("load", () => {
-	document.getElementById("overlay").style.display = "none";
-});
-document.getElementById("imgViewer_0").addEventListener("loadstart", () => {
-	document.getElementById("overlay").style.display = "block";
-});
-
 //Send BE
 //Manga Mode
 function MMT() {
@@ -512,16 +300,6 @@ function MMT() {
 		mangaMode = true;
 	}
 	console.log(mangaMode);
-}
-
-//Invert the list passed in parameters
-function invertList(list = []) {
-	let newlist = [];
-	for (let i = 0; i < list.length; i++) {
-		newlist[i] = list[i];
-	}
-	newlist.reverse();
-	return newlist;
 }
 
 //Rotation of an element
@@ -626,29 +404,6 @@ function NoBAR() {
 	}
 }
 
-//Page Counter on/off
-let DM_CurrentPage = true;
-
-function ChangeDM_CurrentPage() {
-	if (DM_CurrentPage === true) {
-		modifyConfigJson(
-			CosmicComicsData + "/config.json",
-			"Page_Counter",
-			false
-		);
-		DM_CurrentPage = false;
-		document.getElementById("currentpage").style.display = "none";
-	} else {
-		modifyConfigJson(
-			CosmicComicsData + "/config.json",
-			"Page_Counter",
-			true
-		);
-		DM_CurrentPage = true;
-		document.getElementById("currentpage").style.display = "block";
-	}
-}
-
 //Send BE
 //Vertical Image Viewer Mode
 function VIVT() {
@@ -740,30 +495,6 @@ let observer = new IntersectionObserver(
 	{ threshold: [0.1] }
 );
 
-//Can move direclty to a page by using a slider
-function pageslide() {
-	let pageto = document.getElementById("sps").value - 1;
-	document.getElementById("lsps").innerText =
-		language["page_slider"] +
-		" (" +
-		document.getElementById("sps").value +
-		"):";
-	Reader(listofImg, pageto);
-}
-
-//Do not remember what this do, sorry
-function pagechoose() {
-	let pageto = document.getElementById("input_text").value - 1;
-	if (
-		pageto >= document.getElementById("sps").min - 1 &&
-		pageto <= document.getElementById("sps").max - 1
-	) {
-		Reader(listofImg, pageto);
-	} else {
-		Toastifycation(language["not_available"], "#ff0000");
-	}
-}
-
 //Send BE
 //Webtoon Mode
 let WTMTV = false;
@@ -796,18 +527,6 @@ function WTMT() {
 }
 
 //Send BE
-//Change Background Color by color picker
-function changeBGColorByPicker() {
-	let value = document.getElementById("exampleColorInput").value;
-	document.getElementsByTagName("html")[0].style.backgroundColor = value;
-	modifyConfigJson(
-		CosmicComicsData + "/config.json",
-		"Background_color",
-		value
-	);
-}
-
-//Send BE
 //reset zoom for each page
 let RZPV = false;
 
@@ -827,42 +546,6 @@ function RZP() {
 		);
 		RZPV = true;
 	}
-}
-
-//Send BE
-//Scroll bar visible
-let scrollbarvisibiel = true;
-
-function SBVT() {
-	if (scrollbarvisibiel === true) {
-		setNoScrollbar();
-		modifyConfigJson(
-			CosmicComicsData + "/config.json",
-			"Scroll_bar_visible",
-			false
-		);
-		scrollbarvisibiel = false;
-	} else {
-		setScrollbar();
-		modifyConfigJson(
-			CosmicComicsData + "/config.json",
-			"Scroll_bar_visible",
-			true
-		);
-		scrollbarvisibiel = true;
-	}
-}
-
-//Set no scrollbar
-function setNoScrollbar() {
-	let styleSheet = document.styleSheets[document.styleSheets.length - 3];
-	styleSheet.insertRule("::-webkit-scrollbar {display: none;}");
-}
-
-//Set scrollbar
-function setScrollbar() {
-	let styleSheet = document.styleSheets[document.styleSheets.length - 3];
-	styleSheet.removeRule("::-webkit-scrollbar {display: none;}");
 }
 
 //Load the parameters
@@ -1034,70 +717,10 @@ document.getElementById("SSValue").onchange = function () {
 		parseInt(document.getElementById("SSValue").value)
 	);
 };
-//Detect if you are on the bottom or top
-let Auth_Prev = false;
-let Auth_next = false;
-window.onscroll = function (ev) {
-	if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-		console.log("You're at the bottom");
-		Auth_next = true;
-	} else {
-		Auth_next = false;
-	}
-	if (window.scrollY === 0) {
-		console.log("You're at the top");
-		Auth_Prev = true;
-	} else {
-		Auth_Prev = false;
-	}
-};
+
 let nb_of_next = 0;
 let nb_of_prev = 0;
-//Go to the next or previous page by scrolling
-window.addEventListener("wheel", function (e) {
-	if (ctrlisDown) {
-		console.log(ctrlisDown);
-		ctrlisDown = false;
-		let direc = detectMouseWheelDirection(e);
-		console.log(direc);
-		if (direc === "down") {
-			if (
-				parseInt(document.getElementById("imgViewer_0").style.height) - 100 >
-				minHeight
-			) {
-				ZoomOut();
-			}
-		} else if (direc === "up") {
-			if (
-				parseInt(document.getElementById("imgViewer_0").style.height) + 100 <
-				maxHeight
-			) {
-				ZoomIn();
-			}
-		}
-	} else {
-		if (Auth_next === true) {
-			nb_of_next += 1;
-			if (nb_of_next === 2) {
-				nb_of_next = 0;
-				nb_of_prev = 0;
-				Auth_next = false;
-				Auth_Prev = false;
-				NextPage();
-			}
-		}
-		if (Auth_Prev === true) {
-			nb_of_prev += 1;
-			if (nb_of_prev === 2) {
-				nb_of_next = 0;
-				Auth_next = false;
-				nb_of_prev = 0;
-				Auth_Prev = false;
-				PreviousPage();
-			}
-		}
-	}
-});
+
 //Click left do previous and click right do next
 document.getElementById("viewport").addEventListener("click", function () {
 	PreviousPage();

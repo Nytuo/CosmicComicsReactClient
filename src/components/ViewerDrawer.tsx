@@ -5,14 +5,13 @@ import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { AlignHorizontalCenter, ArrowBack, Bookmark, BookmarkBorder, FirstPage, Fullscreen, FullscreenExit, LastPage, MenuBook, NavigateBefore, NavigateNext, Pageview, RotateLeft, RotateRight, SettingsAccessibilityOutlined, Tune, VerticalAlignCenter, ZoomIn, ZoomOut } from '@mui/icons-material';
-import { ButtonGroup, Grid, Stack, Tooltip } from '@mui/material';
+import { AlignHorizontalCenter, ArrowBack, FirstPage, Fullscreen, FullscreenExit, LastPage, NavigateBefore, NavigateNext, Tune, VerticalAlignCenter } from '@mui/icons-material';
+import { Stack, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import MovableImage from './MovableImage.tsx';
 import { Toaster } from './Toaster.tsx';
@@ -20,8 +19,8 @@ import { PDP, getCookie } from '@/utils/Common.ts';
 import { DeleteFromDB, InsertIntoDB, ModifyDB, getFromDB } from '@/utils/Fetchers.ts';
 import Logger from '@/logger.ts';
 import { useEffectOnce } from '@/utils/UseEffectOnce.tsx';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import SubMenu from './SubMenu.tsx';
+import BookSettingsDialog from './Dialogs/BookSettingsDialog.tsx';
 
 const drawerWidth = 240;
 
@@ -219,21 +218,28 @@ export default function PersistentDrawerLeft() {
     let mangaMode = false;
     let bookID = "NaID_" + Math.random() * 100500;
     let toogleBGC = false;
-    let listofImg;
-    let currentUser = "";
+    const [listofImgState, setListofImgState] = React.useState([]);
+    let listofImg: any[] = [];
 
 
-    fetch(PDP + "/viewer/view/current/" + connected).then(
-        (response) => {
-            response.json().then((data) => {
-                listofImg = data;
-                setTotalPages(listofImg.length);
-            }
-            ).catch(function (error) {
-                console.log(error);
-            });
-        }
-    );
+    React.useEffect(() => {
+        const LaunchViewer = async () => {
+            await fetch(PDP + "/viewer/view/current/" + connected).then(
+                (response) => {
+                    response.json().then((data) => {
+                        listofImg = data;
+                        setListofImgState(data);
+                        setTotalPages(listofImg.length);
+                    }
+                    ).catch(function (error) {
+                        console.log(error);
+                    });
+                }
+            );
+        };
+        LaunchViewer();
+    }, []);
+
     const [bookmarked, setBookmarked] = React.useState(false);
 
     //Loading the BookMark
@@ -399,7 +405,7 @@ export default function PersistentDrawerLeft() {
         CommonName = CommonName.replaceAll("]", " ");
         /* remove the extension using regex */
         CommonName = CommonName.replace(/\.[^/.]+$/, "");
-        let s = CommonName.split(" ");
+        const s = CommonName.split(" ");
         let finalName = "";
         console.log(s);
         s.forEach((el) => {
@@ -505,7 +511,7 @@ export default function PersistentDrawerLeft() {
                     currentPage.toString(),
                     shortname
                 ).then(() => {
-                    Reader(listofImg, currentPage + 1);
+                    Reader(listofImgState, currentPage + 1);
                 });
             }
         }
@@ -547,7 +553,7 @@ export default function PersistentDrawerLeft() {
     function PreviousPage(override = false) {
         if (mangaMode === true) {
             if (override === false) {
-                //NextPage(true);
+                NextPage(true);
                 return false;
             }
         }
@@ -576,11 +582,11 @@ export default function PersistentDrawerLeft() {
             if (DoublePageMode === true && BlankFirstPage === false && DPMNoH === false) {
                 if (currentPage > 2) {
                     setCurrentPage(currentPage - 3);
-                    Reader(listofImg, currentPage);
+                    Reader(listofImgState, currentPage);
                 } else {
                     if (currentPage - 1 !== -1) {
                         setCurrentPage(currentPage - 1);
-                        Reader(listofImg, currentPage);
+                        Reader(listofImgState, currentPage);
                     }
                 }
             } else if (
@@ -596,15 +602,15 @@ export default function PersistentDrawerLeft() {
                     if (NW > NH || NW2 > NH2) {
                         DoublePageMode = false;
                         setCurrentPage(currentPage - 1);
-                        Reader(listofImg, currentPage);
+                        Reader(listofImgState, currentPage);
                     } else {
                         setCurrentPage(currentPage - 3);
-                        Reader(listofImg, currentPage);
+                        Reader(listofImgState, currentPage);
                     }
                 } else {
                     if (currentPage - 2 !== -1) {
                         setCurrentPage(currentPage - 2);
-                        Reader(listofImg, currentPage);
+                        Reader(listofImgState, currentPage);
                     }
                 }
             } else if (
@@ -614,10 +620,10 @@ export default function PersistentDrawerLeft() {
             ) {
                 if (currentPage !== 0 && currentPage - 3 !== -1) {
                     setCurrentPage(currentPage - 3);
-                    Reader(listofImg, currentPage);
+                    Reader(listofImgState, currentPage);
                 } else if (currentPage - 3 === -1) {
                     setCurrentPage(currentPage - 2);
-                    Reader(listofImg, currentPage);
+                    Reader(listofImgState, currentPage);
                 }
             } else if (
                 DoublePageMode === true &&
@@ -632,10 +638,10 @@ export default function PersistentDrawerLeft() {
                     if (NW > NH || NW2 > NH2) {
                         DoublePageMode = false;
                         setCurrentPage(currentPage - 2);
-                        Reader(listofImg, currentPage);
+                        Reader(listofImgState, currentPage);
                     } else {
                         setCurrentPage(currentPage - 2);
-                        Reader(listofImg, currentPage);
+                        Reader(listofImgState, currentPage);
                     }
                 } else if (currentPage - 3 === -1) {
                     const NW = preloadedImages[currentPage - 1].naturalWidth;
@@ -645,16 +651,16 @@ export default function PersistentDrawerLeft() {
                     if (NW > NH || NW2 > NH2) {
                         DoublePageMode = false;
                         setCurrentPage(currentPage - 1);
-                        Reader(listofImg, currentPage);
+                        Reader(listofImgState, currentPage);
                     } else {
                         setCurrentPage(currentPage - 2);
-                        Reader(listofImg, currentPage);
+                        Reader(listofImgState, currentPage);
                     }
                 }
             } else {
                 if (currentPage !== 0) {
                     setCurrentPage(currentPage - 1);
-                    Reader(listofImg, currentPage - 1);
+                    Reader(listofImgState, currentPage - 1);
                 }
             }
         }
@@ -847,312 +853,326 @@ export default function PersistentDrawerLeft() {
                     </div>
                 );
             });
-
         }
         Logger.info("imgSideBarTemp : " + imgSideBarTemp);
         setImgSideBar(prevState => [...prevState, imgSideBarTemp]);
     }
 
+    const [openBookSettings, setOpenBookSettings] = React.useState(false);
+
+    const handleOpenBookSettings = () => {
+        setOpenBookSettings(true);
+    };
+
+    const handleCloseBookSettings = () => {
+        setOpenBookSettings(false);
+    };
 
     return (
-        <Box sx={{ display: 'flex' }}>
-            <CssBaseline />
-            <AppBar position="fixed" open={open}>
-                <Toolbar>
-                    <Tooltip title="Open Drawer">
-                        <IconButton
-                            color="inherit"
-                            aria-label="open drawer"
-                            onClick={handleDrawerOpen}
-                            edge="start"
-                            sx={{ mr: 2, ...(open && { display: 'none' }) }}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("go_back")}>
-                        <IconButton
-                            onClick={
-                                () => {
-                                    window.location.href = "/collectionner";
-                                }
-                            }
-                            color="inherit"
-                            edge="start"
-                            sx={{ mr: 2 }}
-                        >
-                            <ArrowBack />
-                        </IconButton></Tooltip>
-
-                    <div
-                        style={{
-                            position: "absolute",
-                            left: "50%",
-                            transform: "translate(-50%, 0)",
-                            width: "auto",
-                            height: "auto",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                    >
-                        <Tooltip title={t("fix_width")}>
-
+        <>
+            <Box sx={{ display: 'flex' }}>
+                <CssBaseline />
+                <AppBar position="fixed" open={open}>
+                    <Toolbar>
+                        <Tooltip title="Open Drawer">
                             <IconButton
                                 color="inherit"
+                                aria-label="open drawer"
+                                onClick={handleDrawerOpen}
+                                edge="start"
+                                sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t("go_back")}>
+                            <IconButton
                                 onClick={
                                     () => {
-                                        setBaseWidth(window.innerWidth - 5);
-                                        setBaseHeight("auto");
-                                        setZoomLevel(0);
-                                        setOrigins([0, 0]);
-                                        if (DoublePageMode === true) {
-                                            setBaseWidth((window.innerWidth - 5) / 2);
-                                        }
-                                        if (sidebarON === true) {
-                                            setBaseWidth(window.innerWidth - 205);
-                                        }
-                                        if (VIV_On === true) {
-                                            for (let i = 0; i < VIV_Count; i++) {
-                                                if (sidebarON === true) {
-                                                    setBaseWidth(window.innerWidth - 205);
-                                                } else {
-                                                    setBaseWidth(window.innerWidth - 5);
+                                        window.location.href = "/collectionner";
+                                    }
+                                }
+                                color="inherit"
+                                edge="start"
+                                sx={{ mr: 2 }}
+                            >
+                                <ArrowBack />
+                            </IconButton></Tooltip>
+
+                        <div
+                            style={{
+                                position: "absolute",
+                                left: "50%",
+                                transform: "translate(-50%, 0)",
+                                width: "auto",
+                                height: "auto",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            <Tooltip title={t("fix_width")}>
+
+                                <IconButton
+                                    color="inherit"
+                                    onClick={
+                                        () => {
+                                            setBaseWidth(window.innerWidth - 5);
+                                            setBaseHeight("auto");
+                                            setZoomLevel(0);
+                                            setOrigins([0, 0]);
+                                            if (DoublePageMode === true) {
+                                                setBaseWidth((window.innerWidth - 5) / 2);
+                                            }
+                                            if (sidebarON === true) {
+                                                setBaseWidth(window.innerWidth - 205);
+                                            }
+                                            if (VIV_On === true) {
+                                                for (let i = 0; i < VIV_Count; i++) {
+                                                    if (sidebarON === true) {
+                                                        setBaseWidth(window.innerWidth - 205);
+                                                    } else {
+                                                        setBaseWidth(window.innerWidth - 5);
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                                edge="start"
-                                sx={{ mr: 2, }}
-                            >
-                                <AlignHorizontalCenter />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title={t("fix_height")}>
+                                    edge="start"
+                                    sx={{ mr: 2, }}
+                                >
+                                    <AlignHorizontalCenter />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t("fix_height")}>
 
-                            <IconButton
-                                color="inherit"
-                                onClick={
-                                    () => {
-                                        const navbar = document.getElementById("navbar");
-                                        if (navbar === null) return;
-                                        if (VIV_On === true) {
-                                            for (let i = 0; i < VIV_Count; i++) {
+                                <IconButton
+                                    color="inherit"
+                                    onClick={
+                                        () => {
+                                            const navbar = document.getElementById("navbar");
+                                            if (navbar === null) return;
+                                            if (VIV_On === true) {
+                                                for (let i = 0; i < VIV_Count; i++) {
+                                                    setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
+                                                    setZoomLevel(0);
+                                                    setBaseWidth("auto");
+                                                }
+                                            }
+                                            if (!actionbarON) {
+                                                setBaseHeight(window.innerHeight);
+                                                setZoomLevel(0);
+                                                setBaseWidth("auto");
+                                            } else {
                                                 setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
                                                 setZoomLevel(0);
                                                 setBaseWidth("auto");
-                                            }
-                                        }
-                                        if (!actionbarON) {
-                                            setBaseHeight(window.innerHeight);
-                                            setZoomLevel(0);
-                                            setBaseWidth("auto");
-                                        } else {
-                                            setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
-                                            setZoomLevel(0);
-                                            setBaseWidth("auto");
-                                            const tempOrigin = origins;
-                                            if (origins[0] !== 0 || origins[1] !== 0) {
-                                                setOrigins([0, 0]);
-                                                setTimeout(() => {
-                                                    setOrigins(tempOrigin);
-                                                }, 50);
-                                            } else {
-                                                setOrigins(originsKept);
+                                                const tempOrigin = origins;
+                                                if (origins[0] !== 0 || origins[1] !== 0) {
+                                                    setOrigins([0, 0]);
+                                                    setTimeout(() => {
+                                                        setOrigins(tempOrigin);
+                                                    }, 50);
+                                                } else {
+                                                    setOrigins(originsKept);
+                                                }
                                             }
                                         }
                                     }
+                                    edge="start"
+                                    sx={{ mr: 2, }}
+                                >
+                                    <VerticalAlignCenter />
+                                </IconButton>
+                            </Tooltip>
+
+
+
+                            <Tooltip title={t("full_screen")}>
+
+                                <IconButton
+                                    color="inherit"
+                                    onClick={
+                                        () => {
+                                            if (document.fullscreenElement) {
+                                                document.exitFullscreen();
+                                                setIsFullscreen(false);
+                                            } else {
+                                                document.documentElement.requestFullscreen();
+                                                setIsFullscreen(true);
+                                            }
+                                        }
+                                    }
+                                    edge="start"
+                                    sx={{ mr: 2, }}
+                                >
+                                    {
+                                        isFullscreen ? <FullscreenExit /> : <Fullscreen />
+                                    }
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t("book_settings")}>
+
+                                <IconButton
+                                    color="inherit"
+                                    onClick={
+                                        () => {
+                                            handleOpenBookSettings();
+                                        }
+                                    }
+                                    edge="start"
+                                    sx={{ mr: 2, }}
+                                >
+                                    <Tune />
+                                </IconButton>
+                            </Tooltip>
+                            <SubMenu
+                                TBM={TBM}
+                                bookmarked={bookmarked}
+                                rotation={rotation}
+                                setRotation={setRotation}
+                                zoomLevel={zoomLevel}
+                                setZoomLevel={setZoomLevel}
+                            />
+                        </div>
+                    </Toolbar>
+                </AppBar>
+                <Drawer
+                    sx={{
+                        width: drawerWidth,
+                        flexShrink: 0,
+                        '& .MuiDrawer-paper': {
+                            width: drawerWidth,
+                            boxSizing: 'border-box',
+                        },
+                    }}
+                    variant="persistent"
+                    anchor="left"
+                    open={open}
+                >
+                    <DrawerHeader>
+                        <IconButton onClick={handleDrawerClose}>
+                            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                        </IconButton>
+                    </DrawerHeader>
+                    <Divider />
+                    {
+                        imgSideBar.map((el, index) => {
+                            return (
+                                <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />} key={index}
+                                >
+                                    {el}
+                                </Stack>
+
+                            );
+                        })}
+                </Drawer>
+                <Main open={open}>
+                    <DrawerHeader />
+                    <MovableImage src={imageOne} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
+                    {
+                        imageTwo !== null ? <MovableImage src={imageTwo} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
+                    }
+                    <p style={{
+                        color: "white", position: "fixed", backgroundColor: "rgba(0,0,0,0.50)", textAlign: "right", bottom: 0, right: "5px", zIndex: 5
+                    }} id="pagecount">{currentPage + 1} / {totalPages + 1}</p>
+                    <div style={{
+                        backgroundColor: "rgba(0,0,0,0.8)",
+                        opacity: opacityForNavigation, position: "absolute", bottom: "50px", left: "50%", transform: "translateX(-50%)", zIndex: 5,
+                        transition: "opacity 0.2s ease-in-out", borderRadius: "10px", padding: "5px"
+                    }}
+                        onMouseEnter={() => {
+                            setOpacityForNavigation("1");
+                        }
+                        }
+                        onMouseLeave={() => {
+                            setOpacityForNavigation("0.1");
+                        }
+                        }
+                    >
+                        <Tooltip title={t("go_start")}>
+
+                            <IconButton
+                                onClick={
+                                    () => {
+                                        setCurrentPage(0);
+                                        Reader(listofImgState, 0);
+                                    }
+                                }
+                                color="inherit"
+                                edge="start"
+                                sx={{ mr: 2, ml: 2 }}
+                            >
+                                <FirstPage />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t("go_previous")}>
+
+                            <IconButton
+                                color="inherit"
+                                onClick={() => {
+                                    PreviousPage();
+                                }
                                 }
                                 edge="start"
                                 sx={{ mr: 2, }}
                             >
-                                <VerticalAlignCenter />
+                                <NavigateBefore />
                             </IconButton>
                         </Tooltip>
+                        <Tooltip title={t("go_next")}>
 
-
-
-                        <Tooltip title={t("full_screen")}>
+                            <IconButton
+                                color="inherit"
+                                onClick={() => {
+                                    NextPage();
+                                }}
+                                edge="start"
+                                sx={{ mr: 2, }}
+                            >
+                                <NavigateNext />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t("go_end")}>
 
                             <IconButton
                                 color="inherit"
                                 onClick={
                                     () => {
-                                        if (document.fullscreenElement) {
-                                            document.exitFullscreen();
-                                            setIsFullscreen(false);
+                                        let max;
+                                        if (DoublePageMode === true) {
+                                            max = totalPages - 2;
                                         } else {
-                                            document.documentElement.requestFullscreen();
-                                            setIsFullscreen(true);
+                                            max = totalPages - 1;
                                         }
-                                    }
-                                }
-                                edge="start"
-                                sx={{ mr: 2, }}
-                            >
-                                {
-                                    isFullscreen ? <FullscreenExit /> : <Fullscreen />
-                                }
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title={t("book_settings")}>
-
-                            <IconButton
-                                color="inherit"
-
-
-                                edge="start"
-                                sx={{ mr: 2, }}
-                            >
-                                <Tune />
-                            </IconButton>
-                        </Tooltip>
-                        <SubMenu
-                            TBM={TBM}
-                            bookmarked={bookmarked}
-                            rotation={rotation}
-                            setRotation={setRotation}
-                            zoomLevel={zoomLevel}
-                            setZoomLevel={setZoomLevel}
-                        />
-                    </div>
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
-                        width: drawerWidth,
-                        boxSizing: 'border-box',
-                    },
-                }}
-                variant="persistent"
-                anchor="left"
-                open={open}
-            >
-                <DrawerHeader>
-                    <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                    </IconButton>
-                </DrawerHeader>
-                <Divider />
-                {
-                    imgSideBar.map((el, index) => {
-                        return (
-                            <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />} key={index}
-                            >
-                                {el}
-                            </Stack>
-
-                        );
-                    })}
-            </Drawer>
-            <Main open={open}>
-                <DrawerHeader />
-                <MovableImage src={imageOne} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
-                {
-                    imageTwo !== null ? <MovableImage src={imageTwo} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
-                }
-                <p style={{
-                    color: "white", position: "fixed", backgroundColor: "rgba(0,0,0,0.50)", textAlign: "right", bottom: 0, right: "5px", zIndex: 5
-                }}>{currentPage + 1} / {totalPages + 1}</p>
-                <div style={{
-                    backgroundColor: "rgba(0,0,0,0.8)",
-                    opacity: opacityForNavigation, position: "absolute", bottom: "50px", left: "50%", transform: "translateX(-50%)", zIndex: 5,
-                    transition: "opacity 0.2s ease-in-out", borderRadius: "10px", padding: "5px"
-                }}
-                    onMouseEnter={() => {
-                        setOpacityForNavigation("1");
-                    }
-                    }
-                    onMouseLeave={() => {
-                        setOpacityForNavigation("0.1");
-                    }
-                    }
-                >
-                    <Tooltip title={t("go_start")}>
-
-                        <IconButton
-                            onClick={
-                                () => {
-                                    setCurrentPage(0);
-                                    Reader(listofImg, 0);
-                                }
-                            }
-                            color="inherit"
-                            edge="start"
-                            sx={{ mr: 2, ml: 2 }}
-                        >
-                            <FirstPage />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("go_previous")}>
-
-                        <IconButton
-                            color="inherit"
-                            onClick={() => {
-                                PreviousPage();
-                            }
-                            }
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <NavigateBefore />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("go_next")}>
-
-                        <IconButton
-                            color="inherit"
-                            onClick={() => {
-                                NextPage();
-                            }}
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <NavigateNext />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("go_end")}>
-
-                        <IconButton
-                            color="inherit"
-                            onClick={
-                                () => {
-                                    let max;
-                                    if (DoublePageMode === true) {
-                                        max = totalPages - 2;
-                                    } else {
-                                        max = totalPages - 1;
-                                    }
-                                    setCurrentPage(totalPages);
-                                    ModifyDB(
-                                        "Books",
-                                        "reading",
-                                        "false",
-                                        shortname
-                                    ).then(() => {
+                                        setCurrentPage(totalPages);
                                         ModifyDB(
                                             "Books",
-                                            "read",
-                                            "true",
+                                            "reading",
+                                            "false",
                                             shortname
                                         ).then(() => {
-                                            Reader(listofImg, max);
+                                            ModifyDB(
+                                                "Books",
+                                                "read",
+                                                "true",
+                                                shortname
+                                            ).then(() => {
+                                                Reader(listofImgState, max);
+                                            });
                                         });
-                                    });
+                                    }
                                 }
-                            }
-                            edge="start"
-                            sx={{ mr: 2, }}
-                        >
-                            <LastPage />
-                        </IconButton>
-                    </Tooltip>
-                </div>
-            </Main>
-        </Box>
+                                edge="start"
+                                sx={{ mr: 2, }}
+                            >
+                                <LastPage />
+                            </IconButton>
+                        </Tooltip>
+                    </div>
+                </Main>
+            </Box>
+            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        </>
     );
 }

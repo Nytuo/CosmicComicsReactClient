@@ -51,6 +51,10 @@ class MovableImage extends Component {
                     transform: `rotate(${this.props.rotation}deg)`,
                 }}
                 onMouseDown={this.handleMouseDown}
+                onError={(e) => {
+                    e.target.src = "Images/fileDefault.webp";
+                }
+                }
             />
         );
     }
