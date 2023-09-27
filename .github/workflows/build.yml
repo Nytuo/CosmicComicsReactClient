@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.1.0
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3.8.1
         with:
           node-version: "18"
       - name: Install dependencies
@@ -19,19 +19,13 @@ jobs:
       - name: Build
         run: npm run build
       - name: zip
-        run: zip -r interface.zip dist
-      - name: Create Release
+        run: zip -r CC_RC.zip dist
+      - name: Create Release with artifacts
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-      - name: Upload
-        uses: actions/upload-artifact@v2
-        with:
-          name: interface
-          path: CC_RC.zip
+          automatic_release_tag: "${GITHUB_REF#refs/tags/}"
+          files: |
+            ${{github.workspace}}/dist/CC_RC.zip
