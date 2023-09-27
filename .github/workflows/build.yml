@@ -8,6 +8,20 @@ jobs:
   build-interface:
     runs-on: ubuntu-latest
     steps:
+      - name: Determine Release Version
+        id: determine_version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # If the workflow was manually triggered, increment the latest tag version
+            latest_tag=$(git describe --tags --abbrev=0)
+            tag_parts=($(echo $latest_tag | tr '.' ' '))
+            patch_version=$((tag_parts[2] + 1))
+            new_version="${tag_parts[0]}.${tag_parts[1]}.$patch_version"
+            echo "::set-output name=new_version::$new_version"
+          else
+            # If the workflow was triggered by a tag push, use the tag name as-is
+            echo "::set-output name=new_version::${{ github.ref_name }}"
+          fi
       - name: Clone repo
         uses: actions/checkout@v4.1.0
       - name: Setup Node.js
@@ -26,6 +40,6 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          automatic_release_tag: ${GITHUB_REF#refs/tags/}
+          automatic_release_tag: ${{ steps.determine_version.outputs.new_version }}
           files: |
             ${{github.workspace}}/dist/CC_RC.zip
