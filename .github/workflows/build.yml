@@ -5,60 +5,33 @@ on:
       - "v*"
   workflow_dispatch:
 jobs:
-  release_linux_win:
+  build-interface:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v2.2.0
-
-      - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v2.1.5
+      - name: Clone repo
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: 14
-      - name: Get Package Version
-        uses: nyaa8/package-version@v1
-        with:
-          path: 'package.json'
-          
-      - uses: actions/checkout@v2.2.0
-        with:
-          fetch-depth: 0
-      - name: Building the Project
-        working-directory: ./
-        run: |
-            sudo dpkg --add-architecture i386
-            sudo apt update
-            sudo apt install wine64
-            sudo apt install wine32
-            sudo apt install rpm
-            sudo apt install build-essential
-            sudo apt install flatpak flatpak-builder
-            sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-            sudo flatpak install --assumeyes flathub org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 org.electronjs.Electron2.BaseApp//22.08
-            yarn install
-            yarn dist
-            yarn electron-builder --win -p never
+          node-version: "18"
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: zip
+        run: zip -r interface.zip dist
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         env:
-          PKGVER: v${{env.PACKAGE_VERSION}}
-      
-      - name: Publishing...
-        uses: "marvinpinto/action-automatic-releases@latest"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
           prerelease: false
-          automatic_release_tag: ${{env.PKGVER}}
-          files: |
-            ${{github.workspace}}/dist/*.zip
-            ${{github.workspace}}/dist/*.snap
-            ${{github.workspace}}/dist/*.exe
-            ${{github.workspace}}/dist/*.blockmap
-            ${{github.workspace}}/dist/latest.yml
-            ${{github.workspace}}/dist/*.deb
-            ${{github.workspace}}/dist/*.AppImage
-            ${{github.workspace}}/dist/*.rpm
-            ${{github.workspace}}/dist/latest-linux.yml
-            ${{github.workspace}}/dist/latest-linux-arm64.yml
-            ${{github.workspace}}/dist/*.flatpak
-        env:
-          PKGVER: v${{env.PACKAGE_VERSION}}
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: interface
+          path: CC_RC.zip
