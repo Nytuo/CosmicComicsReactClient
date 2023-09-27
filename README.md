@@ -63,7 +63,7 @@ Cosmic Comics is divided in three categories
 
 Accross multiple repository
 - [CosmicComics](https://github.com/Nytuo/CosmicComics) (Application)
-- [CosmicComics Node Server](https://github.com/NytuoIndustries/CosmicComicsReactClient) (Server)
+- [CosmicComics Node Server](https://github.com/NytuoIndustries/CosmicComicsNodeServer) (Server)
 - [CosmicComics Web Client](https://github.com/NytuoIndustries/CosmicComicsWebClient) (Interface)
 - [CosmicComics React Client](https://github.com/NytuoIndustries/CosmicComicsReactClient) (Interface)
 
