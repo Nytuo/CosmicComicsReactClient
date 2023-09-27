@@ -4,10 +4,16 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      manual_trigger:
+        description: 'Manually trigger workflow'
+        required: false
 jobs:
   build-interface:
     runs-on: ubuntu-latest
     steps:
+      - name: Clone repo
+        uses: actions/checkout@v4.1.0
       - name: Determine Release Version
         id: determine_version
         run: |
@@ -22,8 +28,6 @@ jobs:
             # If the workflow was triggered by a tag push, use the tag name as-is
             echo "::set-output name=new_version::${{ github.ref_name }}"
           fi
-      - name: Clone repo
-        uses: actions/checkout@v4.1.0
       - name: Setup Node.js
         uses: actions/setup-node@v3.8.1
         with:
