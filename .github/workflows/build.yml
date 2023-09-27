@@ -10,18 +10,18 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@v4.1.0
+        with:
+          fetch-depth: 0
       - name: Determine Release Version
         id: determine_version
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             latest_tag=$(git describe --tags --abbrev=0)
-            echo $latest_tag
             tag_parts=($(echo $latest_tag | tr '.' ' '))
             patch_version=$((tag_parts[2] + 1))
             new_version="${tag_parts[0]}.${tag_parts[1]}.$patch_version"
             echo "::set-output name=new_version::$new_version"
           else
-            # If the workflow was triggered by a tag push, use the tag name as-is
             echo "::set-output name=new_version::${{ github.ref_name }}"
           fi
       - name: Setup Node.js
