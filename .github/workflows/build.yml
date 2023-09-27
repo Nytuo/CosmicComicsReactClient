@@ -20,9 +20,9 @@ jobs:
             tag_parts=($(echo $latest_tag | tr '.' ' '))
             patch_version=$((tag_parts[2] + 1))
             new_version="${tag_parts[0]}.${tag_parts[1]}.$patch_version"
-            echo "::set-output name=new_version::$new_version"
+            echo "new_version=$new_version" >> $GITHUB_ENV
           else
-            echo "::set-output name=new_version::${{ github.ref_name }}"
+            echo "new_version=${{ github.ref_name }}" >> $GITHUB_ENV
           fi
       - name: Setup Node.js
         uses: actions/setup-node@v3.8.1
@@ -33,13 +33,15 @@ jobs:
       - name: Build
         run: npm run build
       - name: zip
-        run: zip -r CC_RC.zip dist
+        run: |
+          cd dist
+          zip -r ../CC_RC.zip .
       - name: Create Release with artifacts
         id: create_release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          automatic_release_tag: ${{ steps.determine_version.outputs.new_version }}
+          automatic_release_tag: ${{ env.new_version }}
           files: |
-            ${{github.workspace}}/dist/CC_RC.zip
+            ${{github.workspace}}/CC_RC.zip
