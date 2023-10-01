@@ -286,11 +286,13 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                 return "#000000";
             }
             await fetch(PDP + "/img/getPalette/" + currentProfile.getToken, options).then(function (response) {
-                return response.text();
+                return response.json();
             }).then(function (data) {
-                const Blurcolors = data;
+                const Blurcolors = data[0];
+                const BlurColorDarker = data[1];
                 setTimeout(function () {
-                    document.getElementsByTagName("body")[0].style.backgroundColor = Blurcolors;
+                    document.getElementsByTagName("body")[0].style.transition = "background 0.5s ease-in-out 0.5s";
+                    document.getElementsByTagName("body")[0].style.background = "linear-gradient(to left top, " + Blurcolors + ", " + BlurColorDarker + ") no-repeat fixed";
                 }, 500);
             });
 
