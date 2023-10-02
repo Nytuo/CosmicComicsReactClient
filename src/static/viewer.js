@@ -104,73 +104,11 @@ function AutoBGC() {
 	console.log("clicked", toogleBGC);
 }
 
-//Hide the Double Pages
-function HideDB() {
-	document.getElementById("imgViewer_1").style.display = "none";
-}
-
-//Show the Double Page
-function showDB() {
-	document.getElementById("imgViewer_1").style.display = "";
-}
-
 //Disable some inputs by default
 document.getElementById("BPABS").setAttribute("disabled", "");
 document.getElementById("NDPFHS").setAttribute("disabled", "");
 document.getElementById("MarginValue").setAttribute("disabled", "");
-//Send BE
-//Toggle active Double Page Mode
-function TDPM() {
-	if (DoublePageMode === true) {
-		try {
-			modifyConfigJson(
-				CosmicComicsData + "/config.json",
-				"Double_Page_Mode",
-				false
-			);
-		} catch (e) {
-			console.log(e);
-		}
-		//TODO Desac et enlever les autres modes
-		if (document.getElementById("BPABS").checked === true) {
-			document.getElementById("BPABS").checked = false;
-			BPAB();
-		}
-		if (document.getElementById("NDPFHS").checked === true) {
-			document.getElementById("NDPFHS").checked = false;
-			NDPFH();
-		}
-		document.getElementById("BPABS").setAttribute("disabled", "");
-		document.getElementById("NDPFHS").setAttribute("disabled", "");
-		document.getElementById("MarginValue").setAttribute("disabled", "");
-		DoublePageMode = false;
-		wasDPM = false;
-		HideDB();
-	} else {
-		try {
-			modifyConfigJson(
-				CosmicComicsData + "/config.json",
-				"Double_Page_Mode",
-				true
-			);
-		} catch (e) {
-			console.log(e);
-		}
-		//TODO Activate les autres modes
-		document.getElementById("BPABS").removeAttribute("disabled");
-		document.getElementById("MarginValue").removeAttribute("disabled");
-		document.getElementById("NDPFHS").removeAttribute("disabled");
-		DoublePageMode = true;
-		wasDPM = true;
-		let currentPage = GetCurrentPage();
-		if (currentPage % 2 === 0) {
-			Reader(listofImg, currentPage - 1);
-		} else {
-			Reader(listofImg, currentPage);
-		}
-		showDB();
-	}
-}
+
 
 //Send BE
 //Change the margin

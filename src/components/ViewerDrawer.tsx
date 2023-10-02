@@ -93,11 +93,18 @@ export default function PersistentDrawerLeft() {
     const [sidebarON, setSidebarON] = React.useState(false);
     const [origins, setOrigins] = React.useState([window.innerWidth / 3, 70]);
     const [originsKept, setOriginsKept] = React.useState([window.innerWidth / 3, 70]);
+    const [DoublePageMode, setDoublePageMode] = React.useState(false);
 
     React.useLayoutEffect(() => {
         setOrigins([window.innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]);
         setOriginsKept([window.innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]);
     }, []);
+
+    React.useEffect(() => {
+        if (!DoublePageMode) {
+            imageTwo && setImageTwo(null);
+        }
+    }, [DoublePageMode, imageTwo]);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -210,10 +217,8 @@ export default function PersistentDrawerLeft() {
         );
     }
     let DPageActu = 1;
-    let DoublePageMode = false;
     let BlankFirstPage = false;
     let DPMNoH = false;
-    let wasDPM = false;
     let PPwasDPM = false;
     let mangaMode = false;
     let bookID = "NaID_" + Math.random() * 100500;
@@ -383,9 +388,6 @@ export default function PersistentDrawerLeft() {
         //     document.getElementById("imgViewer_1").style.rotate =
         //         "rotate(" + AlwaysRotateV + "deg)";
         // }
-        // if (wasDPM === true) {
-        //     DoublePageMode = true;
-        // }
     }
 
     function hasNumbers(t) {
@@ -485,7 +487,7 @@ export default function PersistentDrawerLeft() {
                 const NW2 = preloadedImages[currentPage + 2].naturalWidth;
                 const NH2 = preloadedImages[currentPage + 2].naturalHeight;
                 if (NW > NH || NW2 > NH2) {
-                    DoublePageMode = false;
+                    setDoublePageMode(false);
                 }
             }
             if (currentPage < totalPages) {
@@ -600,7 +602,7 @@ export default function PersistentDrawerLeft() {
                     const NW2 = preloadedImages[currentPage - 2].naturalWidth;
                     const NH2 = preloadedImages[currentPage - 2].naturalHeight;
                     if (NW > NH || NW2 > NH2) {
-                        DoublePageMode = false;
+                        setDoublePageMode(false);
                         setCurrentPage(currentPage - 1);
                         Reader(listofImgState, currentPage);
                     } else {
@@ -636,7 +638,7 @@ export default function PersistentDrawerLeft() {
                     const NW2 = preloadedImages[currentPage - 3].naturalWidth;
                     const NH2 = preloadedImages[currentPage - 3].naturalHeight;
                     if (NW > NH || NW2 > NH2) {
-                        DoublePageMode = false;
+                        setDoublePageMode(false);
                         setCurrentPage(currentPage - 2);
                         Reader(listofImgState, currentPage);
                     } else {
@@ -649,7 +651,7 @@ export default function PersistentDrawerLeft() {
                     const NW2 = preloadedImages[currentPage - 2].naturalWidth;
                     const NH2 = preloadedImages[currentPage - 2].naturalHeight;
                     if (NW > NH || NW2 > NH2) {
-                        DoublePageMode = false;
+                        setDoublePageMode(false);
                         setCurrentPage(currentPage - 1);
                         Reader(listofImgState, currentPage);
                     } else {
@@ -1172,7 +1174,7 @@ export default function PersistentDrawerLeft() {
                     </div>
                 </Main>
             </Box>
-            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} />
         </>
     );
 }

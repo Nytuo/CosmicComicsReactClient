@@ -20,13 +20,14 @@ import { ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
  * @param {Function} createFunction - The function to call when the OK button is clicked.
  * @returns {JSX.Element} - A dialog component for creating a new account.
  */
-export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage }: {
+export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode }: {
 	onClose: any,
 	openModal: boolean,
 	Reader: any;
 	LOI: any;
 	currentPage: number;
 	setCurrentPage: any;
+	setDoublePageMode: any;
 }) {
 	const { t } = useTranslation();
 	const [open, setOpen] = React.useState(openModal);
@@ -77,6 +78,51 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					styleSheet.insertRule("::-webkit-scrollbar {display: none;}", 0);
 				} else {
 					styleSheet.deleteRule(0);
+				}
+				break;
+			case "double_page_mode":
+				if (event.target.checked) {
+					setDoublePageMode(true);
+					try {
+						modifyConfigJson(
+							"Double_Page_Mode",
+							"true"
+						);
+					} catch (e) {
+						console.log(e);
+					}
+					//TODO Activate les autres modes
+					/* document.getElementById("id_blank_at_beggining")?.removeAttribute("disabled");
+					document.getElementById("MarginValue")?.removeAttribute("disabled");
+					document.getElementById("id_no_dpm_horizontal")?.removeAttribute("disabled"); */
+					/* let currentPage = GetCurrentPage();
+					if (currentPage % 2 === 0) {
+						Reader(listofImg, currentPage - 1);
+					} else {
+						Reader(listofImg, currentPage);
+					} */
+				} else {
+					setDoublePageMode(false);
+					try {
+						modifyConfigJson(
+							"Double_Page_Mode",
+							"false"
+						);
+					} catch (e) {
+						console.log(e);
+					}
+					//TODO Desac et enlever les autres modes
+					/* 	if (document.getElementById("BPABS").checked === true) {
+							document.getElementById("BPABS").checked = false;
+							BPAB();
+						}
+						if (document.getElementById("NDPFHS").checked === true) {
+							document.getElementById("NDPFHS").checked = false;
+							NDPFH();
+						} 
+						document.getElementById("id_blank_at_beggining")?.setAttribute("disabled", "");
+						document.getElementById("id_no_dpm_horizontal")?.setAttribute("disabled", "");
+						document.getElementById("MarginValue")?.setAttribute("disabled", "");*/
 				}
 				break;
 			default:
@@ -295,12 +341,12 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 						<FormLabel component="legend">Reader settings</FormLabel>
 						<FormGroup>
 							{
-								state.map((item: any) => {
+								state.map((item: any, index: number) => {
 									const itemKey = Object.keys(item)[0];
 									const itemValue = item[itemKey];
 									return <FormControlLabel
 										control={
-											<Switch checked={itemValue} onChange={handleChange} name={itemKey} />
+											<Switch checked={itemValue} key={index} id={`id_${itemKey}`} onChange={handleChange} name={itemKey} />
 										}
 										label={t(itemKey)}
 									/>;
