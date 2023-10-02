@@ -125,12 +125,11 @@ export default function PersistentDrawerLeft() {
         isADirectory = res;
     });
 
-    //preloading images
-    const preloadedImages: any[] = [];
+    const [preloadedImages, setPreloadedImages] = React.useState<HTMLImageElement[]>([]);
 
     function preloadImage(listImages: any) {
         for (let i = 0; i < listImages.length; i++) {
-            preloadedImages[i] = new Image();
+            const img = new Image();
             const options = {
                 "method": "GET",
                 "headers": {
@@ -143,7 +142,8 @@ export default function PersistentDrawerLeft() {
             };
             const a = i;
             fetch(PDP + "/view/readImage", options).then(async (response) => {
-                preloadedImages[a].src = URL.createObjectURL(await response.blob());
+                img.src = URL.createObjectURL(await response.blob());
+                setPreloadedImages((preloadedImages) => [...preloadedImages, img]);
             });
         }
     }
@@ -160,6 +160,28 @@ export default function PersistentDrawerLeft() {
         //var img = document.getElementById("imgViewer_0");
         //return colorThief.getColor(img);
     }
+
+    //Getting the orientation (Horizontal or Vertical) of the next image
+    function getTheHOfNextImage() {
+        let CurrentPage = GetCurrentPage();
+        let NextPage = CurrentPage + 1;
+        let image = new Image();
+        image.src = CosmicComicsTempI + listofImg[NextPage];
+        let H = DetectHorizontal(image);
+        return H;
+    }
+
+    //Getting the orientation (Horizontal or Vertical) of the previous image
+    function GetTheHOfPreviousImage() {
+        let CurrentPage = GetCurrentPage();
+        let NextPage = CurrentPage - 2;
+        let image = new Image();
+        image.src = CosmicComicsTempI + listofImg[NextPage];
+        let H = DetectHorizontal(image);
+        return H;
+    }
+
+
     async function prepareReader() {
         Toaster(t("loading_cache"), "info");
         Logger.info("Preparing Reader");
@@ -187,7 +209,7 @@ export default function PersistentDrawerLeft() {
                     console.log(listofImgLoc);
                     const currentPage = localStorage.getItem("currentPage");
                     const filepage = currentPage === null ? 0 : parseInt(currentPage);
-                    preloadImage(listofImgLoc);
+                    await preloadImage(listofImgLoc);
                     console.log(filepage);
                     if (filepage !== 0) {
                         const lastpage = filepage;
@@ -217,8 +239,8 @@ export default function PersistentDrawerLeft() {
         );
     }
     let DPageActu = 1;
-    let BlankFirstPage = false;
-    let DPMNoH = false;
+    const [BlankFirstPage, setBlankFirstPage] = React.useState(false);
+    const [DPMNoH, setDPMNoH] = React.useState(false);
     let PPwasDPM = false;
     let mangaMode = false;
     let bookID = "NaID_" + Math.random() * 100500;
@@ -306,8 +328,10 @@ export default function PersistentDrawerLeft() {
                     if (page === 0 || page === -1) {
                         if (page === 2) {
                             setImageOne(images[1]);
+                            setImageTwo(null);
                         } else {
                             setImageOne(images[0]);
+                            setImageTwo(null);
                         }
                         DPageActu = page + 1;
                     } else {
@@ -488,6 +512,8 @@ export default function PersistentDrawerLeft() {
                 const NH2 = preloadedImages[currentPage + 2].naturalHeight;
                 if (NW > NH || NW2 > NH2) {
                     setDoublePageMode(false);
+                } else {
+                    setDoublePageMode(true);
                 }
             }
             if (currentPage < totalPages) {
@@ -584,11 +610,11 @@ export default function PersistentDrawerLeft() {
             if (DoublePageMode === true && BlankFirstPage === false && DPMNoH === false) {
                 if (currentPage > 2) {
                     setCurrentPage(currentPage - 3);
-                    Reader(listofImgState, currentPage);
+                    Reader(listofImgState, currentPage - 3);
                 } else {
                     if (currentPage - 1 !== -1) {
                         setCurrentPage(currentPage - 1);
-                        Reader(listofImgState, currentPage);
+                        Reader(listofImgState, currentPage - 1);
                     }
                 }
             } else if (
@@ -604,15 +630,16 @@ export default function PersistentDrawerLeft() {
                     if (NW > NH || NW2 > NH2) {
                         setDoublePageMode(false);
                         setCurrentPage(currentPage - 1);
-                        Reader(listofImgState, currentPage);
+                        Reader(listofImgState, currentPage - 1);
                     } else {
+                        setDoublePageMode(true);
                         setCurrentPage(currentPage - 3);
-                        Reader(listofImgState, currentPage);
+                        Reader(listofImgState, currentPage - 3);
                     }
                 } else {
                     if (currentPage - 2 !== -1) {
                         setCurrentPage(currentPage - 2);
-                        Reader(listofImgState, currentPage);
+                        Reader(listofImgState, currentPage - 2);
                     }
                 }
             } else if (
@@ -622,10 +649,10 @@ export default function PersistentDrawerLeft() {
             ) {
                 if (currentPage !== 0 && currentPage - 3 !== -1) {
                     setCurrentPage(currentPage - 3);
-                    Reader(listofImgState, currentPage);
+                    Reader(listofImgState, currentPage - 3);
                 } else if (currentPage - 3 === -1) {
                     setCurrentPage(currentPage - 2);
-                    Reader(listofImgState, currentPage);
+                    Reader(listofImgState, currentPage - 2);
                 }
             } else if (
                 DoublePageMode === true &&
@@ -640,10 +667,11 @@ export default function PersistentDrawerLeft() {
                     if (NW > NH || NW2 > NH2) {
                         setDoublePageMode(false);
                         setCurrentPage(currentPage - 2);
-                        Reader(listofImgState, currentPage);
+                        Reader(listofImgState, currentPage - 2);
                     } else {
+                        setDoublePageMode(true);
                         setCurrentPage(currentPage - 2);
-                        Reader(listofImgState, currentPage);
+                        Reader(listofImgState, currentPage - 2);
                     }
                 } else if (currentPage - 3 === -1) {
                     const NW = preloadedImages[currentPage - 1].naturalWidth;
@@ -653,10 +681,11 @@ export default function PersistentDrawerLeft() {
                     if (NW > NH || NW2 > NH2) {
                         setDoublePageMode(false);
                         setCurrentPage(currentPage - 1);
-                        Reader(listofImgState, currentPage);
+                        Reader(listofImgState, currentPage - 1);
                     } else {
+                        setDoublePageMode(true);
                         setCurrentPage(currentPage - 2);
-                        Reader(listofImgState, currentPage);
+                        Reader(listofImgState, currentPage - 2);
                     }
                 }
             } else {
@@ -1231,7 +1260,7 @@ export default function PersistentDrawerLeft() {
                     </div>
                 </Main>
             </Box>
-            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} />
+            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} />
         </>
     );
 }

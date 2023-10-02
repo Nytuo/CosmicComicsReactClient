@@ -20,7 +20,7 @@ import { ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
  * @param {Function} createFunction - The function to call when the OK button is clicked.
  * @returns {JSX.Element} - A dialog component for creating a new account.
  */
-export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode }: {
+export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH }: {
 	onClose: any,
 	openModal: boolean,
 	Reader: any;
@@ -28,6 +28,8 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 	currentPage: number;
 	setCurrentPage: any;
 	setDoublePageMode: any;
+	setBlankFirstPage: any;
+	setDPMNoH: any;
 }) {
 	const { t } = useTranslation();
 	const [open, setOpen] = React.useState(openModal);
@@ -123,6 +125,52 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 						document.getElementById("id_blank_at_beggining")?.setAttribute("disabled", "");
 						document.getElementById("id_no_dpm_horizontal")?.setAttribute("disabled", "");
 						document.getElementById("MarginValue")?.setAttribute("disabled", "");*/
+				}
+				break;
+			case "blank_at_beggining":
+				if (event.target.checked) {
+					setBlankFirstPage(true);
+					try {
+						modifyConfigJson(
+							"Blank_page_At_Begginning",
+							"true"
+						);
+					} catch (e) {
+						console.log(e);
+					}
+				} else {
+					setBlankFirstPage(false);
+					try {
+						modifyConfigJson(
+							"Blank_page_At_Begginning",
+							"false"
+						);
+					} catch (e) {
+						console.log(e);
+					}
+				}
+				break;
+			case "no_dpm_horizontal":
+				if (event.target.checked) {
+					setDPMNoH(true);
+					try {
+						modifyConfigJson(
+							"No_Double_Page_For_Horizontal",
+							"true"
+						);
+					} catch (e) {
+						console.log(e);
+					}
+				} else {
+					setDPMNoH(false);
+					try {
+						modifyConfigJson(
+							"No_Double_Page_For_Horizontal",
+							"false"
+						);
+					} catch (e) {
+						console.log(e);
+					}
 				}
 				break;
 			default:

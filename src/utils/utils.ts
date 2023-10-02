@@ -169,5 +169,13 @@ function openBOOKM(path: string, page: string) {
 
 }
 
+//Detect if the image is Horizontal or Vertical
+function DetectHorizontal(page) {
+    if (page.width > page.height) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
-export { convertDate, providerEnum, resolveTitle, _01toBool, ValidatedExtension, coolanimations, generateBookTemplate, openBOOKM, tryToParse, buildTitleFromProvider, SearchInJSON };
+export { convertDate, providerEnum, resolveTitle, _01toBool, ValidatedExtension, coolanimations, generateBookTemplate, openBOOKM, tryToParse, buildTitleFromProvider, SearchInJSON, DetectHorizontal };
