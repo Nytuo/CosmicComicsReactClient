@@ -1172,6 +1172,63 @@ export default function PersistentDrawerLeft() {
                             </IconButton>
                         </Tooltip>
                     </div>
+                    <div style={{
+                        backgroundColor: "rgba(0,0,0,0.8)",
+                        opacity: opacityForNavigation, position: "absolute", bottom: "50%", right: "0px", transform: "translateX(-50%)", zIndex: 5,
+                        transition: "opacity 0.2s ease-in-out", borderRadius: "10px", padding: "5px"
+                    }}
+                        onMouseEnter={() => {
+                            setOpacityForNavigation("1");
+                        }
+                        }
+                        onMouseLeave={() => {
+                            setOpacityForNavigation("0.1");
+                        }
+                        }
+                    >
+                        <Tooltip title={t("go_next")}>
+
+                            <IconButton
+                                color="inherit"
+                                onClick={() => {
+                                    NextPage();
+                                }}
+                                edge="start"
+                                sx={{ ml: 1, mr: 1 }}
+                            >
+                                <NavigateNext />
+                            </IconButton>
+                        </Tooltip>
+                    </div>
+                    <div style={{
+                        backgroundColor: "rgba(0,0,0,0.8)",
+                        opacity: opacityForNavigation, position: "absolute", bottom: "50%", left: "60px", transform: "translateX(-50%)", zIndex: 5,
+                        transition: "opacity 0.2s ease-in-out", borderRadius: "10px", padding: "5px"
+                    }}
+                        onMouseEnter={() => {
+                            setOpacityForNavigation("1");
+                        }
+                        }
+                        onMouseLeave={() => {
+                            setOpacityForNavigation("0.1");
+                        }
+                        }
+                    >
+                        <Tooltip title={t("go_previous")}>
+
+                            <IconButton
+                                color="inherit"
+                                onClick={() => {
+                                    PreviousPage();
+                                }
+                                }
+                                edge="start"
+                                sx={{ ml: 1, mr: 1 }}
+                            >
+                                <NavigateBefore />
+                            </IconButton>
+                        </Tooltip>
+                    </div>
                 </Main>
             </Box>
             <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} />
