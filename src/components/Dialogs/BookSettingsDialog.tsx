@@ -227,11 +227,9 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 		CommonName = CommonName.replaceAll("]", " ");
 		/* remove the extension using regex */
 		CommonName = CommonName.replace(/\.[^/.]+$/, "");
-		let s = CommonName.split(" ");
+		const s = CommonName.split(" ");
 		let finalName = "";
-		console.log(s);
 		s.forEach((el) => {
-			console.log(parseInt(el));
 			if (el !== "") {
 				if (hasNumbers(el)) {
 					finalName += el;
@@ -242,7 +240,6 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 				}
 			}
 		});
-		console.log(finalName);
 		return finalName;
 	}
 	const shortname = GetTheName(localStorage.getItem("currentBook")?.split(".")[0]);

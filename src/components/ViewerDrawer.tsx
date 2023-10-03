@@ -73,6 +73,11 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     justifyContent: 'flex-end',
 }));
 
+const preloadedImages: string[] = [];
+let listofImg: any[] = [];
+
+
+
 export default function PersistentDrawerLeft() {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -119,33 +124,28 @@ export default function PersistentDrawerLeft() {
     const { t } = useTranslation();
 
     let isADirectory: boolean = false;
-    fetch(PDP + "/view/isDir/" + encodeURIComponent(localStorage.getItem("currentBook"))).then((res) => {
-        return res.json();
-    }).then((res) => {
-        isADirectory = res;
-    });
 
-    const [preloadedImages, setPreloadedImages] = React.useState<HTMLImageElement[]>([]);
 
-    function preloadImage(listImages: any) {
-        for (let i = 0; i < listImages.length; i++) {
-            const img = new Image();
-            const options = {
+    async function preloadImage(listImages: any) {
+        await Promise.all(listImages.map(async (_: any, index: number) => {
+            const options: any = {
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
                     "path": localStorage.getItem("currentBook"),
                     "token": connected,
                     "met": isADirectory ? "DL" : "CLASSIC",
-                    "page": listImages[i]
+                    "page": listImages[index]
                 }
             };
-            const a = i;
-            fetch(PDP + "/view/readImage", options).then(async (response) => {
-                img.src = URL.createObjectURL(await response.blob());
-                setPreloadedImages((preloadedImages) => [...preloadedImages, img]);
+            await fetch(PDP + "/view/readImage", options).then((response) => {
+                response.blob().then((blob) => {
+                    const urlCreator = window.URL || window.webkitURL;
+                    const imageUrl = urlCreator.createObjectURL(blob);
+                    preloadedImages.push(imageUrl);
+                });
             });
-        }
+        }));
     }
     //Getting the Background Color by the dominant color of image
     async function GettheBGColor(page) {
@@ -161,82 +161,69 @@ export default function PersistentDrawerLeft() {
         //return colorThief.getColor(img);
     }
 
-    //Getting the orientation (Horizontal or Vertical) of the next image
-    function getTheHOfNextImage() {
-        let CurrentPage = GetCurrentPage();
-        let NextPage = CurrentPage + 1;
-        let image = new Image();
-        image.src = CosmicComicsTempI + listofImg[NextPage];
-        let H = DetectHorizontal(image);
-        return H;
-    }
-
-    //Getting the orientation (Horizontal or Vertical) of the previous image
-    function GetTheHOfPreviousImage() {
-        let CurrentPage = GetCurrentPage();
-        let NextPage = CurrentPage - 2;
-        let image = new Image();
-        image.src = CosmicComicsTempI + listofImg[NextPage];
-        let H = DetectHorizontal(image);
-        return H;
-    }
-
-
     async function prepareReader() {
         Toaster(t("loading_cache"), "info");
         Logger.info("Preparing Reader");
-        await constructImgSideBar();
-        await fetch(PDP + "/viewer/view/current/" + connected).then(
+        const options = {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            timeout: 10000,
+            size: 1000000000
+        };
+        await fetch(PDP + "/viewer/view/current/" + connected, options).then(
             (response) => {
-                response.json().then(async (data) => {
-                    const listofImgLoc = data;
-                    console.log(listofImgLoc);
-                    if (listofImgLoc === false) {
-                        Toaster(t("no_book"), "error");
-                        return;
-                    }
-                    listofImgLoc.sort((a: string, b: string) => {
-                        const fa = a.substring(a.lastIndexOf(".") + 1);
-                        const fb = b.substring(b.lastIndexOf(".") + 1);
-                        if (fa < fb) {
-                            return 1;
-                        }
-                        if (fa > fb) {
-                            return -1;
-                        }
-                        return 0;
-                    });
-                    console.log(listofImgLoc);
-                    const currentPage = localStorage.getItem("currentPage");
-                    const filepage = currentPage === null ? 0 : parseInt(currentPage);
-                    await preloadImage(listofImgLoc);
-                    console.log(filepage);
-                    if (filepage !== 0) {
-                        const lastpage = filepage;
-                        Reader(listofImgLoc, lastpage);
-                    } else {
-                        let lastpage = 0;
-                        try {
-                            await getFromDB("Books", "last_page FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'").then(async (res) => {
-                                console.log(res);
-                                if (res === "[]" || res === undefined || res === null || res === "" || res.length === 0) {
-                                    lastpage = 0;
-                                } else {
-                                    lastpage = JSON.parse(res)[0]["last_page"];
-                                }
-                                Reader(listofImgLoc, lastpage);
-                            });
-                        } catch (error) {
-                            console.log(error);
-                        }
-                    }
-                    Toaster(t("loaded_local"), "success");
+                return response.text();
+            }).then(async (data) => {
+                console.log("viewer/view", data);
+                const listofImgLoc = JSON.parse(data);
+                console.log(listofImgLoc);
+                if (listofImgLoc === false) {
+                    Toaster(t("no_book"), "error");
+                    return;
                 }
-                ).catch(function (error) {
-                    console.log(error);
+                listofImgLoc.sort((a: string, b: string) => {
+                    const fa = a.substring(a.lastIndexOf(".") + 1);
+                    const fb = b.substring(b.lastIndexOf(".") + 1);
+                    if (fa < fb) {
+                        return 1;
+                    }
+                    if (fa > fb) {
+                        return -1;
+                    }
+                    return 0;
                 });
-            }
-        );
+                const currentPage = localStorage.getItem("currentPage");
+                const filepage = currentPage === null ? 0 : parseInt(currentPage);
+                await preloadImage(listofImgLoc);
+                console.log(preloadedImages);
+                await constructImgSideBar();
+                console.log(filepage);
+                if (filepage !== 0) {
+                    const lastpage = filepage;
+                    Reader(listofImgLoc, lastpage);
+                } else {
+                    let lastpage = 0;
+                    try {
+                        await getFromDB("Books", "last_page FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'").then(async (res) => {
+                            console.log(res);
+                            if (res === "[]" || res === undefined || res === null || res === "" || res.length === 0) {
+                                lastpage = 0;
+                            } else {
+                                lastpage = JSON.parse(res)[0]["last_page"];
+                            }
+                            Reader(listofImgLoc, lastpage);
+                        });
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+                Toaster(t("loaded_local"), "success");
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
     let DPageActu = 1;
     const [BlankFirstPage, setBlankFirstPage] = React.useState(false);
@@ -246,7 +233,6 @@ export default function PersistentDrawerLeft() {
     let bookID = "NaID_" + Math.random() * 100500;
     let toogleBGC = false;
     const [listofImgState, setListofImgState] = React.useState([]);
-    let listofImg: any[] = [];
 
 
     React.useEffect(() => {
@@ -287,92 +273,69 @@ export default function PersistentDrawerLeft() {
     }
 
     //Loading image to render
-    function Reader(listOfImg, page) {
+    async function Reader(listOfImg, page) {
         const images: any[] = [];
-        const options = {
-            "method": "GET",
-            "headers": {
-                "Content-Type": "application/json",
-                "path": localStorage.getItem("currentBook"),
-                "token": connected,
-                "met": isADirectory ? "DL" : "CLASSIC",
-                "page": listOfImg[page]
+        console.log(preloadedImages);
+        images.push(preloadedImages[page]);
+        images.push(preloadedImages[page - 1]);
+        if (DoublePageMode === true && BlankFirstPage === false) {
+            if (mangaMode === true) {
+                setImageOne(images[1]);
+                setImageTwo(images[0]);
+                setCurrentPage(page + 1);
+            } else {
+                setImageOne(images[0]);
+                setImageTwo(images[1]);
+                setCurrentPage(page + 1);
             }
-        };
-        fetch(PDP + "/view/readImage", options).then(async (response) => {
-            images.push(URL.createObjectURL(await response.blob()));
-            const options = {
-                "method": "GET",
-                "headers": {
-                    "Content-Type": "application/json",
-                    "path": localStorage.getItem("currentBook"),
-                    "token": connected,
-                    "met": isADirectory ? "DL" : "CLASSIC",
-                    "page": listOfImg[page + 1]
-                }
-            };
-            fetch(PDP + "/view/readImage", options).then(async (response) => {
-                images.push(URL.createObjectURL(await response.blob()));
-                if (DoublePageMode === true && BlankFirstPage === false) {
-                    if (mangaMode === true) {
-                        setImageOne(images[1]);
-                        setImageTwo(images[0]);
-                        setCurrentPage(page + 1);
-                    } else {
-                        setImageOne(images[0]);
-                        setImageTwo(images[1]);
-                        setCurrentPage(page + 1);
-                    }
-                    DPageActu = page + 1;
-                } else if (DoublePageMode === true && BlankFirstPage === true) {
-                    if (page === 0 || page === -1) {
-                        if (page === 2) {
-                            setImageOne(images[1]);
-                            setImageTwo(null);
-                        } else {
-                            setImageOne(images[0]);
-                            setImageTwo(null);
-                        }
-                        DPageActu = page + 1;
-                    } else {
-                        if (mangaMode === true) {
-                            setImageOne(images[1]);
-                            setImageTwo(images[0]);
-                            setCurrentPage(page + 1);
-                        } else {
-                            setImageOne(images[0]);
-                            setImageTwo(images[1]);
-                            setCurrentPage(page + 1);
-                        }
-                        DPageActu = page + 1;
-                    }
+            DPageActu = page + 1;
+        } else if (DoublePageMode === true && BlankFirstPage === true) {
+            if (page === 0 || page === -1) {
+                if (page === 2) {
+                    setImageOne(images[1]);
+                    setImageTwo(null);
                 } else {
                     setImageOne(images[0]);
-                    DPageActu = page;
+                    setImageTwo(null);
                 }
-                setTimeout(() => {
-                    if (toogleBGC === true) {
-                        let pathBG;
-                        if (custom) {
-                            pathBG = images[0];
-                            console.log("ColorThief : Enable");
-                            GettheBGColor(listOfImg[page]).then((BGColor) => {
-                                BGColor = BGColor.replaceAll("[", "").replaceAll("]", "");
-                                BGColor = BGColor.split(',');
-                                const R = BGColor[0];
-                                const G = BGColor[1];
-                                const B = BGColor[2];
-                                const val = "rgb(" + R + "," + G + "," + B + ")";
-                                document.getElementsByTagName("html")[0].style.backgroundColor = val;
-                            });
-                        }
-                    }
+                DPageActu = page + 1;
+            } else {
+                if (mangaMode === true) {
+                    setImageOne(images[1]);
+                    setImageTwo(images[0]);
+                    setCurrentPage(page + 1);
+                } else {
+                    setImageOne(images[0]);
+                    setImageTwo(images[1]);
+                    setCurrentPage(page + 1);
                 }
-                    ,
-                    50
-                );
-            });
-        });
+                DPageActu = page + 1;
+            }
+        } else {
+            setImageOne(images[0]);
+            DPageActu = page;
+        }
+        setTimeout(() => {
+            if (toogleBGC === true) {
+                let pathBG;
+                if (custom) {
+                    pathBG = images[0];
+                    console.log("ColorThief : Enable");
+                    GettheBGColor(listOfImg[page]).then((BGColor) => {
+                        BGColor = BGColor.replaceAll("[", "").replaceAll("]", "");
+                        BGColor = BGColor.split(',');
+                        const R = BGColor[0];
+                        const G = BGColor[1];
+                        const B = BGColor[2];
+                        const val = "rgb(" + R + "," + G + "," + B + ")";
+                        document.getElementsByTagName("html")[0].style.backgroundColor = val;
+                    });
+                }
+            }
+        }
+            ,
+            50
+        );
         LoadBMI(page);
         // document.getElementById("sps").value = page + 1;
         // document.getElementById("sps").min = 1;
@@ -433,9 +396,7 @@ export default function PersistentDrawerLeft() {
         CommonName = CommonName.replace(/\.[^/.]+$/, "");
         const s = CommonName.split(" ");
         let finalName = "";
-        console.log(s);
         s.forEach((el) => {
-            console.log(parseInt(el));
             if (el !== "") {
                 if (hasNumbers(el)) {
                     finalName += el;
@@ -446,7 +407,6 @@ export default function PersistentDrawerLeft() {
                 }
             }
         });
-        console.log(finalName);
         return finalName;
     }
 
@@ -506,10 +466,14 @@ export default function PersistentDrawerLeft() {
         } else {
             window.scrollTo(0, 0);
             if (DPMNoH === true) {
-                const NW = preloadedImages[currentPage + 1].naturalWidth;
-                const NH = preloadedImages[currentPage + 1].naturalHeight;
-                const NW2 = preloadedImages[currentPage + 2].naturalWidth;
-                const NH2 = preloadedImages[currentPage + 2].naturalHeight;
+                const PLI1: HTMLImageElement = new Image();
+                PLI1.src = preloadedImages[currentPage + 1];
+                const PLI2: HTMLImageElement = new Image();
+                PLI2.src = preloadedImages[currentPage + 2];
+                const NW = PLI1.naturalWidth;
+                const NH = PLI1.naturalHeight;
+                const NW2 = PLI2.naturalWidth;
+                const NH2 = PLI2.naturalHeight;
                 if (NW > NH || NW2 > NH2) {
                     setDoublePageMode(false);
                 } else {
@@ -623,10 +587,14 @@ export default function PersistentDrawerLeft() {
                 DPMNoH === true
             ) {
                 if (currentPage > 2) {
-                    const NW = preloadedImages[currentPage - 1].naturalWidth;
-                    const NH = preloadedImages[currentPage - 1].naturalHeight;
-                    const NW2 = preloadedImages[currentPage - 2].naturalWidth;
-                    const NH2 = preloadedImages[currentPage - 2].naturalHeight;
+                    const PLI1: HTMLImageElement = new Image();
+                    PLI1.src = preloadedImages[currentPage - 1];
+                    const PLI2: HTMLImageElement = new Image();
+                    PLI2.src = preloadedImages[currentPage - 2];
+                    const NW = PLI1.naturalWidth;
+                    const NH = PLI1.naturalHeight;
+                    const NW2 = PLI2.naturalWidth;
+                    const NH2 = PLI2.naturalHeight;
                     if (NW > NH || NW2 > NH2) {
                         setDoublePageMode(false);
                         setCurrentPage(currentPage - 1);
@@ -660,10 +628,14 @@ export default function PersistentDrawerLeft() {
                 DPMNoH === true
             ) {
                 if (currentPage !== 0 && currentPage - 3 !== -1) {
-                    const NW = preloadedImages[currentPage - 2].naturalWidth;
-                    const NH = preloadedImages[currentPage - 2].naturalHeight;
-                    const NW2 = preloadedImages[currentPage - 3].naturalWidth;
-                    const NH2 = preloadedImages[currentPage - 3].naturalHeight;
+                    const PLI1: HTMLImageElement = new Image();
+                    PLI1.src = preloadedImages[currentPage - 2];
+                    const PLI2: HTMLImageElement = new Image();
+                    PLI2.src = preloadedImages[currentPage - 3];
+                    const NW = PLI1.naturalWidth;
+                    const NH = PLI1.naturalHeight;
+                    const NW2 = PLI2.naturalWidth;
+                    const NH2 = PLI2.naturalHeight;
                     if (NW > NH || NW2 > NH2) {
                         setDoublePageMode(false);
                         setCurrentPage(currentPage - 2);
@@ -674,10 +646,14 @@ export default function PersistentDrawerLeft() {
                         Reader(listofImgState, currentPage - 2);
                     }
                 } else if (currentPage - 3 === -1) {
-                    const NW = preloadedImages[currentPage - 1].naturalWidth;
-                    const NH = preloadedImages[currentPage - 1].naturalHeight;
-                    const NW2 = preloadedImages[currentPage - 2].naturalWidth;
-                    const NH2 = preloadedImages[currentPage - 2].naturalHeight;
+                    const PLI1: HTMLImageElement = new Image();
+                    PLI1.src = preloadedImages[currentPage - 1];
+                    const PLI2: HTMLImageElement = new Image();
+                    PLI2.src = preloadedImages[currentPage - 2];
+                    const NW = PLI1.naturalWidth;
+                    const NH = PLI1.naturalHeight;
+                    const NW2 = PLI2.naturalWidth;
+                    const NH2 = PLI2.naturalHeight;
                     if (NW > NH || NW2 > NH2) {
                         setDoublePageMode(false);
                         setCurrentPage(currentPage - 1);
@@ -699,6 +675,11 @@ export default function PersistentDrawerLeft() {
 
     useEffectOnce(() => {
         const LaunchViewer = async () => {
+            fetch(PDP + "/view/isDir/" + encodeURIComponent(localStorage.getItem("currentBook"))).then((res) => {
+                return res.json();
+            }).then((res) => {
+                isADirectory = res;
+            });
             setBookLoaded(true);
             //If the folder doesn't exist then create it and unzip in it
             //Else we check for the path.txt and if it doesn't exist we unzip
@@ -841,50 +822,38 @@ export default function PersistentDrawerLeft() {
 
     const [opacityForNavigation, setOpacityForNavigation] = React.useState("0.1");
 
-    const [imgSideBar, setImgSideBar] = React.useState([]);
+    const [imgSideBar, setImgSideBar] = React.useState<any[]>([]);
 
 
 
     async function constructImgSideBar() {
-        const imgSideBarTemp = [];
-        for (let i = 0; i < listofImg.length; i++) {
-            const options = {
-                "method": "GET",
-                "headers": {
-                    "Content-Type": "application/json",
-                    "path": localStorage.getItem("currentBook"),
-                    "token": connected,
-                    "met": isADirectory ? "DL" : "CLASSIC",
-                    "page": listofImg[i]
-                }
-            };
-            await fetch(PDP + "/view/readImage", options).then(async (response) => {
-                imgSideBarTemp.push(
-                    <div
-                        key={i}
-                        id={"id_img_" + i}
+        const imgSideBarTemp: any[] = [];
+        preloadedImages.map((el: string, i: number) => {
+            imgSideBarTemp.push(
+                <div
+                    key={i}
+                    id={"id_img_" + i}
+                    className="SideBar_img"
+                    onClick={() => {
+                        setCurrentPage(i);
+                        Reader(listofImg, i);
+                    }}
+                    style={{
+                        cursor: "pointer",
+                        textAlign: "center",
+                    }}
+                >
+                    <img
+                        height={120}
+                        id={"imgSideBar_" + i}
                         className="SideBar_img"
-                        onClick={() => {
-                            setCurrentPage(i);
-                            Reader(listofImg, i);
-                        }}
-                        style={{
-                            cursor: "pointer",
-                            textAlign: "center",
-                        }}
-                    >
-                        <img
-                            height={120}
-                            id={"imgSideBar_" + i}
-                            className="SideBar_img"
-                            src={URL.createObjectURL(await response.blob())}
-                            alt={i + 1 + "th page"}
-                        />
-                        <p className="SideBar_img_text">{i + 1}</p>
-                    </div>
-                );
-            });
-        }
+                        src={el}
+                        alt={i + 1 + "th page"}
+                    />
+                    <p className="SideBar_img_text">{i + 1}</p>
+                </div>
+            );
+        });
         Logger.info("imgSideBarTemp : " + imgSideBarTemp);
         setImgSideBar(prevState => [...prevState, imgSideBarTemp]);
     }
