@@ -142,7 +142,7 @@ export default function PersistentDrawerLeft() {
                 response.blob().then((blob) => {
                     const urlCreator = window.URL || window.webkitURL;
                     const imageUrl = urlCreator.createObjectURL(blob);
-                    preloadedImages.push(imageUrl);
+                    preloadedImages[index] = imageUrl;
                 });
             });
         }));
@@ -164,66 +164,34 @@ export default function PersistentDrawerLeft() {
     async function prepareReader() {
         Toaster(t("loading_cache"), "info");
         Logger.info("Preparing Reader");
-        const options = {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            timeout: 10000,
-            size: 1000000000
-        };
-        await fetch(PDP + "/viewer/view/current/" + connected, options).then(
-            (response) => {
-                return response.text();
-            }).then(async (data) => {
-                console.log("viewer/view", data);
-                const listofImgLoc = JSON.parse(data);
-                console.log(listofImgLoc);
-                if (listofImgLoc === false) {
-                    Toaster(t("no_book"), "error");
-                    return;
-                }
-                listofImgLoc.sort((a: string, b: string) => {
-                    const fa = a.substring(a.lastIndexOf(".") + 1);
-                    const fb = b.substring(b.lastIndexOf(".") + 1);
-                    if (fa < fb) {
-                        return 1;
+        if (listofImg.length === 0) {
+            Toaster(t("no_book"), "error");
+            return;
+        }
+        const currentPage = localStorage.getItem("currentPage");
+        const filepage = currentPage === null ? 0 : parseInt(currentPage);
+        await preloadImage(listofImg);
+        console.log(filepage);
+        if (filepage !== 0) {
+            const lastpage = filepage;
+            Reader(listofImg, lastpage);
+        } else {
+            let lastpage = 0;
+            try {
+                await getFromDB("Books", "last_page FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'").then(async (res) => {
+                    console.log(res);
+                    if (res === "[]" || res === undefined || res === null || res === "" || res.length === 0) {
+                        lastpage = 0;
+                    } else {
+                        lastpage = JSON.parse(res)[0]["last_page"];
                     }
-                    if (fa > fb) {
-                        return -1;
-                    }
-                    return 0;
+                    Reader(listofImg, lastpage);
                 });
-                const currentPage = localStorage.getItem("currentPage");
-                const filepage = currentPage === null ? 0 : parseInt(currentPage);
-                await preloadImage(listofImgLoc);
-                console.log(preloadedImages);
-                await constructImgSideBar();
-                console.log(filepage);
-                if (filepage !== 0) {
-                    const lastpage = filepage;
-                    Reader(listofImgLoc, lastpage);
-                } else {
-                    let lastpage = 0;
-                    try {
-                        await getFromDB("Books", "last_page FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'").then(async (res) => {
-                            console.log(res);
-                            if (res === "[]" || res === undefined || res === null || res === "" || res.length === 0) {
-                                lastpage = 0;
-                            } else {
-                                lastpage = JSON.parse(res)[0]["last_page"];
-                            }
-                            Reader(listofImgLoc, lastpage);
-                        });
-                    } catch (error) {
-                        console.log(error);
-                    }
-                }
-                Toaster(t("loaded_local"), "success");
-            })
-            .catch(function (error) {
+            } catch (error) {
                 console.log(error);
-            });
+            }
+        }
+        Toaster(t("loaded_local"), "success");
     }
     let DPageActu = 1;
     const [BlankFirstPage, setBlankFirstPage] = React.useState(false);
@@ -240,7 +208,7 @@ export default function PersistentDrawerLeft() {
             await fetch(PDP + "/viewer/view/current/" + connected).then(
                 (response) => {
                     response.json().then((data) => {
-                        listofImg = data;
+                        listofImg = data === false ? [] : data;
                         setListofImgState(data);
                         setTotalPages(listofImg.length);
                     }
@@ -822,41 +790,7 @@ export default function PersistentDrawerLeft() {
 
     const [opacityForNavigation, setOpacityForNavigation] = React.useState("0.1");
 
-    const [imgSideBar, setImgSideBar] = React.useState<any[]>([]);
 
-
-
-    async function constructImgSideBar() {
-        const imgSideBarTemp: any[] = [];
-        preloadedImages.map((el: string, i: number) => {
-            imgSideBarTemp.push(
-                <div
-                    key={i}
-                    id={"id_img_" + i}
-                    className="SideBar_img"
-                    onClick={() => {
-                        setCurrentPage(i);
-                        Reader(listofImg, i);
-                    }}
-                    style={{
-                        cursor: "pointer",
-                        textAlign: "center",
-                    }}
-                >
-                    <img
-                        height={120}
-                        id={"imgSideBar_" + i}
-                        className="SideBar_img"
-                        src={el}
-                        alt={i + 1 + "th page"}
-                    />
-                    <p className="SideBar_img_text">{i + 1}</p>
-                </div>
-            );
-        });
-        Logger.info("imgSideBarTemp : " + imgSideBarTemp);
-        setImgSideBar(prevState => [...prevState, imgSideBarTemp]);
-    }
 
     const [openBookSettings, setOpenBookSettings] = React.useState(false);
 
@@ -1057,15 +991,32 @@ export default function PersistentDrawerLeft() {
                     </DrawerHeader>
                     <Divider />
                     {
-                        imgSideBar.map((el, index) => {
-                            return (
-                                <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />} key={index}
-                                >
-                                    {el}
-                                </Stack>
-
-                            );
-                        })}
+                        preloadedImages.map((el: string, i: number) => {
+                            return <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />} key={i}
+                            ><div
+                                key={i}
+                                id={"id_img_" + i}
+                                className="SideBar_img"
+                                onClick={() => {
+                                    setCurrentPage(i);
+                                    Reader(listofImg, i);
+                                }}
+                                style={{
+                                    cursor: "pointer",
+                                    textAlign: "center",
+                                }}
+                            >
+                                    <img
+                                        height={120}
+                                        id={"imgSideBar_" + i}
+                                        className="SideBar_img"
+                                        src={el}
+                                        alt={i + 1 + "th page"}
+                                    />
+                                    <p className="SideBar_img_text">{i + 1}</p>
+                                </div></Stack>;
+                        })
+                    }
                 </Drawer>
                 <Main open={open}>
                     <DrawerHeader />
