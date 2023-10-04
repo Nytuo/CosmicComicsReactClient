@@ -105,6 +105,8 @@ export default function PersistentDrawerLeft() {
         setOriginsKept([window.innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]);
     }, []);
 
+
+
     React.useEffect(() => {
         if (!DoublePageMode) {
             imageTwo && setImageTwo(null);
@@ -210,7 +212,7 @@ export default function PersistentDrawerLeft() {
                     response.json().then((data) => {
                         listofImg = data === false ? [] : data;
                         setListofImgState(data);
-                        setTotalPages(listofImg.length);
+                        setTotalPages(listofImg.length - 1);
                     }
                     ).catch(function (error) {
                         console.log(error);
@@ -640,7 +642,57 @@ export default function PersistentDrawerLeft() {
             }
         }
     }
+    React.useLayoutEffect(() => {
+        function keyListener(e) {
+            if (!e.ctrlKey && !e.shiftKey && e.key === "ArrowLeft") {
+                PreviousPage();
+            } else if (!e.ctrlKey && !e.shiftKey && e.key === "ArrowRight") {
+                NextPage();
+            } else if (e.key === "Escape") {
+                document.exitFullscreen();
+            } else if (e.key === "f") {
+                document.documentElement.requestFullscreen();
+            } else if (!e.ctrlKey && !e.shiftKey && e.key === "ArrowUp") {
+                PreviousPage();
+            } else if (!e.ctrlKey && !e.shiftKey && e.key === "ArrowDown") {
+                NextPage();
+            } else if (!e.ctrlKey && e.shiftKey && e.key === "ArrowUp") {
+                setCurrentPage(0);
+                Reader(listofImgState, 0);
+            } else if (!e.ctrlKey && e.shiftKey && e.key === "ArrowDown") {
+                setCurrentPage(listofImgState.length - 1);
+                Reader(listofImgState, listofImgState.length - 1);
+            } else if (!e.ctrlKey && e.shiftKey && e.key === "ArrowLeft") {
+                setCurrentPage(0);
+                Reader(listofImgState, 0);
+            } else if (!e.ctrlKey && e.shiftKey && e.key === "ArrowRight") {
+                setCurrentPage(listofImgState.length - 1);
+                Reader(listofImgState, listofImgState.length - 1);
+            } else if (e.ctrlKey && !e.shiftKey && e.key === "ArrowLeft") {
+                setRotation(rotation - 90);
+            } else if (e.ctrlKey && !e.shiftKey && e.key === "ArrowRight") {
+                setRotation(rotation + 90);
+            }
 
+        }
+        document.addEventListener("keyup", keyListener);
+        //make a zoom with the mouse wheel
+        const zoom = (e) => {
+            if (e.shiftKey) {
+                if (e.deltaY < 0) {
+                    setZoomLevel(zoomLevel + 20);
+                } else {
+                    setZoomLevel(zoomLevel - 20);
+                }
+            }
+        };
+
+        document.addEventListener("wheel", zoom);
+        return () => {
+            document.removeEventListener("keyup", keyListener);
+        };
+
+    });
     useEffectOnce(() => {
         const LaunchViewer = async () => {
             fetch(PDP + "/view/isDir/" + encodeURIComponent(localStorage.getItem("currentBook"))).then((res) => {
@@ -1029,7 +1081,7 @@ export default function PersistentDrawerLeft() {
                     }} id="pagecount">{currentPage + 1} / {totalPages + 1}</p>
                     <div style={{
                         backgroundColor: "rgba(0,0,0,0.8)",
-                        opacity: opacityForNavigation, position: "absolute", bottom: "50px", left: "50%", transform: "translateX(-50%)", zIndex: 5,
+                        opacity: opacityForNavigation, position: "fixed", bottom: "50px", left: "50%", transform: "translateX(-50%)", zIndex: 5,
                         transition: "opacity 0.2s ease-in-out", borderRadius: "10px", padding: "5px"
                     }}
                         onMouseEnter={() => {
@@ -1092,9 +1144,9 @@ export default function PersistentDrawerLeft() {
                                     () => {
                                         let max;
                                         if (DoublePageMode === true) {
-                                            max = totalPages - 2;
-                                        } else {
                                             max = totalPages - 1;
+                                        } else {
+                                            max = totalPages;
                                         }
                                         setCurrentPage(totalPages);
                                         ModifyDB(
@@ -1123,7 +1175,7 @@ export default function PersistentDrawerLeft() {
                     </div>
                     <div style={{
                         backgroundColor: "rgba(0,0,0,0.8)",
-                        opacity: opacityForNavigation, position: "absolute", bottom: "50%", right: "0px", transform: "translateX(-50%)", zIndex: 5,
+                        opacity: opacityForNavigation, position: "fixed", bottom: "50%", right: "0px", transform: "translateX(-50%)", zIndex: 5,
                         transition: "opacity 0.2s ease-in-out", borderRadius: "10px", padding: "5px"
                     }}
                         onMouseEnter={() => {
@@ -1151,7 +1203,7 @@ export default function PersistentDrawerLeft() {
                     </div>
                     <div style={{
                         backgroundColor: "rgba(0,0,0,0.8)",
-                        opacity: opacityForNavigation, position: "absolute", bottom: "50%", left: "60px", transform: "translateX(-50%)", zIndex: 5,
+                        opacity: opacityForNavigation, position: "fixed", bottom: "50%", left: "60px", transform: "translateX(-50%)", zIndex: 5,
                         transition: "opacity 0.2s ease-in-out", borderRadius: "10px", padding: "5px"
                     }}
                         onMouseEnter={() => {
