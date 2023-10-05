@@ -1699,3 +1699,20 @@ select{
     display: flex;
     flex-direction: column;
 }
+.magnifier-container {
+  position: fixed;
+  overflow: hidden;
+  width: 100vw; /* Adjust to your preferred container size */
+  height: 100vh; /* Adjust to your preferred container size */
+}
+
+.magnifier-content {
+  transform-origin: 0 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Optionally, you can add a cursor style for the magnifier */
+.magnifier-container:hover {
+  cursor: move;
+}

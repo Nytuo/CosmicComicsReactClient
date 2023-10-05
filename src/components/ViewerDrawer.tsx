@@ -21,6 +21,7 @@ import Logger from '@/logger.ts';
 import { useEffectOnce } from '@/utils/UseEffectOnce.tsx';
 import SubMenu from './SubMenu.tsx';
 import BookSettingsDialog from './Dialogs/BookSettingsDialog.tsx';
+import Magnifier from './Magnifier.tsx';
 
 const drawerWidth = 240;
 
@@ -864,6 +865,7 @@ export default function PersistentDrawerLeft() {
 
 
     const [openBookSettings, setOpenBookSettings] = React.useState(false);
+    const [isMagnifierOn, setIsMagnifierOn] = React.useState(false);
 
     const handleOpenBookSettings = () => {
         setOpenBookSettings(true);
@@ -872,6 +874,9 @@ export default function PersistentDrawerLeft() {
     const handleCloseBookSettings = () => {
         setOpenBookSettings(false);
     };
+
+    const parentTagMagnifier = isMagnifierOn ? "<Magnifier zoomFactor={2}>" : "<>";
+    const closingParentTagMagnifier = isMagnifierOn ? "</Magnifier>" : "</>";
 
     return (
         <>
@@ -1091,10 +1096,13 @@ export default function PersistentDrawerLeft() {
                 </Drawer>
                 <Main open={open}>
                     <DrawerHeader />
+                    {parentTagMagnifier}
                     <MovableImage src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
                     {
                         imageTwo !== null ? <MovableImage src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
                     }
+                    {closingParentTagMagnifier}
+
                     <p style={{
                         color: "white", position: "fixed", backgroundColor: "rgba(0,0,0,0.50)", textAlign: "right", bottom: 0, right: "5px", zIndex: 5
                     }} id="pagecount">{currentPage + 1} / {totalPages + 1}</p>
