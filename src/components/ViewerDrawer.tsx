@@ -96,14 +96,33 @@ export default function PersistentDrawerLeft() {
     const [baseWidth, setBaseWidth] = React.useState<number | string>("auto");
     const [actionbarON, setActionbarON] = React.useState(true);
     const [sidebarON, setSidebarON] = React.useState(false);
-    const [origins, setOrigins] = React.useState([window.innerWidth / 3, 70]);
-    const [originsKept, setOriginsKept] = React.useState([window.innerWidth / 3, 70]);
+    const [origins, setOrigins] = React.useState<any[][]>([[0, 0]]);
+    const [originsKept, setOriginsKept] = React.useState<any[][]>([[0, 0]]);
     const [DoublePageMode, setDoublePageMode] = React.useState(false);
+    const [innerWidth, setInnerWidth] = React.useState(window.innerWidth);
+
 
     React.useLayoutEffect(() => {
-        setOrigins([window.innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]);
-        setOriginsKept([window.innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]);
+        window.addEventListener("resize", () => {
+            setInnerWidth(window.innerWidth);
+        });
+        return () => {
+            window.removeEventListener("resize", () => {
+                setInnerWidth(window.innerWidth);
+            });
+        };
     }, []);
+
+    React.useLayoutEffect(() => {
+        if (DoublePageMode) {
+            const origins = [[innerWidth / 4 + innerWidth / 3.6, document.getElementsByTagName("header")[0].offsetHeight + 20], [innerWidth / 5.5, document.getElementsByTagName("header")[0].offsetHeight + 20]];
+            setOrigins(origins);
+            setOriginsKept(origins);
+        } else {
+            setOrigins([[innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20], [innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]]);
+            setOriginsKept([[innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20], [innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]]);
+        }
+    }, [DoublePageMode, innerWidth]);
 
 
 
@@ -906,7 +925,7 @@ export default function PersistentDrawerLeft() {
                                             setBaseWidth(window.innerWidth - 5);
                                             setBaseHeight("auto");
                                             setZoomLevel(0);
-                                            setOrigins([0, 0]);
+                                            setOrigins([[0, 0], [0, 0]]);
                                             if (DoublePageMode === true) {
                                                 setBaseWidth((window.innerWidth - 5) / 2);
                                             }
@@ -954,8 +973,8 @@ export default function PersistentDrawerLeft() {
                                                 setZoomLevel(0);
                                                 setBaseWidth("auto");
                                                 const tempOrigin = origins;
-                                                if (origins[0] !== 0 || origins[1] !== 0) {
-                                                    setOrigins([0, 0]);
+                                                if (origins[0][0] !== 0 || origins[1][0] !== 0) {
+                                                    setOrigins([[0, 0], [0, 0]]);
                                                     setTimeout(() => {
                                                         setOrigins(tempOrigin);
                                                     }, 50);
@@ -1072,9 +1091,9 @@ export default function PersistentDrawerLeft() {
                 </Drawer>
                 <Main open={open}>
                     <DrawerHeader />
-                    <MovableImage src={imageOne} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
+                    <MovableImage src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
                     {
-                        imageTwo !== null ? <MovableImage src={imageTwo} origin={origins} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
+                        imageTwo !== null ? <MovableImage src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
                     }
                     <p style={{
                         color: "white", position: "fixed", backgroundColor: "rgba(0,0,0,0.50)", textAlign: "right", bottom: 0, right: "5px", zIndex: 5
