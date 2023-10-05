@@ -875,9 +875,6 @@ export default function PersistentDrawerLeft() {
         setOpenBookSettings(false);
     };
 
-    const parentTagMagnifier = isMagnifierOn ? "<Magnifier zoomFactor={2}>" : "<>";
-    const closingParentTagMagnifier = isMagnifierOn ? "</Magnifier>" : "</>";
-
     return (
         <>
             <Box sx={{ display: 'flex' }}>
@@ -1043,6 +1040,8 @@ export default function PersistentDrawerLeft() {
                                 setRotation={setRotation}
                                 zoomLevel={zoomLevel}
                                 setZoomLevel={setZoomLevel}
+                                isMagnifierOn={isMagnifierOn}
+                                setIsMagnifierOn={setIsMagnifierOn}
                             />
                         </div>
                     </Toolbar>
@@ -1096,13 +1095,15 @@ export default function PersistentDrawerLeft() {
                 </Drawer>
                 <Main open={open}>
                     <DrawerHeader />
-                    {parentTagMagnifier}
-                    <MovableImage src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
-                    {
-                        imageTwo !== null ? <MovableImage src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
-                    }
-                    {closingParentTagMagnifier}
-
+                    {isMagnifierOn ? <Magnifier zoomFactor={2}>
+                        <MovableImage disableMove={true} src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
+                        {
+                            imageTwo !== null ? <MovableImage disableMove={true} src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
+                        }
+                    </Magnifier> : <><MovableImage src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
+                        {
+                            imageTwo !== null ? <MovableImage src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
+                        }</>}
                     <p style={{
                         color: "white", position: "fixed", backgroundColor: "rgba(0,0,0,0.50)", textAlign: "right", bottom: 0, right: "5px", zIndex: 5
                     }} id="pagecount">{currentPage + 1} / {totalPages + 1}</p>

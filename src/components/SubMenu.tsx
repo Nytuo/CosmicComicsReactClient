@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 const ITEM_HEIGHT = 48;
 
-export default function SubMenu({ TBM, bookmarked, rotation, setRotation, zoomLevel, setZoomLevel }: { TBM: () => void, bookmarked: boolean, rotation: number, setRotation: (rotation: number) => void, zoomLevel: number, setZoomLevel: (zoomLevel: number) => void; }
+export default function SubMenu({ TBM, bookmarked, rotation, setRotation, zoomLevel, setZoomLevel, isMagnifierOn, setIsMagnifierOn }: { TBM: () => void, bookmarked: boolean, rotation: number, setRotation: (rotation: number) => void, zoomLevel: number, setZoomLevel: (zoomLevel: number) => void; isMagnifierOn: boolean, setIsMagnifierOn: (isMagnifierOn: boolean) => void; }
 ): JSX.Element {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -141,8 +141,11 @@ export default function SubMenu({ TBM, bookmarked, rotation, setRotation, zoomLe
 
                     <IconButton
                         color="inherit"
-
-
+                        onClick={
+                            () => {
+                                setIsMagnifierOn(!isMagnifierOn);
+                            }
+                        }
                         edge="start"
 
                     >

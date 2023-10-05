@@ -11,6 +11,7 @@ class MovableImage extends Component {
 
     handleMouseDown = (e) => {
         e.preventDefault();
+        if (this.props.disableMove === true) return;
         const { left, top } = this.image.getBoundingClientRect();
         this.setState({
             dragging: true,
