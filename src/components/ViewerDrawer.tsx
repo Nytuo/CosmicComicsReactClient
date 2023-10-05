@@ -125,8 +125,6 @@ export default function PersistentDrawerLeft() {
         }
     }, [DoublePageMode, innerWidth]);
 
-
-
     React.useEffect(() => {
         if (!DoublePageMode) {
             imageTwo && setImageTwo(null);
@@ -142,9 +140,7 @@ export default function PersistentDrawerLeft() {
     };
 
     const connected = getCookie("selectedProfile", document);
-
     const { t } = useTranslation();
-
     let isADirectory: boolean = false;
 
 
@@ -223,7 +219,6 @@ export default function PersistentDrawerLeft() {
     let bookID = "NaID_" + Math.random() * 100500;
     let toogleBGC = false;
     const [listofImgState, setListofImgState] = React.useState([]);
-
 
     React.useEffect(() => {
         const LaunchViewer = async () => {
@@ -327,44 +322,30 @@ export default function PersistentDrawerLeft() {
             50
         );
         LoadBMI(page);
-        // document.getElementById("sps").value = page + 1;
-        // document.getElementById("sps").min = 1;
-        // document.getElementById("sps").max = listOfImg.length;
-        // if (RZPV === true) {
-        //     if (
-        //         document.getElementById("imgViewer_0").style.width ===
-        //         window.innerWidth - 5 + "px" ||
-        //         document.getElementById("imgViewer_0").style.width ===
-        //         window.innerWidth - 205 + "px"
-        //     ) {
-        //         FixWidth();
-        //     } else {
-        //         FixHeight();
-        //     }
-        // }
-        // document.getElementById("inputonwhat").innerText = " / " + listOfImg.length;
-        // document.getElementById("input_text").value = page + 1;
-        // try {
-        //     for (let i = 0; i < listOfImg.length; i++) {
-        //         document.getElementById("id_img_" + i).className = "";
-        //     }
-        //     document.getElementById("id_img_" + page).className = "SideBar_current";
-        //     document.getElementById("SideBar").scrollTop =
-        //         document.getElementById("id_img_" + page).offsetTop - 100;
-        // } catch (e) {
-        //     console.log(e);
-        // }
-        // if (AlwaysRotateB === false) {
-        //     document.getElementById("imgViewer_0").style.transform =
-        //         "rotate(" + 0 + "deg)";
-        //     document.getElementById("imgViewer_1").style.rotate =
-        //         "rotate(" + 0 + "deg)";
-        // } else {
-        //     document.getElementById("imgViewer_0").style.transform =
-        //         "rotate(" + AlwaysRotateV + "deg)";
-        //     document.getElementById("imgViewer_1").style.rotate =
-        //         "rotate(" + AlwaysRotateV + "deg)";
-        // }
+        /*  
+            if (RZPV === true) {
+                if (
+                    document.getElementById("imgViewer_0").style.width ===
+                    window.innerWidth - 5 + "px" ||
+                    document.getElementById("imgViewer_0").style.width ===
+                    window.innerWidth - 205 + "px"
+                ) {
+                    FixWidth();
+                } else {
+                    FixHeight();
+                }
+            }
+            if (AlwaysRotateB === false) {
+                document.getElementById("imgViewer_0").style.transform =
+                    "rotate(" + 0 + "deg)";
+                document.getElementById("imgViewer_1").style.rotate =
+                    "rotate(" + 0 + "deg)";
+            } else {
+                document.getElementById("imgViewer_0").style.transform =
+                    "rotate(" + AlwaysRotateV + "deg)";
+                document.getElementById("imgViewer_1").style.rotate =
+                    "rotate(" + AlwaysRotateV + "deg)";
+            } */
     }
 
     function hasNumbers(t) {
@@ -730,8 +711,9 @@ export default function PersistentDrawerLeft() {
             Logger.info("CosmicComicsTempI : " + CosmicComicsTempI);
             await fetch(PDP + "/view/isDir/" + window.encodeURIComponent(CosmicComicsTempI)).then((response) => {
                 response.json().then(async (isDir) => {
+                    //If the path is a directory then it contains images, we use it right away
                     Logger.info("isDir CCTI: " + isDir);
-                    if (isDir === true) {
+                    if (isDir) {
                         Logger.info("CCI is a directory");
                         CosmicComicsTempI = path + "/";
                     }
@@ -746,68 +728,11 @@ export default function PersistentDrawerLeft() {
                                     prepareReader();
                                 });
                             } else {
-                                // TODO MAKE THIS WORK
-                                if (false) {
-                                    /* Logger.info("Trying to load images from CCI cache");
+                                if (isDir) {
+                                    Logger.info("Trying to load images from CCI cache");
                                     //If the path is a folder then it contains images
                                     Toaster(t("loading_cache"), "info");
-                                    const options = {
-                                        method: "GET",
-                                        headers: {
-                                            "Content-Type": "application/json",
-                                            "path": localStorage.getItem("currentBook"),
-                                        }
-                                    };
-                                    await fetch(PDP + "/viewer/view/", options).then(
-                                        (response) => {
-                                            response.json().then(async (data) => {
-                                                console.log("viewer/view", data);
-                                                const listofImgLoc = data;
-                                                const listofImg = listofImgLoc;
-                                                console.log(listofImgLoc);
-                                                if (listofImgLoc === false) {
-                                                    Toaster(t("no_book"), "error");
-                                                    return;
-                                                }
-                                                listofImgLoc.sort((a, b) => {
-                                                    const fa = a.substring(a.lastIndexOf(".") + 1);
-                                                    const fb = b.substring(b.lastIndexOf(".") + 1);
-                                                    if (fa < fb) {
-                                                        return 1;
-                                                    }
-                                                    if (fa > fb) {
-                                                        return -1;
-                                                    }
-                                                    return 0;
-                                                });
-                                                console.log(listofImgLoc);
-                                                const currentPage = localStorage.getItem("currentPage");
-                                                const filepage = currentPage === null ? 0 : parseInt(currentPage);
-                                                preloadImage(listofImgLoc);
-                                                console.log(filepage);
-                                                if (filepage !== 0) {
-                                                    const lastpage = filepage;
-                                                    Reader(listofImgLoc, lastpage);
-                                                } else {
-                                                    let lastpage = 0;
-                                                    try {
-                                                        await getFromDB("Books", "last_page FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'").then(async (res) => {
-                                                            lastpage = JSON.parse(res)[0]["last_page"];
-                                                            console.log(lastpage);
-                                                            Reader(listofImgLoc, lastpage);
-                                                        });
-                                                    } catch (error) {
-                                                        console.log(error);
-                                                        Reader(listofImgLoc, lastpage);
-                                                    }
-                                                }
-                                                Toaster(t("loaded_local"), "success");
-                                            }
-                                            ).catch(function (error) {
-                                                console.log(error);
-                                            });
-                                        }
-                                    ); */
+                                    prepareReader();
                                 } else {
                                     Logger.info("CCI is a file");
                                     //Else we need to extract it
@@ -853,7 +778,6 @@ export default function PersistentDrawerLeft() {
                     });
                 });
             });
-
         };
         if (!bookLoaded && CosmicComicsTemp !== "" && CosmicComicsTempI !== "") {
             LaunchViewer();
@@ -861,8 +785,6 @@ export default function PersistentDrawerLeft() {
     });
 
     const [opacityForNavigation, setOpacityForNavigation] = React.useState("0.1");
-
-
 
     const [openBookSettings, setOpenBookSettings] = React.useState(false);
     const [isMagnifierOn, setIsMagnifierOn] = React.useState(false);
@@ -905,7 +827,6 @@ export default function PersistentDrawerLeft() {
                             >
                                 <ArrowBack />
                             </IconButton></Tooltip>
-
                         <div
                             style={{
                                 position: "absolute",
@@ -919,7 +840,6 @@ export default function PersistentDrawerLeft() {
                             }}
                         >
                             <Tooltip title={t("fix_width")}>
-
                                 <IconButton
                                     color="inherit"
                                     onClick={
@@ -952,7 +872,6 @@ export default function PersistentDrawerLeft() {
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={t("fix_height")}>
-
                                 <IconButton
                                     color="inherit"
                                     onClick={
@@ -992,11 +911,7 @@ export default function PersistentDrawerLeft() {
                                     <VerticalAlignCenter />
                                 </IconButton>
                             </Tooltip>
-
-
-
                             <Tooltip title={t("full_screen")}>
-
                                 <IconButton
                                     color="inherit"
                                     onClick={
@@ -1019,7 +934,6 @@ export default function PersistentDrawerLeft() {
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={t("book_settings")}>
-
                                 <IconButton
                                     color="inherit"
                                     onClick={
@@ -1122,7 +1036,6 @@ export default function PersistentDrawerLeft() {
                         }
                     >
                         <Tooltip title={t("go_start")}>
-
                             <IconButton
                                 onClick={
                                     () => {
@@ -1138,7 +1051,6 @@ export default function PersistentDrawerLeft() {
                             </IconButton>
                         </Tooltip>
                         <Tooltip title={t("go_previous")}>
-
                             <IconButton
                                 color="inherit"
                                 onClick={() => {
@@ -1152,7 +1064,6 @@ export default function PersistentDrawerLeft() {
                             </IconButton>
                         </Tooltip>
                         <Tooltip title={t("go_next")}>
-
                             <IconButton
                                 color="inherit"
                                 onClick={() => {
