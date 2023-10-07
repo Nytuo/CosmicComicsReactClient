@@ -48,6 +48,7 @@ class MovableImage extends Component {
                 ref={(img) => (this.image = img)}
                 src={this.props.src}
                 alt={this.props.alt}
+                id={this.props.id}
                 style={{
                     position: 'absolute', left: this.props.origin[0], top: this.props.origin[1], cursor: 'move',
                     width: this.props.width, height: this.props.height, objectFit: 'contain',

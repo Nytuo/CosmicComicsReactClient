@@ -101,6 +101,7 @@ export default function PersistentDrawerLeft() {
     const [originsKept, setOriginsKept] = React.useState<any[][]>([[0, 0]]);
     const [DoublePageMode, setDoublePageMode] = React.useState(false);
     const [innerWidth, setInnerWidth] = React.useState(window.innerWidth);
+    const [webToonMode, setWebToonMode] = React.useState(false);
 
     React.useLayoutEffect(() => {
         window.addEventListener("resize", () => {
@@ -260,6 +261,7 @@ export default function PersistentDrawerLeft() {
     async function Reader(listOfImg, page) {
         const images: any[] = [];
         console.log(preloadedImages);
+        window.scrollTo(0, 0);
         images.push(preloadedImages[page]);
         images.push(preloadedImages[page - 1]);
         if (DoublePageMode === true && BlankFirstPage === false) {
@@ -321,30 +323,6 @@ export default function PersistentDrawerLeft() {
             50
         );
         LoadBMI(page);
-        /*  
-            if (RZPV === true) {
-                if (
-                    document.getElementById("imgViewer_0").style.width ===
-                    window.innerWidth - 5 + "px" ||
-                    document.getElementById("imgViewer_0").style.width ===
-                    window.innerWidth - 205 + "px"
-                ) {
-                    FixWidth();
-                } else {
-                    FixHeight();
-                }
-            }
-            if (AlwaysRotateB === false) {
-                document.getElementById("imgViewer_0").style.transform =
-                    "rotate(" + 0 + "deg)";
-                document.getElementById("imgViewer_1").style.rotate =
-                    "rotate(" + 0 + "deg)";
-            } else {
-                document.getElementById("imgViewer_0").style.transform =
-                    "rotate(" + AlwaysRotateV + "deg)";
-                document.getElementById("imgViewer_1").style.rotate =
-                    "rotate(" + AlwaysRotateV + "deg)";
-            } */
     }
 
     function hasNumbers(t) {
@@ -352,8 +330,8 @@ export default function PersistentDrawerLeft() {
         return regex.test(t);
     }
     let scrollindex_next = 1;
-    let VIV_On = false;
-    let VIV_Count = 0;
+    const [VIV_On, setVIV_On] = React.useState(false);
+    const [VIV_Count, setVIV_Count] = React.useState(0);
     //getting the ID of the book
     function GetTheName(CommonName = "") {
         CommonName = decodeURIComponent(CommonName);
@@ -390,25 +368,33 @@ export default function PersistentDrawerLeft() {
                 return false;
             }
         }
-        if (VIV_On === true) {
+        if (VIV_On || webToonMode) {
             console.log(scrollindex_next);
             const imgViewer_n0 = document.getElementById("imgViewer_" + (currentPage));
             if (imgViewer_n0 === null) return;
             if (
-                imgViewer_n0.style.width ===
-                window.innerWidth - 5 + "px"
+                webToonMode
             ) {
                 if (scrollindex_next > 2) {
-                    const imgViewer = document.getElementById("imgViewer_" + (currentPage + 1));
-                    if (imgViewer === null) return;
-                    window.scrollTo(
-                        0,
-                        imgViewer.offsetTop -
-                        document.getElementsByTagName("header")[0].offsetHeight
-                    );
+                    if (!VIV_On) {
+                        Reader(listofImgState, currentPage + 1);
+                        setCurrentPage(currentPage + 1);
+                    }
+                    else {
+                        const imgViewer = document.getElementById("imgViewer_" + (currentPage + 1));
+                        if (imgViewer === null) return;
+                        window.scrollTo(
+                            0,
+                            imgViewer.offsetTop -
+                            document.getElementsByTagName("header")[0].offsetHeight
+                        );
+                        setCurrentPage(currentPage + 1);
+                    }
                 } else {
-                    const divImgViewer = document.getElementById("div_imgViewer_" + currentPage);
-                    if (divImgViewer === null) return;
+                    let divImgViewer = document.getElementById("div_imgViewer_" + currentPage);
+                    if (divImgViewer === null) {
+                        divImgViewer = imgViewer_n0;
+                    }
                     if (scrollindex_next === 1) {
                         divImgViewer.scrollIntoView({
                             block: "center"
@@ -422,16 +408,19 @@ export default function PersistentDrawerLeft() {
                 if (scrollindex_next > 2) {
                     scrollindex_next = 1;
                 } else {
-                    scrollindex_next += 1;
+                    scrollindex_next++;
                 }
             } else {
                 const imgViewer = document.getElementById("imgViewer_" + (currentPage + 1));
                 if (imgViewer === null) return;
+                Logger.debug(imgViewer.offsetTop -
+                    document.getElementsByTagName("header")[0].offsetHeight + "");
                 window.scrollTo(
                     0,
                     imgViewer.offsetTop -
                     document.getElementsByTagName("header")[0].offsetHeight
                 );
+                setCurrentPage(currentPage + 1);
             }
         } else {
             window.scrollTo(0, 0);
@@ -830,6 +819,49 @@ export default function PersistentDrawerLeft() {
         }
     }, [isSlideShowOn, slideShowInterval]);
 
+    React.useEffect(() => {
+        const observer = new IntersectionObserver(
+            function (entries) {
+                if (entries[0].isIntersecting === true)
+                    setCurrentPage(parseInt(entries[0].target.id.split("div_imgViewer_")[1]));
+                try {
+                    const idImg = document.getElementById("id_img_" + (currentPage - 1));
+                    const sidebar = document.getElementById("SideBar");
+                    if (idImg === null || sidebar === null) return;
+                    idImg.className = "SideBar_current";
+                    sidebar.scrollTop =
+                        idImg.offsetTop - 200;
+                } catch (e) {
+                    console.log(e);
+                }
+            },
+            { threshold: [0.1] }
+        );
+        if (VIV_On) {
+            setVIV_Count(preloadedImages.length);
+            for (let i = 0; i < preloadedImages.length; i++) {
+                const elHTML = document.querySelector("#div_imgViewer_" + i);
+                if (elHTML === null) return;
+                observer.observe(elHTML);
+            }
+        }
+    }, [VIV_On, currentPage]);
+
+    React.useLayoutEffect(() => {
+        const sidebar = document.getElementById("SideBar");
+        const idImg = document.getElementById("id_img_" + (currentPage - 1));
+        if (sidebar === null || idImg === null) return;
+        sidebar.scrollTop = idImg.offsetTop - 200 | sidebar.scrollTop;
+    }, [currentPage]);
+
+    React.useEffect(() => {
+        if (parseInt(baseWidth.toString()) >= window.innerWidth - 50) {
+            setWebToonMode(true);
+        } else {
+            setWebToonMode(false);
+        }
+    }, [baseWidth]);
+
     return (
         <>
             <Box sx={{ display: 'flex' }}>
@@ -877,25 +909,7 @@ export default function PersistentDrawerLeft() {
                                     color="inherit"
                                     onClick={
                                         () => {
-                                            setBaseWidth(window.innerWidth - 5);
-                                            setBaseHeight("auto");
-                                            setZoomLevel(0);
-                                            setOrigins([[0, 0], [0, 0]]);
-                                            if (DoublePageMode === true) {
-                                                setBaseWidth((window.innerWidth - 5) / 2);
-                                            }
-                                            if (sidebarON === true) {
-                                                setBaseWidth(window.innerWidth - 205);
-                                            }
-                                            if (VIV_On === true) {
-                                                for (let i = 0; i < VIV_Count; i++) {
-                                                    if (sidebarON === true) {
-                                                        setBaseWidth(window.innerWidth - 205);
-                                                    } else {
-                                                        setBaseWidth(window.innerWidth - 5);
-                                                    }
-                                                }
-                                            }
+                                            fixWidth();
                                         }
                                     }
                                     edge="start"
@@ -907,36 +921,9 @@ export default function PersistentDrawerLeft() {
                             <Tooltip title={t("fix_height")}>
                                 <IconButton
                                     color="inherit"
-                                    onClick={
-                                        () => {
-                                            const navbar = document.getElementById("navbar");
-                                            if (navbar === null) return;
-                                            if (VIV_On === true) {
-                                                for (let i = 0; i < VIV_Count; i++) {
-                                                    setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
-                                                    setZoomLevel(0);
-                                                    setBaseWidth("auto");
-                                                }
-                                            }
-                                            if (!actionbarON) {
-                                                setBaseHeight(window.innerHeight);
-                                                setZoomLevel(0);
-                                                setBaseWidth("auto");
-                                            } else {
-                                                setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
-                                                setZoomLevel(0);
-                                                setBaseWidth("auto");
-                                                const tempOrigin = origins;
-                                                if (origins[0][0] !== 0 || origins[1][0] !== 0) {
-                                                    setOrigins([[0, 0], [0, 0]]);
-                                                    setTimeout(() => {
-                                                        setOrigins(tempOrigin);
-                                                    }, 50);
-                                                } else {
-                                                    setOrigins(originsKept);
-                                                }
-                                            }
-                                        }
+                                    onClick={() => {
+                                        fixHeight();
+                                    }
                                     }
                                     edge="start"
                                     sx={{ mr: 2, }}
@@ -1013,45 +1000,75 @@ export default function PersistentDrawerLeft() {
                         </IconButton>
                     </DrawerHeader>
                     <Divider />
-                    {
-                        preloadedImages.map((el: string, i: number) => {
-                            return <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />} key={i}
-                            ><div
-                                key={i}
-                                id={"id_img_" + i}
-                                className="SideBar_img"
-                                onClick={() => {
-                                    setCurrentPage(i);
-                                    Reader(listofImg, i);
-                                }}
-                                style={{
-                                    cursor: "pointer",
-                                    textAlign: "center",
-                                }}
-                            >
-                                    <img
-                                        height={120}
-                                        id={"imgSideBar_" + i}
-                                        className="SideBar_img"
-                                        src={el}
-                                        alt={i + 1 + "th page"}
-                                    />
-                                    <p className="SideBar_img_text">{i + 1}</p>
-                                </div></Stack>;
-                        })
-                    }
-                </Drawer>
-                <Main open={open}>
-                    <DrawerHeader />
-                    {isMagnifierOn ? <Magnifier zoomFactor={2}>
-                        <MovableImage disableMove={true} src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
+                    <div id="SideBar" style={{ overflowY: "scroll", height: "100%", scrollBehavior: "smooth" }}>
                         {
-                            imageTwo !== null ? <MovableImage disableMove={true} src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
+                            preloadedImages.map((el: string, i: number) => {
+                                return <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />} key={i}
+                                ><div
+                                    key={i}
+                                    id={"id_img_" + i}
+                                    className="SideBar_img"
+                                    style={{
+                                        backgroundColor: currentPage === i ? "rgba(255,255,255,0.1)" : "transparent", cursor: "pointer",
+                                        textAlign: "center",
+                                    }}
+
+                                    onClick={() => {
+                                        setCurrentPage(i);
+                                        if (!VIV_On)
+                                            Reader(listofImg, i);
+                                        else
+                                            document.getElementById("imgViewer_" + i).scrollIntoView({
+                                                block: "center"
+                                            });
+                                    }}
+                                >
+                                        <img
+                                            height={120}
+                                            id={"imgSideBar_" + i}
+                                            className="SideBar_img"
+                                            src={el}
+                                            alt={i + 1 + "th page"}
+                                        />
+                                        <p className="SideBar_img_text">{i + 1}</p>
+                                    </div></Stack>;
+                            })
                         }
-                    </Magnifier> : <><MovableImage src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
-                        {
-                            imageTwo !== null ? <MovableImage src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
-                        }</>}
+                    </div>
+                </Drawer>
+                <Main open={open} sx={{
+                    padding: "0px"
+                }}>
+                    {
+                        VIV_On ? <>
+                            {
+                                preloadedImages.map((el: string, i: number) => {
+                                    return <div id={"div_imgViewer_" + i}>
+                                        <img key={i} id={"imgViewer_" + i} src={el} alt={i + 1 + "th page"} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
+                                            style={
+                                                {
+                                                    display: "flex",
+                                                    justifyContent: "center",
+                                                    alignItems: "center",
+                                                    margin: "auto",
+                                                    position: "relative",
+                                                }
+                                            }
+                                        />
+                                    </div>;
+                                }
+                                )
+                            }
+                        </> :
+                            isMagnifierOn ? <Magnifier zoomFactor={2}>
+                                <MovableImage id={"imgViewer_0"} disableMove={true} src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
+                                {
+                                    imageTwo !== null ? <MovableImage id={"imgViewer_1"} disableMove={true} src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
+                                }
+                            </Magnifier> : <><MovableImage id={"imgViewer_0"} src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
+                                {
+                                    imageTwo !== null ? <MovableImage id={"imgViewer_1"} src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
+                                }</>}
                     <p style={{
                         color: "white", position: "fixed", backgroundColor: "rgba(0,0,0,0.50)", textAlign: "right", bottom: 0, right: "5px", zIndex: 5
                     }} id="pagecount">{currentPage + 1} / {totalPages + 1}</p>
@@ -1074,7 +1091,10 @@ export default function PersistentDrawerLeft() {
                                 onClick={
                                     () => {
                                         setCurrentPage(0);
-                                        Reader(listofImgState, 0);
+                                        if (VIV_On || webToonMode)
+                                            window.scrollTo(0, 0);
+                                        else
+                                            Reader(listofImgState, 0);
                                     }
                                 }
                                 color="inherit"
@@ -1134,7 +1154,11 @@ export default function PersistentDrawerLeft() {
                                                 "true",
                                                 shortname
                                             ).then(() => {
-                                                Reader(listofImgState, max);
+                                                if (VIV_On || webToonMode)
+                                                    window.scrollTo(0, document.body.scrollHeight);
+                                                else
+                                                    Reader(listofImgState, max);
+
                                             });
                                         });
                                     }
@@ -1205,7 +1229,59 @@ export default function PersistentDrawerLeft() {
                     </div>
                 </Main>
             </Box>
-            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn} slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval} mangaMode={mangaMode} setMangaMode={setMangaMode} />
+            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn} slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval} mangaMode={mangaMode} setMangaMode={setMangaMode} VIV_On={VIV_On} setVIVOn={setVIV_On} setWebToonMode={setWebToonMode} fixWidth={fixWidth} fixHeight={fixHeight} />
         </>
     );
+
+    function fixHeight() {
+        const navbar = document.getElementById("navbar");
+        if (navbar === null) return;
+        if (VIV_On === true) {
+            for (let i = 0; i < VIV_Count; i++) {
+                setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
+                setZoomLevel(0);
+                setBaseWidth("auto");
+            }
+        }
+        if (!actionbarON) {
+            setBaseHeight(window.innerHeight);
+            setZoomLevel(0);
+            setBaseWidth("auto");
+        } else {
+            setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
+            setZoomLevel(0);
+            setBaseWidth("auto");
+            const tempOrigin = origins;
+            if (origins[0][0] !== 0 || origins[1][0] !== 0) {
+                setOrigins([[0, 0], [0, 0]]);
+                setTimeout(() => {
+                    setOrigins(tempOrigin);
+                }, 50);
+            } else {
+                setOrigins(originsKept);
+            }
+        }
+    }
+
+    function fixWidth() {
+        setBaseWidth(window.innerWidth - 5);
+        setBaseHeight("auto");
+        setZoomLevel(0);
+        setOrigins([[0, 0], [0, 0]]);
+        if (DoublePageMode === true) {
+            setBaseWidth((window.innerWidth - 5) / 2);
+        }
+        if (sidebarON === true) {
+            setBaseWidth(window.innerWidth - 205);
+        }
+        if (VIV_On === true) {
+            for (let i = 0; i < VIV_Count; i++) {
+                if (sidebarON === true) {
+                    setBaseWidth(window.innerWidth - 205);
+                } else {
+                    setBaseWidth(window.innerWidth - 5);
+                }
+            }
+        }
+    }
 }

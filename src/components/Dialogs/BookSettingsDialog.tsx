@@ -20,7 +20,7 @@ import { ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
  * @param {Function} createFunction - The function to call when the OK button is clicked.
  * @returns {JSX.Element} - A dialog component for creating a new account.
  */
-export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON, slideShow, setSlideShow, setSlideShowInterval, slideShowInterval, mangaMode, setMangaMode }: {
+export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON, slideShow, setSlideShow, setSlideShowInterval, slideShowInterval, mangaMode, setMangaMode, VIV_On, setVIVOn, setWebToonMode, fixWidth, fixHeight }: {
 	onClose: any,
 	openModal: boolean,
 	Reader: any;
@@ -38,6 +38,11 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 	slideShowInterval: number;
 	mangaMode: boolean;
 	setMangaMode: any;
+	VIV_On: boolean;
+	setVIVOn: any;
+	setWebToonMode: any;
+	fixWidth: any;
+	fixHeight: any;
 }) {
 	const { t } = useTranslation();
 	const [open, setOpen] = React.useState(openModal);
@@ -79,8 +84,6 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 			state[1] = { "blank_at_beggining": false };
 		}
 	}, [doublePage, state]);
-
-
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		console.log(event.target.name);
@@ -197,6 +200,30 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 				} else {
 					setMangaMode(false);
 					modifyConfigJson("Manga_Mode", "false");
+				}
+				break;
+			case "vertical_reader":
+				if (event.target.checked) {
+					setVIVOn(true);
+					modifyConfigJson("Vertical_Reader_Mode", "true");
+				} else {
+					setVIVOn(false);
+					modifyConfigJson("Vertical_Reader_Mode", "false");
+				}
+				break;
+			case "Webtoon_Mode":
+				if (event.target.checked) {
+					modifyConfigJson("WebToonMode", "true");
+					setVIVOn(true);
+					setWebToonMode(true);
+					fixWidth();
+					state[7] = { "vertical_reader": true };
+				} else {
+					modifyConfigJson("WebToonMode", "false");
+					setVIVOn(false);
+					setWebToonMode(false);
+					fixHeight();
+					state[7] = { "vertical_reader": false };
 				}
 				break;
 			default:
@@ -420,7 +447,8 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 									return <FormControlLabel
 										control={
 											<Switch checked={itemValue} key={index} id={`id_${itemKey}`} disabled={
-												!doublePage && (itemKey === "blank_at_beggining" || itemKey === "no_dpm_horizontal")
+												(!doublePage && (itemKey === "blank_at_beggining" || itemKey === "no_dpm_horizontal")) ||
+												(VIV_On && (itemKey === "double_page_mode" || itemKey === "blank_at_beggining" || itemKey === "no_dpm_horizontal"))
 											} onChange={handleChange} name={itemKey} />
 										}
 										label={t(itemKey)}
