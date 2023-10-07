@@ -12,7 +12,7 @@ import { IBook } from '@/interfaces/IBook.ts';
 import { providerEnum, tryToParse } from '@/utils/utils.ts';
 import DatabaseEditorSkeleton from '../DatabaseEditorSkeleton';
 import RematchSkeleton from '../RematchSkeleton';
-import { Toaster } from '../Toaster';
+import { ToasterHandler } from '../ToasterHandler';
 
 export default function APISelectorDialog({ onClose, openModal }: {
 	onClose: any,
@@ -34,11 +34,11 @@ export default function APISelectorDialog({ onClose, openModal }: {
 	// This is used to update the state of the parent component when the dialog is closed.
 	const handleClose = (sended: boolean) => {
 		if (!sended) {
-			Toaster("Operation aborted", "info");
+			ToasterHandler("Operation aborted", "info");
 			if (TheBook !== null)
 				TrueDeleteFromDB("Books", TheBook.ID_book);
 		} else {
-			Toaster("Making changes on the database...", "info");
+			ToasterHandler("Making changes on the database...", "info");
 		}
 		setOpen(false);
 		setSend(false);

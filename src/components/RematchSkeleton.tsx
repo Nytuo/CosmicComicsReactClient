@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { providerEnum, tryToParse } from '@/utils/utils.ts';
 import { Marvel } from '@/API/Marvel.ts';
-import { Toaster } from '@/components/Toaster.tsx';
+import { ToasterHandler } from '@/components/ToasterHandler.tsx';
 import { OpenLibrary } from '@/API/OpenLibrary.ts';
 import { GoogleBooks } from '@/API/GoogleBooks.ts';
 import { API } from '@/API/API.ts';
@@ -59,9 +59,9 @@ export default function RematchSkeleton({ provider, type, oldID }: {
                                     }
                                 });
                             } else if (provider === providerEnum.Anilist) {
-                                Toaster(t("providerCannotRematch"), "error");
+                                ToasterHandler(t("providerCannotRematch"), "error");
                             } else if (provider === providerEnum.MANUAL) {
-                                Toaster(t("providerCannotRematch"), "error");
+                                ToasterHandler(t("providerCannotRematch"), "error");
                             } else if (provider === providerEnum.OL) {
                                 new OpenLibrary().GetComics(search.value).then((cdata) => {
                                     if (!cdata) return;
@@ -136,13 +136,13 @@ export default function RematchSkeleton({ provider, type, oldID }: {
                                     }
                                 });
                             } else if (provider === providerEnum.MANUAL) {
-                                Toaster(t("providerCannotRematch"), "error");
+                                ToasterHandler(t("providerCannotRematch"), "error");
                             } else if (provider === providerEnum.OL) {
-                                Toaster(t("providerCannotRematch"), "error");
+                                ToasterHandler(t("providerCannotRematch"), "error");
                             } else if (provider === providerEnum.GBooks) {
-                                Toaster(t("providerCannotRematch"), "error");
+                                ToasterHandler(t("providerCannotRematch"), "error");
                             } else {
-                                Toaster(t("providerCannotRematch"), "error");
+                                ToasterHandler(t("providerCannotRematch"), "error");
                             }
                         }
 

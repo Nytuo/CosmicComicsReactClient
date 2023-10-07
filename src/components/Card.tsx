@@ -3,7 +3,7 @@ import { updateBookStatusForOne, getFromDB } from "@/utils/Fetchers.ts";
 import { AutoStories, Close, Done, Favorite, PlayArrow } from "@mui/icons-material";
 import { Badge, IconButton } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-import { Toaster } from "./Toaster.tsx";
+import { ToasterHandler } from "./ToasterHandler.tsx";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 import { useTranslation } from "react-i18next";
 
@@ -76,7 +76,7 @@ function Card({ book, provider, handleOpenDetails, onClick, type }: { book: IBoo
                             async () => {
                                 if (book.favorite === 1) {
                                     book.favorite = 0;
-                                    Toaster(t("remove_fav"), "success");
+                                    ToasterHandler(t("remove_fav"), "success");
                                     await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
                                         if (!resa) return;
                                         const bookList = JSON.parse(resa);
@@ -100,7 +100,7 @@ function Card({ book, provider, handleOpenDetails, onClick, type }: { book: IBoo
                                     });
                                 } else {
                                     book.favorite = 1;
-                                    Toaster(t("add_fav"), "success");
+                                    ToasterHandler(t("add_fav"), "success");
                                     await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
                                         if (!resa) return;
                                         const bookList = JSON.parse(resa);
@@ -135,7 +135,7 @@ function Card({ book, provider, handleOpenDetails, onClick, type }: { book: IBoo
                     >
                         <IconButton onClick={() => {
                             updateBookStatusForOne("unread", book.ID_book);
-                            Toaster(t("mkunread"), "success");
+                            ToasterHandler(t("mkunread"), "success");
                         }}>
                             <Close />
                         </IconButton>
@@ -147,7 +147,7 @@ function Card({ book, provider, handleOpenDetails, onClick, type }: { book: IBoo
                     >
                         <IconButton onClick={() => {
                             updateBookStatusForOne("reading", book.ID_book);
-                            Toaster(t("mkreading"), "success");
+                            ToasterHandler(t("mkreading"), "success");
                         }}>
                             <AutoStories />
                         </IconButton>
@@ -159,7 +159,7 @@ function Card({ book, provider, handleOpenDetails, onClick, type }: { book: IBoo
                     >
                         <IconButton onClick={() => {
                             updateBookStatusForOne("read", book.ID_book);
-                            Toaster(t("mkread"), "success");
+                            ToasterHandler(t("mkread"), "success");
                         }}>
                             <Done />
                         </IconButton>

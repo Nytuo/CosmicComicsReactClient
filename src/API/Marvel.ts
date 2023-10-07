@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/Toaster.tsx";
+import { ToasterHandler } from "@/components/ToasterHandler.tsx";
 import logger from "@/logger.ts";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 
@@ -93,9 +93,9 @@ class Marvel {
                 "path": path,
             })
         }).then(function (response) {
-            Toaster("Marvel API : " + response.status, "success");
+            ToasterHandler("Marvel API : " + response.status, "success");
         }).catch(function (error) {
-            Toaster("Marvel API : An error occured", "error");
+            ToasterHandler("Marvel API : An error occured", "error");
             logger.error(error);
         });
     }

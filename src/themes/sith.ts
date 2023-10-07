@@ -10,7 +10,7 @@ export const SithTheme: ThemeOptions = {
       main: '#464ce8',
     },
     background: {
-      default: "url('https://cdn-images-1.medium.com/max/2000/1*KrfOi7vg-5Dz-hGifK8ynA.gif')",
+      default: "url('https://cdn-images-1.medium.com/max/2000/1*KrfOi7vg-5Dz-hGifK8ynA.gif') center/cover no-repeat fixed",
       paper: '#c62828',
     },
     error: {

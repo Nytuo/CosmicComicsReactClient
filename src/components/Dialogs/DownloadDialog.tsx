@@ -8,7 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { PDP } from '@/utils/Common.ts';
-import { Toaster } from '../Toaster.tsx';
+import { ToasterHandler } from '../ToasterHandler.tsx';
 import { Box, LinearProgress, Stack } from '@mui/material';
 import Logger from '@/logger.ts';
 
@@ -60,12 +60,12 @@ export default function DownloadDialog({ onClose, openModal, CosmicComicsTemp }:
 			}, null, 2)
 		};
 		await fetch(PDP + '/downloadBook', option).then(() => {
-			Toaster("Downloaded", "success");
+			ToasterHandler("Downloaded", "success");
 			document.getElementById("progressbarDL")?.setAttribute("variant", "determinate");
 			document.getElementById("progressbarDL")?.setAttribute("value", "100");
 			setOpenDLDir(true);
 		}).catch(err => {
-			Toaster("Error", "error");
+			ToasterHandler("Error", "error");
 			Logger.error(err);
 		});
 	}

@@ -10,7 +10,7 @@ export const HalloweenTheme: ThemeOptions = {
       main: '#464ce8',
     },
     background: {
-      default: "url('https://wallpapertag.com/wallpaper/full/4/7/f/411725-dark-forest-wallpapers-1920x1080-for-ipad-2.jpg')",
+      default: "url('https://wallpapertag.com/wallpaper/full/4/7/f/411725-dark-forest-wallpapers-1920x1080-for-ipad-2.jpg') center/cover no-repeat fixed",
       paper: '#953309',
     },
     error: {

@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/Toaster.tsx";
+import { ToasterHandler } from "@/components/ToasterHandler.tsx";
 import logger from "@/logger.ts";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 import { DetectFolderInLibrary, getFromDB } from "@/utils/Fetchers.ts";
@@ -68,7 +68,7 @@ class API {
      * @param {string} type The type of the element to refresh
      */
     async refreshMeta(id: string, provider: number, type: string) {
-        Toaster("Refreshing metadata for " + id + " from " + provider + " (" + type + ")", "info");
+        ToasterHandler("Refreshing metadata for " + id + " from " + provider + " (" + type + ")", "info");
         fetch(PDP + "/refreshMeta", {
             method: "POST",
             headers: {
@@ -81,9 +81,9 @@ class API {
                 "token": currentProfile.getToken
             })
         }).then(() => {
-            Toaster("Metadata refreshed", "success");
+            ToasterHandler("Metadata refreshed", "success");
         }).catch((error) => {
-            Toaster("Error while refreshing metadata", "error");
+            ToasterHandler("Error while refreshing metadata", "error");
             logger.error(error);
         });
     }

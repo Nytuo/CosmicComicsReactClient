@@ -8,7 +8,7 @@ import { Button, DialogActions, FormControl, FormControlLabel, FormGroup, FormLa
 import { AutoStories, Check, Close, Favorite, FavoriteBorder, Palette } from '@mui/icons-material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { MuiColorInput } from 'mui-color-input';
-import { Toaster } from '../Toaster.tsx';
+import { ToasterHandler } from '../ToasterHandler.tsx';
 import { ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
 
 /**
@@ -312,7 +312,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 							<IconButton
 								onClick={
 									() => {
-										Toaster(t("marked_as_read"), "success");
+										ToasterHandler(t("marked_as_read"), "success");
 										ModifyDB(
 											"Books",
 											"reading",
@@ -341,7 +341,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 							<IconButton id="readingbtndetails"
 								onClick={
 									() => {
-										Toaster(t("marked_as_reading"), "success");
+										ToasterHandler(t("marked_as_reading"), "success");
 										ModifyDB(
 											"Books",
 											"reading",
@@ -368,7 +368,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 							<IconButton id="decheckbtn"
 								onClick={
 									() => {
-										Toaster(t("marked_as_unread"), "success");
+										ToasterHandler(t("marked_as_unread"), "success");
 										ModifyDB(
 											"Books",
 											"reading",
@@ -400,7 +400,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 											then((res) => {
 												res = JSON.parse(res)[0]["favorite"];
 												if (res) {
-													Toaster(t("remove_fav"), "success");
+													ToasterHandler(t("remove_fav"), "success");
 													setIsFavorite(false);
 													ModifyDB(
 														"Books",
@@ -409,7 +409,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 														shortname
 													);
 												} else {
-													Toaster(t("add_fav"), "success");
+													ToasterHandler(t("add_fav"), "success");
 													setIsFavorite(true);
 													ModifyDB(
 														"Books",
@@ -458,9 +458,9 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 								state.map((item: any, index: number) => {
 									const itemKey = Object.keys(item)[0];
 									const itemValue = item[itemKey];
-									return <FormControlLabel
+									return <FormControlLabel key={index}
 										control={
-											<Switch checked={itemValue} key={index} id={`id_${itemKey}`} disabled={
+											<Switch checked={itemValue} id={`id_${itemKey}`} disabled={
 												(!doublePage && (itemKey === "blank_at_beggining" || itemKey === "no_dpm_horizontal")) ||
 												(VIV_On && (itemKey === "double_page_mode" || itemKey === "blank_at_beggining" || itemKey === "no_dpm_horizontal"))
 											} onChange={handleChange} name={itemKey} />

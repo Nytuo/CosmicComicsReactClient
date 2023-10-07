@@ -10,7 +10,7 @@ export const JediTheme: ThemeOptions = {
       main: '#464ce8',
     },
     background: {
-      default: "url('https://cdna.artstation.com/p/assets/images/images/025/789/352/original/pixel-jeff-galaxy-far-far-away.gif?1586928273')",
+      default: "url('https://cdna.artstation.com/p/assets/images/images/025/789/352/original/pixel-jeff-galaxy-far-far-away.gif?1586928273') center/cover no-repeat fixed",
       paper: '#001450',
     },
     error: {

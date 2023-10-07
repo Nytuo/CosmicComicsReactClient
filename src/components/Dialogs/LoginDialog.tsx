@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import IProfile from "../../interfaces/IProfile";
 import { PDP, setCookie } from "../../utils/Common";
-import { Toaster } from "../Toaster";
+import { ToasterHandler } from "../ToasterHandler";
 import { useTranslation } from 'react-i18next';
 import Logger from '@/logger.ts';
 
@@ -65,12 +65,12 @@ export default function LoginDialog({ onClose, openModal, title, text, okBtn, ca
 				return response.text();
 			}).then(function (data) {
 				if (data === "false") {
-					Toaster(t("errors.wrong_password"), "error");
+					ToasterHandler(t("errors.wrong_password"), "error");
 				} else if (!data.includes("404")) {
 					setCookie('selectedProfile', data, 2, document);
 					window.location.href = "collectionner";
 				} else {
-					Toaster(t("errors.no_password"), "error");
+					ToasterHandler(t("errors.no_password"), "error");
 				}
 			}).catch(function (error) {
 				Logger.error(error);

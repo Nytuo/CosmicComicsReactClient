@@ -8,7 +8,7 @@ import Rating from "@mui/material/Rating/Rating";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Toaster } from "./Toaster.tsx";
+import { ToasterHandler } from "./ToasterHandler.tsx";
 import DatabaseEditorDialog from "./Dialogs/DatabaseEditorDialog.tsx";
 import { API } from "@/API/API.ts";
 import Card from "./Card.tsx";
@@ -86,9 +86,9 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                     NameToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
                 });
             } else if (provider === providerEnum.OL) {
-                Toaster("OpenLibrary " + t("cannotFetchCharacters"), "error");
+                ToasterHandler("OpenLibrary " + t("cannotFetchCharacters"), "error");
             } else if (provider === providerEnum.GBooks) {
-                Toaster("Google Books " + t("cannotFetchCharacters"), "error");
+                ToasterHandler("Google Books " + t("cannotFetchCharacters"), "error");
             }
             const NameToFetch = NameToFetchList.join(",");
             await getFromDB("Characters", "* FROM Characters WHERE name IN (" + NameToFetch + ")").then((clres) => {
@@ -546,7 +546,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                             } else {
                                                 updateBookStatusForAll("read", TheBook.raw_title);
                                             }
-                                            Toaster(t("mkread"), "success");
+                                            ToasterHandler(t("mkread"), "success");
                                         }
                                     }
                                 ><Check /></IconButton>
@@ -560,7 +560,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                             } else {
                                                 updateBookStatusForAll("reading", TheBook.raw_title);
                                             }
-                                            Toaster(t("mkreading"), "success");
+                                            ToasterHandler(t("mkreading"), "success");
                                         }
                                     }
                                 > <AutoStories /></IconButton></Tooltip>
@@ -573,7 +573,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                             } else {
                                                 updateBookStatusForAll("unread", TheBook.raw_title);
                                             }
-                                            Toaster(t("mkunread"), "success");
+                                            ToasterHandler(t("mkunread"), "success");
                                         }
                                     }
                                 ><Close /></IconButton>
@@ -585,7 +585,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                             if (type === "volume") {
                                                 if (TheBook.favorite === 1) {
                                                     TheBook.favorite = 0;
-                                                    Toaster(t("remove_fav"), "success");
+                                                    ToasterHandler(t("remove_fav"), "success");
                                                     await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
                                                         if (!resa) return;
                                                         const bookList = tryToParse(resa);
@@ -609,7 +609,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                                     });
                                                 } else {
                                                     TheBook.favorite = 1;
-                                                    Toaster(t("add_fav"), "success");
+                                                    ToasterHandler(t("add_fav"), "success");
                                                     await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
                                                         if (!resa) return;
                                                         const bookList = tryToParse(resa);
@@ -635,7 +635,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                             } else {
                                                 if (TheBook.favorite === 1) {
                                                     TheBook.favorite = 0;
-                                                    Toaster(t("remove_fav"), "success");
+                                                    ToasterHandler(t("remove_fav"), "success");
                                                     await getFromDB("Series", "* FROM Series WHERE favorite=1").then(async (resa) => {
                                                         if (!resa) return;
                                                         const bookList = tryToParse(resa);
@@ -659,7 +659,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                                     });
                                                 } else {
                                                     TheBook.favorite = 1;
-                                                    Toaster(t("add_fav"), "success");
+                                                    ToasterHandler(t("add_fav"), "success");
                                                     await getFromDB("Series", "* FROM Series WHERE favorite=0").then(async (resa) => {
                                                         if (!resa) return;
                                                         const bookList = tryToParse(resa);
@@ -707,22 +707,22 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                         async () => {
                                             if (type === "volume") {
                                                 if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL) {
-                                                    Toaster(t("providerCannotRematch"), "error");
+                                                    ToasterHandler(t("providerCannotRematch"), "error");
                                                 } else {
                                                     if (TheBook.lock !== 1) {
                                                         await new API().refreshMeta(TheBook.ID_book, provider, type === "series" ? "series" : "book");
                                                     } else {
-                                                        Toaster(type === "series" ? t("seriesLocked") : t("bookLocked"), "error");
+                                                        ToasterHandler(type === "series" ? t("seriesLocked") : t("bookLocked"), "error");
                                                     }
                                                 }
                                             } else {
                                                 if (provider === providerEnum.MANUAL) {
-                                                    Toaster(t("providerCannotRematch"), "error");
+                                                    ToasterHandler(t("providerCannotRematch"), "error");
                                                 } else {
                                                     if (TheBook.lock !== 1) {
                                                         await new API().refreshMeta(TheBook.ID_book, provider, type === "series" ? "series" : "book");
                                                     } else {
-                                                        Toaster(type === "series" ? t("seriesLocked") : t("bookLocked"), "error");
+                                                        ToasterHandler(type === "series" ? t("seriesLocked") : t("bookLocked"), "error");
                                                     }
                                                 }
                                             }
@@ -886,7 +886,7 @@ function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleCh
                                                 }, null, 2)
                                             };
                                             await fetch(PDP + "/DB/update", options).catch((err) => {
-                                                Toaster(err, "error");
+                                                ToasterHandler(err, "error");
                                             });
                                         }
                                     }

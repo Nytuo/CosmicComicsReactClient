@@ -10,7 +10,7 @@ export const XMasTheme: ThemeOptions = {
       main: '#464ce8',
     },
     background: {
-      default: "url('http://wallpaperswide.com/download/winter_christmas-wallpaper-1920x1080.jpg')",
+      default: "url('http://wallpaperswide.com/download/winter_christmas-wallpaper-1920x1080.jpg') center/cover no-repeat fixed",
       paper: '#570000',
     },
     error: {

@@ -1,6 +1,5 @@
 import './App.css';
-import { Loading } from "./pages/Loading.tsx";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Login from './pages/Login.tsx';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import PrimarySearchAppBar from './components/Nav.tsx';
@@ -17,6 +16,7 @@ import { HalloweenTheme } from './themes/halloween.ts';
 import { GreenTheme } from './themes/green.ts';
 import Viewer from './pages/Viewer.tsx';
 import React, { useEffect, useLayoutEffect, useMemo } from 'react';
+import { Toaster } from 'sonner';
 function App() {
   const theme = localStorage.getItem("theme");
   const OLED = createTheme(OLEDTheme);
@@ -69,16 +69,17 @@ function App() {
 
   return (
     <>
+      <Toaster position='bottom-left' richColors />
       <ThemeProvider theme={themeState}>
         <CssBaseline />
         <PrimarySearchAppBar />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Loading />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/collectionner" element={<Collectionner />} />
             <Route path="/viewer" element={<Viewer />} />
-            <Route path="*" element={<Loading />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </BrowserRouter>
       </ThemeProvider>

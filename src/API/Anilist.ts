@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/Toaster.tsx";
+import { ToasterHandler } from "@/components/ToasterHandler.tsx";
 import logger from "@/logger.ts";
 import { PDP, currentProfile } from "@/utils/Common.ts";
 
@@ -43,7 +43,7 @@ class Anilist {
             logger.info("Anilist search result: " + data);
             return data;
         }).catch(function (error) {
-            Toaster("Error while searching for manga", "error");
+            ToasterHandler("Error while searching for manga", "error");
             logger.error(error);
         });
     }
@@ -63,9 +63,9 @@ class Anilist {
                 "path": path
             }
         }).then(() => {
-            Toaster("Manga added to the database", "success");
+            ToasterHandler("Manga added to the database", "success");
         }).catch(() => {
-            Toaster("Manga not added to the database", "error");
+            ToasterHandler("Manga not added to the database", "error");
         });
     }
 }

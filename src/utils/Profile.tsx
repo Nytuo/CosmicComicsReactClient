@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/Toaster.tsx";
+import { ToasterHandler } from "@/components/ToasterHandler.tsx";
 import { PDP } from "./Common.ts";
 import Logger from "@/logger.ts";
 import { tryToParse } from "./utils.ts";
@@ -38,10 +38,10 @@ export default class Profile {
 				}, null, 2)
 			};
 			fetch(PDP + "/createUser", option).then(() => {
-				Toaster("Account created !", "success");
+				ToasterHandler("Account created !", "success");
 			});
 		} else {
-			Toaster("Account already exists !", "error");
+			ToasterHandler("Account already exists !", "error");
 		}
 	}
 
@@ -55,9 +55,9 @@ export default class Profile {
 			}, null, 2)
 		};
 		fetch(PDP + "/profile/deleteAccount", option).then(() => {
-			Toaster("Account deleted !", "success");
+			ToasterHandler("Account deleted !", "success");
 		}).catch((err) => {
-			Toaster("Error", "error");
+			ToasterHandler("Error", "error");
 			Logger.error(err);
 		});
 		window.location.href = 'login';

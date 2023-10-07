@@ -7,7 +7,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
-import { Toaster } from '../Toaster.tsx';
+import { ToasterHandler } from '../ToasterHandler.tsx';
 import { PDP } from '@/utils/Common.ts';
 
 /**
@@ -60,7 +60,7 @@ export default function UploadDialog({ onClose, openModal, cosmicComicsTemp }: {
 					window.location.href = "/viewer";
 
 				} else {
-					Toaster(t("Failedtoloadfile"), "error");
+					ToasterHandler(t("Failedtoloadfile"), "error");
 				}
 			}
 		};

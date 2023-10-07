@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { IBook } from '@/interfaces/IBook';
 import { PDP, currentProfile } from '@/utils/Common.ts';
 import { Checkbox, FormControlLabel } from '@mui/material';
-import { Toaster } from './Toaster';
+import { ToasterHandler } from './ToasterHandler';
 
 /**
  * A skeleton component for editing a book or series in the database.
@@ -100,12 +100,12 @@ export default function DatabaseEditorSkeleton({ TheBook, type, triggerSend, tra
             }, null, 2)
         }).then(async (res) => {
             if (res.status === 200) {
-                Toaster("Success", "success");
+                ToasterHandler("Success", "success");
             } else {
-                Toaster("Error : " + await res.text(), "error");
+                ToasterHandler("Error : " + await res.text(), "error");
             }
         }).catch((err) => {
-            Toaster(err, "error");
+            ToasterHandler(err, "error");
         });
     };
 

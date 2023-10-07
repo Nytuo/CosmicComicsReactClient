@@ -31,7 +31,7 @@ import Series from './Series.tsx';
 import { Marvel } from '@/API/Marvel.ts';
 import { Anilist } from '@/API/Anilist.ts';
 import ContainerExplorer from './ContainerExplorer.tsx';
-import { Toaster } from './Toaster.tsx';
+import { ToasterHandler } from './ToasterHandler.tsx';
 import UploadDialog from './Dialogs/UploadDialog.tsx';
 import NavigationDialog from './Dialogs/NavigationDialog.tsx';
 import { OpenLibrary } from '@/API/OpenLibrary.ts';
@@ -427,7 +427,7 @@ export default function MiniDrawer({
             }
         });
         if (!cardMode) if (n === 0) {
-            Toaster(t("empty_notSupported"), "error"); setOpenDetails(null);
+            ToasterHandler(t("empty_notSupported"), "error"); setOpenDetails(null);
             setOpenSeries({ open: false, series: [], provider: null });
             setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
             setIsLoading(false);
@@ -863,7 +863,7 @@ export default function MiniDrawer({
                                             handleOpenSeries(true, parsedBook, value.provider);
                                         });
                                     } else {
-                                        Toaster(t("empty_notSupported"), "error");
+                                        ToasterHandler(t("empty_notSupported"), "error");
                                     }
                                 }}
                             />

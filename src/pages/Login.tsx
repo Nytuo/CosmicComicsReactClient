@@ -5,7 +5,7 @@ import IProfile from "@/interfaces/IProfile";
 import { PDP } from "@/utils/Common.ts";
 import { LoginCard } from "@/components/LoginCard.tsx";
 import StarBackground from "@/components/StarBackground.tsx";
-import { Toaster } from "@/components/Toaster.tsx";
+import { ToasterHandler } from "@/components/ToasterHandler.tsx";
 import { useTranslation } from "react-i18next";
 import { Container, useTheme } from "@mui/material";
 export default function Login() {
@@ -22,11 +22,11 @@ export default function Login() {
         setOpenCreateAccount(false);
         fetch(PDP + "/configServ/" + name.value + "/" + pass.value + "/" + aport.value, { method: 'POST' }).then((response) => response.text()).then((data) => {
             if (data.includes("404")) {
-                Toaster(t("errors.account_creation"), "error");
+                ToasterHandler(t("errors.account_creation"), "error");
             }
             discover();
         }).catch(() => {
-            Toaster(t("errors.account_creation"), "error");
+            ToasterHandler(t("errors.account_creation"), "error");
         });
     };
 
@@ -52,7 +52,7 @@ export default function Login() {
             setProfiles(data);
         },
         ).catch(function () {
-            Toaster(t("errors.profile_fetching"), "error");
+            ToasterHandler(t("errors.profile_fetching"), "error");
         });
     };
     return (

@@ -46,12 +46,14 @@ export default function BookmarksDialog({ onClose, openModal }: {
 			return response.json();
 		}).then(function (info) {
 			info.forEach((file: any) => {
-				getFromDB("Books", "URLCover FROM Books WHERE ID_BOOK = '" + file["BOOK_ID"] + "'").then(async (resa: any) => {
-					console.log(resa);
+				getFromDB("Books", "URLCover,NOM FROM Books WHERE ID_BOOK = '" + file["BOOK_ID"] + "'").then(async (resa: any) => {
+					const jsonResa = JSON.parse(resa);
+					console.log(jsonResa);
 					setBookmarks(bookmarks => [...bookmarks, {
-						URLCover: resa[0].URLCover,
+						URLCover: jsonResa[0].URLCover,
 						page: file["page"],
-						path: file["PATH"]
+						path: file["PATH"],
+						title: jsonResa[0].NOM
 					}]
 					);
 				});
@@ -80,6 +82,7 @@ export default function BookmarksDialog({ onClose, openModal }: {
 									console.log(bookmark);
 									return (
 										<div key={index}>
+											<img src={bookmark.URLCover} onError={(e) => { e.target.src = "Images/fileDefault.webp"; }} alt={bookmark.title} width={"auto"} height={150} />
 											<Button
 												onClick={() => {
 													openBOOKM(bookmark.path, bookmark.page);
@@ -87,10 +90,9 @@ export default function BookmarksDialog({ onClose, openModal }: {
 												}
 											>
 												{
-													t("Seethepage") + bookmark.page
+													t("Seethepage") + " " + bookmark.page + " " + t("of") + " " + bookmark.title
 												}
 											</Button>
-											<img src={bookmark.URLCover} />
 										</div>
 									);
 								}) : <div><Block /></div>

@@ -10,11 +10,11 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { AlignHorizontalCenter, ArrowBack, FirstPage, Fullscreen, FullscreenExit, LastPage, NavigateBefore, NavigateNext, Tune, VerticalAlignCenter } from '@mui/icons-material';
+import { AlignHorizontalCenter, ArrowBack, CollectionsBookmark, FirstPage, Fullscreen, FullscreenExit, LastPage, NavigateBefore, NavigateNext, Tune, VerticalAlignCenter } from '@mui/icons-material';
 import { Stack, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import MovableImage from './MovableImage.tsx';
-import { Toaster } from './Toaster.tsx';
+import { ToasterHandler } from './ToasterHandler.tsx';
 import { PDP, getCookie } from '@/utils/Common.ts';
 import { DeleteFromDB, InsertIntoDB, ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
 import Logger from '@/logger.ts';
@@ -75,6 +75,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 const preloadedImages: string[] = [];
+let bookID = "NaID_" + Math.random() * 100500;
 let listofImg: any[] = [];
 
 
@@ -179,15 +180,22 @@ export default function PersistentDrawerLeft() {
         //return colorThief.getColor(img);
     }
 
+    async function getBookID() {
+        await getFromDB("Books", "ID_book FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'").then((res) => {
+            bookID = JSON.parse(res)[0]["ID_book"];
+        });
+    }
+
     async function prepareReader() {
-        Toaster(t("loading_cache"), "info");
+        ToasterHandler(t("loading_cache"), "info");
         Logger.info("Preparing Reader");
         if (listofImg.length === 0) {
-            Toaster(t("no_book"), "error");
+            ToasterHandler(t("no_book"), "error");
             return;
         }
         const currentPage = localStorage.getItem("currentPage");
         const filepage = currentPage === null ? 0 : parseInt(currentPage);
+        await getBookID();
         await preloadImage(listofImg);
         console.log(filepage);
         if (filepage !== 0) {
@@ -209,12 +217,11 @@ export default function PersistentDrawerLeft() {
                 console.log(error);
             }
         }
-        Toaster(t("loaded_local"), "success");
+        ToasterHandler(t("loaded_local"), "success");
     }
     const [BlankFirstPage, setBlankFirstPage] = React.useState(false);
     const [DPMNoH, setDPMNoH] = React.useState(false);
     const [mangaMode, setMangaMode] = React.useState(false);
-    const bookID = "NaID_" + Math.random() * 100500;
     const [backgroundColorAuto, setBackgroundColorAuto] = React.useState(false);
     const [listofImgState, setListofImgState] = React.useState([]);
 
@@ -459,7 +466,7 @@ export default function PersistentDrawerLeft() {
     //Toogle mark as Bookmarks
     function TBM() {
         //check if bookmark is already bookmarked
-        getFromDB("Bookmarks", "PATH,page FROM Bookmarks WHERE BOOK_ID='" + bookID + "' AND PATH='" + CosmicComicsTempI + "' AND page=" + currentPage + ";").then((res1) => {
+        getFromDB("Bookmarks", "PATH,page FROM Bookmarks WHERE BOOK_ID='" + bookID + "' AND PATH='" + localStorage.getItem("currentBook") + "' AND page=" + currentPage + ";").then((res1) => {
             if (!res1) return;
             const jres = JSON.parse(res1);
             if (jres.length !== 0) {
@@ -470,7 +477,7 @@ export default function PersistentDrawerLeft() {
                         bookID,
                         "AND page=" + currentPage
                     ).then(() => {
-                        Toaster(t("bookmark_removed"), "info");
+                        ToasterHandler(t("bookmark_removed"), "info");
                     });
                     setBookmarked(false);
                 }
@@ -479,9 +486,9 @@ export default function PersistentDrawerLeft() {
                 InsertIntoDB(
                     "bookmarks",
                     "(BOOK_ID,PATH,page)",
-                    "('" + bookID + "','" + CosmicComicsTempI + "','" + currentPage + "')"
+                    "('" + bookID + "','" + localStorage.getItem("currentBook") + "','" + currentPage + "')"
                 ).then(() => {
-                    Toaster(t("bookmark_added"), "success");
+                    ToasterHandler(t("bookmark_added"), "success");
                 });
                 setBookmarked(true);
             }
@@ -707,7 +714,7 @@ export default function PersistentDrawerLeft() {
                                 if (isDir) {
                                     Logger.info("Trying to load images from CCI cache");
                                     //If the path is a folder then it contains images
-                                    Toaster(t("loading_cache"), "info");
+                                    ToasterHandler(t("loading_cache"), "info");
                                     prepareReader();
                                 } else {
                                     Logger.info("CCI is a file");
@@ -878,7 +885,7 @@ export default function PersistentDrawerLeft() {
                                 edge="start"
                                 sx={{ mr: 2 }}
                             >
-                                <ArrowBack />
+                                <CollectionsBookmark />
                             </IconButton></Tooltip>
                         <div
                             style={{
