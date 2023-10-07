@@ -20,7 +20,7 @@ import { ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
  * @param {Function} createFunction - The function to call when the OK button is clicked.
  * @returns {JSX.Element} - A dialog component for creating a new account.
  */
-export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON, slideShow, setSlideShow, setSlideShowInterval, slideShowInterval, mangaMode, setMangaMode, VIV_On, setVIVOn, setWebToonMode, fixWidth, fixHeight }: {
+export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON, slideShow, setSlideShow, setSlideShowInterval, slideShowInterval, mangaMode, setMangaMode, VIV_On, setVIVOn, setWebToonMode, fixWidth, fixHeight, setBackgroundColorAuto, backgroundColorAuto }: {
 	onClose: any,
 	openModal: boolean,
 	Reader: any;
@@ -43,6 +43,8 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 	setWebToonMode: any;
 	fixWidth: any;
 	fixHeight: any;
+	setBackgroundColorAuto: any;
+	backgroundColorAuto: boolean;
 }) {
 	const { t } = useTranslation();
 	const [open, setOpen] = React.useState(openModal);
@@ -429,6 +431,18 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 						</Tooltip>
 						<Tooltip title={t('auto_bg_color')}>
 							<IconButton id="autobgbtn"
+								onClick={
+									() => {
+										if (backgroundColorAuto) {
+											setBackgroundColorAuto(false);
+											modifyConfigJson("Automatic_Background_Color", "false");
+										}
+										else {
+											setBackgroundColorAuto(true);
+											modifyConfigJson("Automatic_Background_Color", "true");
+										}
+									}
+								}
 							>
 								<Palette />
 							</IconButton>
@@ -513,12 +527,6 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 								e
 							);
 						}} />
-						<FormControlLabel
-							control={
-								<Switch defaultChecked={false} name={"background_by_theme"} />
-							}
-							label={t("background_by_theme")}
-						/>
 					</FormControl>
 				</DialogContent>
 				<DialogActions>

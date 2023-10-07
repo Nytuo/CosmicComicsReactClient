@@ -1,23 +1,3 @@
-//Trigger Automatic background
-function AutoBGC() {
-	if (toogleBGC === true) {
-		toogleBGC = false;
-		modifyConfigJson(
-			CosmicComicsData + "/config.json",
-			"Automatic_Background_Color",
-			false
-		);
-	} else {
-		toogleBGC = true;
-		modifyConfigJson(
-			CosmicComicsData + "/config.json",
-			"Automatic_Background_Color",
-			true
-		);
-	}
-	console.log("clicked", toogleBGC);
-}
-
 //Load the parameters
 //Send BE
 function loadParameters() {

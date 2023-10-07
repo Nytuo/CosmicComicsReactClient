@@ -211,13 +211,11 @@ export default function PersistentDrawerLeft() {
         }
         Toaster(t("loaded_local"), "success");
     }
-    let DPageActu = 1;
     const [BlankFirstPage, setBlankFirstPage] = React.useState(false);
     const [DPMNoH, setDPMNoH] = React.useState(false);
     const [mangaMode, setMangaMode] = React.useState(false);
-    let PPwasDPM = false;
-    let bookID = "NaID_" + Math.random() * 100500;
-    let toogleBGC = false;
+    const bookID = "NaID_" + Math.random() * 100500;
+    const [backgroundColorAuto, setBackgroundColorAuto] = React.useState(false);
     const [listofImgState, setListofImgState] = React.useState([]);
 
     React.useEffect(() => {
@@ -274,7 +272,6 @@ export default function PersistentDrawerLeft() {
                 setImageTwo(images[1]);
                 setCurrentPage(page + 1);
             }
-            DPageActu = page + 1;
         } else if (DoublePageMode === true && BlankFirstPage === true) {
             if (page === 0 || page === -1) {
                 if (page === 2) {
@@ -284,7 +281,6 @@ export default function PersistentDrawerLeft() {
                     setImageOne(images[0]);
                     setImageTwo(null);
                 }
-                DPageActu = page + 1;
             } else {
                 if (mangaMode === true) {
                     setImageOne(images[1]);
@@ -295,28 +291,20 @@ export default function PersistentDrawerLeft() {
                     setImageTwo(images[1]);
                     setCurrentPage(page + 1);
                 }
-                DPageActu = page + 1;
             }
         } else {
             setImageOne(images[0]);
-            DPageActu = page;
         }
         setTimeout(() => {
-            if (toogleBGC === true) {
-                let pathBG;
-                if (custom) {
-                    pathBG = images[0];
-                    console.log("ColorThief : Enable");
-                    GettheBGColor(listOfImg[page]).then((BGColor) => {
-                        BGColor = BGColor.replaceAll("[", "").replaceAll("]", "");
-                        BGColor = BGColor.split(',');
-                        const R = BGColor[0];
-                        const G = BGColor[1];
-                        const B = BGColor[2];
-                        const val = "rgb(" + R + "," + G + "," + B + ")";
-                        document.body.style.background = val;
-                    });
-                }
+            if (backgroundColorAuto) {
+                Logger.info("ColorThief : Enable");
+                GettheBGColor(listOfImg[page]).then((BGColor) => {
+                    if (typeof BGColor !== "string") return;
+                    Logger.debug("ColorThief : " + BGColor);
+                    BGColor = BGColor.replaceAll("[", "").replaceAll("]", "");
+                    const RGBArray = BGColor.split(',');
+                    document.body.style.background = "rgb(" + RGBArray[0] + "," + RGBArray[1] + "," + RGBArray[2] + ")";
+                });
             }
         }
             ,
@@ -1229,7 +1217,7 @@ export default function PersistentDrawerLeft() {
                     </div>
                 </Main>
             </Box>
-            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn} slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval} mangaMode={mangaMode} setMangaMode={setMangaMode} VIV_On={VIV_On} setVIVOn={setVIV_On} setWebToonMode={setWebToonMode} fixWidth={fixWidth} fixHeight={fixHeight} />
+            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn} slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval} mangaMode={mangaMode} setMangaMode={setMangaMode} VIV_On={VIV_On} setVIVOn={setVIV_On} setWebToonMode={setWebToonMode} fixWidth={fixWidth} fixHeight={fixHeight} setBackgroundColorAuto={setBackgroundColorAuto} backgroundColorAuto={backgroundColorAuto} />
         </>
     );
 
