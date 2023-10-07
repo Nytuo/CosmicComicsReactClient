@@ -20,7 +20,7 @@ import { ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
  * @param {Function} createFunction - The function to call when the OK button is clicked.
  * @returns {JSX.Element} - A dialog component for creating a new account.
  */
-export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH }: {
+export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON }: {
 	onClose: any,
 	openModal: boolean,
 	Reader: any;
@@ -30,6 +30,8 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 	setDoublePageMode: any;
 	setBlankFirstPage: any;
 	setDPMNoH: any;
+	setActionbarON: any;
+	actionbarON: boolean;
 }) {
 	const { t } = useTranslation();
 	const [open, setOpen] = React.useState(openModal);
@@ -61,6 +63,10 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 		{ "scrollBar_visible": true },
 	]);
 
+	React.useEffect(() => {
+		state[5] = { "nobar": !actionbarON };
+	}, [actionbarON, state]);
+
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		console.log(event.target.name);
 
@@ -75,11 +81,11 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					pagecount.style.display = "none";
 				}
 				break;
-			case "nobar":
+			case "scrollBar_visible":
 				if (event.target.checked) {
-					styleSheet.insertRule("::-webkit-scrollbar {display: none;}", 0);
-				} else {
 					styleSheet.deleteRule(0);
+				} else {
+					styleSheet.insertRule("::-webkit-scrollbar {display: none;}", 0);
 				}
 				break;
 			case "double_page_mode":
@@ -171,6 +177,13 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					} catch (e) {
 						console.log(e);
 					}
+				}
+				break;
+			case "nobar":
+				if (event.target.checked) {
+					setActionbarON(false);
+				} else {
+					setActionbarON(true);
 				}
 				break;
 			default:
@@ -382,7 +395,9 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 						</Tooltip>
 
 					</div>
-					<FormControl component="fieldset" variant="standard">
+					<FormControl component="fieldset" variant="standard" sx={{
+						width: "100%",
+					}}>
 						<FormLabel component="legend">Reader settings</FormLabel>
 						<FormGroup>
 							{
@@ -398,74 +413,86 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 								})
 							}
 						</FormGroup>
+						<FormLabel component="legend">Margin between Double pages</FormLabel>
+
+						<Slider
+							size="small"
+							defaultValue={70}
+							aria-label="Small"
+							valueLabelDisplay="auto"
+						/>
+						<FormLabel component="legend">Rotation (Infinite)</FormLabel>
+
+						<Slider
+							aria-label="Restricted values"
+							defaultValue={20}
+							valueLabelFormat={(x) => x + '°C'}
+							step={null}
+							valueLabelDisplay="auto"
+							marks={[{ value: 0, label: '0°C' }, { value: 20, label: '20°C' }, { value: 37, label: '37°C' }, { value: 100, label: '100°C' }]}
+						/>
+						<FormLabel component="legend">Zoom Level</FormLabel>
+
+						<Slider
+							size="small"
+							defaultValue={70}
+							aria-label="Small"
+							valueLabelDisplay="auto"
+						/>
+						<FormLabel component="legend">SlideShow Interval time</FormLabel>
+
+						<Slider
+							size="small"
+							defaultValue={70}
+							aria-label="Small"
+							valueLabelDisplay="auto"
+						/>
+						<FormLabel component="legend">Page Slider</FormLabel>
+
+						<Grid2 container spacing={2} alignItems="center">
+							<Grid item xs>
+								<Slider
+									value={typeof value === 'number' ? value : 0}
+									onChange={handleSliderChange}
+									aria-labelledby="input-slider"
+									max={LOI.length}
+									step={1}
+									min={1}
+								/>
+							</Grid>
+							<Grid item>
+								<Input
+									value={value}
+									size="small"
+									onChange={handleInputChange}
+									onBlur={handleBlur}
+									inputProps={{
+										step: 1,
+										min: 1,
+										max: LOI.length,
+										type: 'number',
+										'aria-labelledby': 'input-slider',
+									}}
+								/>
+							</Grid>
+						</Grid2>
+						<FormLabel component="legend">Background color</FormLabel>
+
+						<MuiColorInput value={color} onChange={(e) => {
+							setColor(e);
+							document.body.style.background = e;
+							modifyConfigJson(
+								"Background_color",
+								e
+							);
+						}} />
+						<FormControlLabel
+							control={
+								<Switch defaultChecked={false} name={"background_by_theme"} />
+							}
+							label={t("background_by_theme")}
+						/>
 					</FormControl>
-					<Slider
-						size="small"
-						defaultValue={70}
-						aria-label="Small"
-						valueLabelDisplay="auto"
-					/>
-					<Slider
-						aria-label="Restricted values"
-						defaultValue={20}
-						valueLabelFormat={(x) => x + '°C'}
-						step={null}
-						valueLabelDisplay="auto"
-						marks={[{ value: 0, label: '0°C' }, { value: 20, label: '20°C' }, { value: 37, label: '37°C' }, { value: 100, label: '100°C' }]}
-					/>
-					<Slider
-						size="small"
-						defaultValue={70}
-						aria-label="Small"
-						valueLabelDisplay="auto"
-					/>
-					<Slider
-						size="small"
-						defaultValue={70}
-						aria-label="Small"
-						valueLabelDisplay="auto"
-					/>
-					<Grid2 container spacing={2} alignItems="center">
-						<Grid item xs>
-							<Slider
-								value={typeof value === 'number' ? value : 0}
-								onChange={handleSliderChange}
-								aria-labelledby="input-slider"
-								max={LOI.length}
-								step={1}
-								min={1}
-							/>
-						</Grid>
-						<Grid item>
-							<Input
-								value={value}
-								size="small"
-								onChange={handleInputChange}
-								onBlur={handleBlur}
-								inputProps={{
-									step: 1,
-									min: 1,
-									max: LOI.length,
-									type: 'number',
-									'aria-labelledby': 'input-slider',
-								}}
-							/>
-						</Grid>
-					</Grid2>
-					<MuiColorInput value={color} onChange={(e) => {
-						setColor(e);
-						document.body.style.background = e;
-						modifyConfigJson(
-							"Background_color",
-							e
-						);
-					}} />
-					<FormControlLabel
-						control={
-							<Switch checked={false} name={"background_by_theme"} />
-						}
-						label={t("background_by_theme")}
-					/>
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t("close")}</Button>

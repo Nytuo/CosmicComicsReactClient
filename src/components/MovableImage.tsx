@@ -1,3 +1,4 @@
+import { Skeleton } from '@mui/material';
 import React, { Component } from 'react';
 
 class MovableImage extends Component {
@@ -7,6 +8,7 @@ class MovableImage extends Component {
         initialY: this.props.origin[1],
         offsetX: 0,
         offsetY: 0,
+        isLoading: true,
     };
 
     handleMouseDown = (e) => {
@@ -42,21 +44,34 @@ class MovableImage extends Component {
 
     render() {
         return (
-            <img
+            <><img
                 ref={(img) => (this.image = img)}
                 src={this.props.src}
                 alt={this.props.alt}
                 style={{
                     position: 'absolute', left: this.props.origin[0], top: this.props.origin[1], cursor: 'move',
                     width: this.props.width, height: this.props.height, objectFit: 'contain',
-                    transform: `rotate(${this.props.rotation}deg)`,
+                    transform: `rotate(${this.props.rotation}deg)`, opacity: this.state.isLoading ? 0 : 1
                 }}
                 onMouseDown={this.handleMouseDown}
                 onError={(e) => {
                     e.target.src = "Images/fileDefault.webp";
                 }
                 }
+                onLoad={(e) => {
+                    this.setState({ isLoading: false });
+                }
+                }
+                onChange={
+                    () => {
+                        this.setState({ isLoading: true });
+                    }
+                }
             />
+                {this.state.isLoading ? <Skeleton sx={{
+                    position: 'absolute', left: this.props.origin[0], top: this.props.origin[1]
+                }} animation="wave" variant="rectangular" width={window.innerWidth / 3 - 20} height={window.innerHeight - 100} /> : <></>}
+            </>
         );
     }
 }

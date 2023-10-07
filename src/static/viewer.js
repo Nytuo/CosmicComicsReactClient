@@ -1,60 +1,3 @@
-/*This file is part of Cosmic-comics.
-
-Cosmic-Comics is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Cosmic-Comics is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Cosmic-Comics.  If not, see <https://www.gnu.org/licenses/>.*/
-//#region Variables
-
-let imagelink = "null";
-let nabc = 0;
-let dirnameFE;
-
-let name1 = GetFilePath().split("/").pop();
-let path = GetFilePath();
-console.log(name1);
-let realname1 = name1.split(".")[0];
-console.log(realname1);
-let shortname = GetTheName(realname1);
-console.log(shortname);
-let rarlength = 0;
-let Dpath = GetFilePath();
-/*
-var DPageTotal = GetListOfImg(CosmicComicsTempI).length;
-*/
-
-let BGBT = false; // Background By Theme
-
-
-//get element from config.json
-function GetElFromInforPath(search, info) {
-	for (let i in info) {
-		if (i === search) {
-			return info[i];
-		}
-	}
-	return null;
-}
-
-function BGBTF() {
-	if (BGBT === true) {
-		BGBT = false;
-		Themes();
-	} else {
-		BGBT = true;
-		Themes();
-	}
-}
-
-
 //Search in the object getted
 async function getFromDB(dbname, request) {
 	const option = {
@@ -76,14 +19,6 @@ async function getFromDB(dbname, request) {
 document.getElementById('viewport').addEventListener('touchstart', handleTouchStart, false);
 document.getElementById('viewport').addEventListener('touchmove', handleTouchMove, false);
 
-
-//Send BE
-
-
-let ctrlisDown = false;
-let maxHeight = 10000000;
-let minHeight = 100;
-//Send BE
 //Trigger Automatic background
 function AutoBGC() {
 	if (toogleBGC === true) {
@@ -223,47 +158,6 @@ function TSS() {
 				NextPage();
 			}
 		}, intervalTime);
-	}
-}
-
-//Text of the Slide Show slider
-function ShowOnChangeSlideShow() {
-	document.getElementById("sstxt").innerText =
-		language["slideshow_interval"] +
-		" (" +
-		document.getElementById("SSValue").value +
-		" " +
-		language["secondes"] +
-		"):";
-}
-
-//Send BE
-//No bar Mode
-let BarOn = true;
-
-function NoBAR() {
-	if (BarOn === true) {
-		document.getElementsByTagName("header")[0].style.display = "none";
-		modifyConfigJson(CosmicComicsData + "/config.json", "NoBar", true);
-		BarOn = false;
-		let newdiv = document.createElement("div");
-		newdiv.id = "nobarr";
-		newdiv.style.width = "100%";
-		newdiv.style.height = "10px";
-		newdiv.style.position = "fixed";
-		newdiv.style.zIndex = "10000000";
-		newdiv.addEventListener("mouseover", function () {
-			NoBAR();
-			document.getElementById("NBAR").checked = false;
-		});
-		document.body.insertBefore(newdiv, document.body.firstChild);
-		FixHeight();
-	} else {
-		modifyConfigJson(CosmicComicsData + "/config.json", "NoBar", false);
-		BarOn = true;
-		document.getElementsByTagName("header")[0].style.display = "block";
-		FixHeight();
-		document.body.removeChild(document.getElementById("nobarr"));
 	}
 }
 
@@ -579,25 +473,4 @@ document.getElementById("SSValue").onchange = function () {
 		"SlideShow_Time",
 		parseInt(document.getElementById("SSValue").value)
 	);
-};
-
-let nb_of_next = 0;
-let nb_of_prev = 0;
-
-//Click left do previous and click right do next
-document.getElementById("viewport").addEventListener("click", function () {
-	PreviousPage();
-});
-document
-	.getElementById("viewport")
-	.addEventListener("contextmenu", function (event) {
-		event.preventDefault();
-		NextPage();
-	});
-//Wait before Image load up
-document.getElementById("imgViewer_0").onload = function () {
-	document.getElementById("imgViewer_0").style.display = "";
-};
-document.getElementById("imgViewer_1").onload = function () {
-	document.getElementById("imgViewer_1").style.display = "";
 };

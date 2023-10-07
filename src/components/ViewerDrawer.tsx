@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import MovableImage from './MovableImage.tsx';
 import { Toaster } from './Toaster.tsx';
 import { PDP, getCookie } from '@/utils/Common.ts';
-import { DeleteFromDB, InsertIntoDB, ModifyDB, getFromDB } from '@/utils/Fetchers.ts';
+import { DeleteFromDB, InsertIntoDB, ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
 import Logger from '@/logger.ts';
 import { useEffectOnce } from '@/utils/UseEffectOnce.tsx';
 import SubMenu from './SubMenu.tsx';
@@ -101,7 +101,6 @@ export default function PersistentDrawerLeft() {
     const [originsKept, setOriginsKept] = React.useState<any[][]>([[0, 0]]);
     const [DoublePageMode, setDoublePageMode] = React.useState(false);
     const [innerWidth, setInnerWidth] = React.useState(window.innerWidth);
-
 
     React.useLayoutEffect(() => {
         window.addEventListener("resize", () => {
@@ -313,7 +312,7 @@ export default function PersistentDrawerLeft() {
                         const G = BGColor[1];
                         const B = BGColor[2];
                         const val = "rgb(" + R + "," + G + "," + B + ")";
-                        document.getElementsByTagName("html")[0].style.backgroundColor = val;
+                        document.body.style.background = val;
                     });
                 }
             }
@@ -797,6 +796,27 @@ export default function PersistentDrawerLeft() {
         setOpenBookSettings(false);
     };
 
+    function isMouseAtTheTop(e) {
+        if (e.clientY < 50) {
+            setActionbarON(true);
+        }
+    }
+
+    React.useLayoutEffect(() => {
+        if (actionbarON) {
+            document.querySelectorAll("header").forEach((el) => {
+                el.style.display = "inherit";
+            });
+            document.removeEventListener("mousemove", isMouseAtTheTop);
+        } else {
+            document.querySelectorAll("header").forEach((el) => {
+                el.style.display = "none";
+            });
+            document.addEventListener("mousemove", isMouseAtTheTop);
+        }
+        modifyConfigJson("NoBar", actionbarON);
+    }, [actionbarON]);
+
     return (
         <>
             <Box sx={{ display: 'flex' }}>
@@ -960,6 +980,7 @@ export default function PersistentDrawerLeft() {
                         </div>
                     </Toolbar>
                 </AppBar>
+
                 <Drawer
                     sx={{
                         width: drawerWidth,
@@ -1171,7 +1192,7 @@ export default function PersistentDrawerLeft() {
                     </div>
                 </Main>
             </Box>
-            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} />
+            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} />
         </>
     );
 }
