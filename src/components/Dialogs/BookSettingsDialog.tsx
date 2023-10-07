@@ -20,7 +20,7 @@ import { ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
  * @param {Function} createFunction - The function to call when the OK button is clicked.
  * @returns {JSX.Element} - A dialog component for creating a new account.
  */
-export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON }: {
+export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON, slideShow, setSlideShow, setSlideShowInterval, slideShowInterval }: {
 	onClose: any,
 	openModal: boolean,
 	Reader: any;
@@ -32,6 +32,10 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 	setDPMNoH: any;
 	setActionbarON: any;
 	actionbarON: boolean;
+	slideShow: boolean;
+	setSlideShow: any;
+	setSlideShowInterval: any;
+	slideShowInterval: number;
 }) {
 	const { t } = useTranslation();
 	const [open, setOpen] = React.useState(openModal);
@@ -184,6 +188,13 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					setActionbarON(false);
 				} else {
 					setActionbarON(true);
+				}
+				break;
+			case "Slideshow":
+				if (event.target.checked) {
+					setSlideShow(true);
+				} else {
+					setSlideShow(false);
 				}
 				break;
 			default:
@@ -443,7 +454,14 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 
 						<Slider
 							size="small"
-							defaultValue={70}
+							defaultValue={5}
+							value={slideShowInterval / 1000}
+							step={1}
+							onChange={(e) => {
+								setSlideShowInterval(e.target.value * 1000);
+							}}
+							min={1}
+							max={60}
 							aria-label="Small"
 							valueLabelDisplay="auto"
 						/>

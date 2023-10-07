@@ -817,6 +817,20 @@ export default function PersistentDrawerLeft() {
         modifyConfigJson("NoBar", actionbarON);
     }, [actionbarON]);
 
+    const [isSlideShowOn, setIsSlideShowOn] = React.useState(false);
+    const [slideShowInterval, setSlideShowInterval] = React.useState(5000);
+
+    React.useEffect(() => {
+        modifyConfigJson("SlideShow", isSlideShowOn);
+        if (isSlideShowOn) {
+            const interval = setInterval(() => {
+                NextPage();
+            }, slideShowInterval);
+            return () => clearInterval(interval);
+        }
+    }, [NextPage, isSlideShowOn, slideShowInterval]);
+
+
     return (
         <>
             <Box sx={{ display: 'flex' }}>
@@ -1192,7 +1206,7 @@ export default function PersistentDrawerLeft() {
                     </div>
                 </Main>
             </Box>
-            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} />
+            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn} slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval} />
         </>
     );
 }

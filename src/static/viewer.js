@@ -136,32 +136,6 @@ function AlwaysRotate() {
 }
 
 //Send BE
-//Slide Show
-let TSSON = false;
-
-function TSS() {
-	if (TSSON === true) {
-		modifyConfigJson(
-			CosmicComicsData + "/config.json",
-			"SlideShow",
-			false
-		);
-		TSSON = false;
-	} else {
-		modifyConfigJson(CosmicComicsData + "/config.json", "SlideShow", true);
-		TSSON = true;
-		let intervalTime = document.getElementById("SSValue").value * 1000;
-		let slideshowID = setInterval(() => {
-			if (TSSON === false) {
-				clearInterval(slideshowID);
-			} else {
-				NextPage();
-			}
-		}, intervalTime);
-	}
-}
-
-//Send BE
 //Vertical Image Viewer Mode
 function VIVT() {
 	if (VIV_On === true) {
