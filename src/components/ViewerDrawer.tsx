@@ -830,7 +830,6 @@ export default function PersistentDrawerLeft() {
         }
     }, [NextPage, isSlideShowOn, slideShowInterval]);
 
-
     return (
         <>
             <Box sx={{ display: 'flex' }}>

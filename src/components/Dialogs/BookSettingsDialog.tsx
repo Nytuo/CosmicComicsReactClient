@@ -63,7 +63,6 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 		{ "PageCount": true },
 		{ "vertical_reader": false },
 		{ "Webtoon_Mode": false },
-		{ "reset_zoom": false },
 		{ "scrollBar_visible": true },
 	]);
 
@@ -418,32 +417,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 								})
 							}
 						</FormGroup>
-						<FormLabel component="legend">Margin between Double pages</FormLabel>
 
-						<Slider
-							size="small"
-							defaultValue={70}
-							aria-label="Small"
-							valueLabelDisplay="auto"
-						/>
-						<FormLabel component="legend">Rotation (Infinite)</FormLabel>
-
-						<Slider
-							aria-label="Restricted values"
-							defaultValue={20}
-							valueLabelFormat={(x) => x + '°C'}
-							step={null}
-							valueLabelDisplay="auto"
-							marks={[{ value: 0, label: '0°C' }, { value: 20, label: '20°C' }, { value: 37, label: '37°C' }, { value: 100, label: '100°C' }]}
-						/>
-						<FormLabel component="legend">Zoom Level</FormLabel>
-
-						<Slider
-							size="small"
-							defaultValue={70}
-							aria-label="Small"
-							valueLabelDisplay="auto"
-						/>
 						<FormLabel component="legend">SlideShow Interval time</FormLabel>
 
 						<Slider
@@ -458,6 +432,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 							max={60}
 							aria-label="Small"
 							valueLabelDisplay="auto"
+							valueLabelFormat={(x) => x + 's'}
 						/>
 						<FormLabel component="legend">Page Slider</FormLabel>
 
@@ -469,6 +444,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 									aria-labelledby="input-slider"
 									max={LOI.length}
 									step={1}
+									size='small'
 									min={1}
 								/>
 							</Grid>

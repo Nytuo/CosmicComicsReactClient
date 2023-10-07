@@ -39,11 +39,6 @@ function AutoBGC() {
 	console.log("clicked", toogleBGC);
 }
 
-//Disable some inputs by default
-document.getElementById("BPABS").setAttribute("disabled", "");
-document.getElementById("NDPFHS").setAttribute("disabled", "");
-document.getElementById("MarginValue").setAttribute("disabled", "");
-
 
 //Send BE
 //Change the margin
@@ -98,41 +93,6 @@ function MMT() {
 		mangaMode = true;
 	}
 	console.log(mangaMode);
-}
-
-//Rotation of an element
-let degreesT = 0;
-let AlwaysRotateB = false;
-let AlwaysRotateV = 0;
-
-//Send BE
-//Always rotate image
-function AlwaysRotate() {
-	let rotateval = document.getElementById("RotateValue").value;
-	AlwaysRotateB = true;
-	AlwaysRotateV = rotateval;
-	if (rotateval === 0) {
-		AlwaysRotateB = false;
-		AlwaysRotateV = 0;
-	}
-	if (VIV_On === true) {
-		for (let i = 0; i < VIV_Count; i++) {
-			document.getElementById("imgViewer_" + i).style.transform =
-				"rotate(" + AlwaysRotateV + "deg)";
-		}
-	} else {
-		document.getElementById("imgViewer_0").style.transform =
-			"rotate(" + AlwaysRotateV + "deg)";
-		document.getElementById("imgViewer_1").style.transform =
-			"rotate(" + AlwaysRotateV + "deg)";
-		document.getElementById("rotlvl").innerText =
-			language["rotation"] + " (" + rotateval + " degrees):";
-	}
-	modifyConfigJson(
-		CosmicComicsData + "/config.json",
-		"Rotate_All",
-		AlwaysRotateV
-	);
 }
 
 //Send BE
@@ -254,28 +214,6 @@ function WTMT() {
 			"WebToonMode",
 			true
 		);
-	}
-}
-
-//Send BE
-//reset zoom for each page
-let RZPV = false;
-
-function RZP() {
-	if (RZPV === true) {
-		modifyConfigJson(
-			CosmicComicsData + "/config.json",
-			"reset_zoom",
-			false
-		);
-		RZPV = false;
-	} else {
-		modifyConfigJson(
-			CosmicComicsData + "/config.json",
-			"reset_zoom",
-			true
-		);
-		RZPV = true;
 	}
 }
 
