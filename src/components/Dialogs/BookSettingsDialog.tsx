@@ -20,7 +20,7 @@ import { ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
  * @param {Function} createFunction - The function to call when the OK button is clicked.
  * @returns {JSX.Element} - A dialog component for creating a new account.
  */
-export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON, slideShow, setSlideShow, setSlideShowInterval, slideShowInterval }: {
+export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON, slideShow, setSlideShow, setSlideShowInterval, slideShowInterval, mangaMode, setMangaMode }: {
 	onClose: any,
 	openModal: boolean,
 	Reader: any;
@@ -36,6 +36,8 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 	setSlideShow: any;
 	setSlideShowInterval: any;
 	slideShowInterval: number;
+	mangaMode: boolean;
+	setMangaMode: any;
 }) {
 	const { t } = useTranslation();
 	const [open, setOpen] = React.useState(openModal);
@@ -186,6 +188,15 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					setSlideShow(true);
 				} else {
 					setSlideShow(false);
+				}
+				break;
+			case "manga_mode":
+				if (event.target.checked) {
+					setMangaMode(true);
+					modifyConfigJson("Manga_Mode", "true");
+				} else {
+					setMangaMode(false);
+					modifyConfigJson("Manga_Mode", "false");
 				}
 				break;
 			default:

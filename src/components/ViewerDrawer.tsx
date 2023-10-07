@@ -213,8 +213,8 @@ export default function PersistentDrawerLeft() {
     let DPageActu = 1;
     const [BlankFirstPage, setBlankFirstPage] = React.useState(false);
     const [DPMNoH, setDPMNoH] = React.useState(false);
+    const [mangaMode, setMangaMode] = React.useState(false);
     let PPwasDPM = false;
-    let mangaMode = false;
     let bookID = "NaID_" + Math.random() * 100500;
     let toogleBGC = false;
     const [listofImgState, setListofImgState] = React.useState([]);
@@ -828,7 +828,7 @@ export default function PersistentDrawerLeft() {
             }, slideShowInterval);
             return () => clearInterval(interval);
         }
-    }, [NextPage, isSlideShowOn, slideShowInterval]);
+    }, [isSlideShowOn, slideShowInterval]);
 
     return (
         <>
@@ -1205,7 +1205,7 @@ export default function PersistentDrawerLeft() {
                     </div>
                 </Main>
             </Box>
-            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn} slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval} />
+            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn} slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval} mangaMode={mangaMode} setMangaMode={setMangaMode} />
         </>
     );
 }

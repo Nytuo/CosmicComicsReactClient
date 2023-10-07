@@ -1,24 +1,3 @@
-//Search in the object getted
-async function getFromDB(dbname, request) {
-	const option = {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			"request": request
-		}, null, 2)
-	};
-	return fetch(PDP + '/DB/get/' + connected + "/" + dbname, option).then(function (response) {
-		return response.text();
-	}).then(function (data) {
-		return data;
-	}).catch(function (error) {
-		console.log(error);
-	});
-}
-
-document.getElementById('viewport').addEventListener('touchstart', handleTouchStart, false);
-document.getElementById('viewport').addEventListener('touchmove', handleTouchMove, false);
-
 //Trigger Automatic background
 function AutoBGC() {
 	if (toogleBGC === true) {
@@ -37,62 +16,6 @@ function AutoBGC() {
 		);
 	}
 	console.log("clicked", toogleBGC);
-}
-
-
-//Send BE
-//Change the margin
-function MarginSlider() {
-	if (VIV_On === true) {
-		for (let i = 0; i < VIV_Count; i++) {
-			document.getElementById("imgViewer_" + i).style.marginBottom =
-				document.getElementById("MarginValue").value;
-			document.getElementById("marginlvl").innerText =
-				language["margin"] +
-				" (" +
-				document.getElementById("MarginValue").value +
-				" px):";
-			modifyConfigJson(
-				CosmicComicsData + "/config.json",
-				"Margin",
-				document.getElementById("MarginValue").value
-			);
-		}
-	} else {
-		document.getElementById("imgViewer_1").style.marginLeft =
-			document.getElementById("MarginValue").value;
-		document.getElementById("marginlvl").innerText =
-			language["margin"] +
-			" (" +
-			document.getElementById("MarginValue").value +
-			" px):";
-		modifyConfigJson(
-			CosmicComicsData + "/config.json",
-			"Margin",
-			document.getElementById("MarginValue").value
-		);
-	}
-}
-
-//Send BE
-//Manga Mode
-function MMT() {
-	if (mangaMode === true) {
-		modifyConfigJson(
-			"config",
-			"Manga_Mode",
-			false
-		);
-		mangaMode = false;
-	} else {
-		modifyConfigJson(
-			"config",
-			"Manga_Mode",
-			true
-		);
-		mangaMode = true;
-	}
-	console.log(mangaMode);
 }
 
 //Send BE
