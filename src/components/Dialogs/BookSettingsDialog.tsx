@@ -67,9 +67,19 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 		{ "scrollBar_visible": true },
 	]);
 
+	const [doublePage, setDoublePage] = React.useState(false);
 	React.useEffect(() => {
 		state[5] = { "nobar": !actionbarON };
 	}, [actionbarON, state]);
+
+	React.useEffect(() => {
+		if (!doublePage) {
+			state[2] = { "no_dpm_horizontal": false };
+			state[1] = { "blank_at_beggining": false };
+		}
+	}, [doublePage, state]);
+
+
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		console.log(event.target.name);
@@ -95,6 +105,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 			case "double_page_mode":
 				if (event.target.checked) {
 					setDoublePageMode(true);
+					setDoublePage(true);
 					try {
 						modifyConfigJson(
 							"Double_Page_Mode",
@@ -103,18 +114,9 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					} catch (e) {
 						console.log(e);
 					}
-					//TODO Activate les autres modes
-					/* document.getElementById("id_blank_at_beggining")?.removeAttribute("disabled");
-					document.getElementById("MarginValue")?.removeAttribute("disabled");
-					document.getElementById("id_no_dpm_horizontal")?.removeAttribute("disabled"); */
-					/* let currentPage = GetCurrentPage();
-					if (currentPage % 2 === 0) {
-						Reader(listofImg, currentPage - 1);
-					} else {
-						Reader(listofImg, currentPage);
-					} */
 				} else {
 					setDoublePageMode(false);
+					setDoublePage(false);
 					try {
 						modifyConfigJson(
 							"Double_Page_Mode",
@@ -123,18 +125,8 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					} catch (e) {
 						console.log(e);
 					}
-					//TODO Desac et enlever les autres modes
-					/* 	if (document.getElementById("BPABS").checked === true) {
-							document.getElementById("BPABS").checked = false;
-							BPAB();
-						}
-						if (document.getElementById("NDPFHS").checked === true) {
-							document.getElementById("NDPFHS").checked = false;
-							NDPFH();
-						} 
-						document.getElementById("id_blank_at_beggining")?.setAttribute("disabled", "");
-						document.getElementById("id_no_dpm_horizontal")?.setAttribute("disabled", "");
-						document.getElementById("MarginValue")?.setAttribute("disabled", "");*/
+					setBlankFirstPage(false);
+					setDPMNoH(false);
 				}
 				break;
 			case "blank_at_beggining":
@@ -417,7 +409,9 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 									const itemValue = item[itemKey];
 									return <FormControlLabel
 										control={
-											<Switch checked={itemValue} key={index} id={`id_${itemKey}`} onChange={handleChange} name={itemKey} />
+											<Switch checked={itemValue} key={index} id={`id_${itemKey}`} disabled={
+												!doublePage && (itemKey === "blank_at_beggining" || itemKey === "no_dpm_horizontal")
+											} onChange={handleChange} name={itemKey} />
 										}
 										label={t(itemKey)}
 									/>;
