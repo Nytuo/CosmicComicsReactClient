@@ -117,12 +117,12 @@ export default function PersistentDrawerLeft() {
 
     React.useLayoutEffect(() => {
         if (DoublePageMode) {
-            const origins = [[innerWidth / 4 + innerWidth / 3.6, document.getElementsByTagName("header")[0].offsetHeight + 20], [innerWidth / 5.5, document.getElementsByTagName("header")[0].offsetHeight + 20]];
+            const origins = [[innerWidth / 4 + innerWidth / 3.7, document.getElementsByTagName("header")[0].offsetHeight + 10], [innerWidth / 5.8, document.getElementsByTagName("header")[0].offsetHeight + 10]];
             setOrigins(origins);
             setOriginsKept(origins);
         } else {
-            setOrigins([[innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20], [innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]]);
-            setOriginsKept([[innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20], [innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 20]]);
+            setOrigins([[innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 10], [innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 10]]);
+            setOriginsKept([[innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 10], [innerWidth / 3, document.getElementsByTagName("header")[0].offsetHeight + 10]]);
         }
     }, [DoublePageMode, innerWidth]);
 
@@ -194,6 +194,7 @@ export default function PersistentDrawerLeft() {
             return;
         }
         const currentPage = localStorage.getItem("currentPage");
+        setCurrentPage(currentPage === null ? 0 : parseInt(currentPage));
         const filepage = currentPage === null ? 0 : parseInt(currentPage);
         await getBookID();
         await preloadImage(listofImg);
@@ -210,6 +211,7 @@ export default function PersistentDrawerLeft() {
                         lastpage = 0;
                     } else {
                         lastpage = JSON.parse(res)[0]["last_page"];
+                        setCurrentPage(lastpage);
                     }
                     Reader(listofImg, lastpage);
                 });
@@ -218,6 +220,7 @@ export default function PersistentDrawerLeft() {
             }
         }
         ToasterHandler(t("loaded_local"), "success");
+        fixHeight();
     }
     const [BlankFirstPage, setBlankFirstPage] = React.useState(false);
     const [DPMNoH, setDPMNoH] = React.useState(false);
@@ -269,7 +272,7 @@ export default function PersistentDrawerLeft() {
         window.scrollTo(0, 0);
         images.push(preloadedImages[page]);
         images.push(preloadedImages[page - 1]);
-        if (DoublePageMode === true && BlankFirstPage === false) {
+        if (DoublePageMode === true && BlankFirstPage === false && DPMNoH === false) {
             if (mangaMode === true) {
                 setImageOne(images[1]);
                 setImageTwo(images[0]);
@@ -279,7 +282,7 @@ export default function PersistentDrawerLeft() {
                 setImageTwo(images[1]);
                 setCurrentPage(page + 1);
             }
-        } else if (DoublePageMode === true && BlankFirstPage === true) {
+        } else if (DoublePageMode === true && BlankFirstPage === true && DPMNoH === false) {
             if (page === 0 || page === -1) {
                 if (page === 2) {
                     setImageOne(images[1]);
@@ -297,6 +300,64 @@ export default function PersistentDrawerLeft() {
                     setImageOne(images[0]);
                     setImageTwo(images[1]);
                     setCurrentPage(page + 1);
+                }
+            }
+        } else if (DoublePageMode === true && BlankFirstPage === false && DPMNoH === true) {
+            const imgn0 = new Image();
+            imgn0.src = images[0];
+            const imgn1 = new Image();
+            imgn1.src = images[1];
+            if (imgn0.naturalWidth > imgn0.naturalHeight) {
+                setImageOne(null);
+                setImageTwo(images[0]);
+                setCurrentPage(page);
+            } else if (imgn1.naturalWidth > imgn1.naturalHeight) {
+                setImageOne(null);
+                setImageTwo(images[1]);
+                setCurrentPage(page);
+            } else {
+                if (mangaMode === true) {
+                    setImageOne(images[1]);
+                    setImageTwo(images[0]);
+                    setCurrentPage(page + 1);
+                } else {
+                    setImageOne(images[0]);
+                    setImageTwo(images[1]);
+                    setCurrentPage(page + 1);
+                }
+            }
+        } else if (DoublePageMode === true && BlankFirstPage === true && DPMNoH === true) {
+            const imgn0 = new Image();
+            imgn0.src = images[0];
+            const imgn1 = new Image();
+            imgn1.src = images[1];
+            if (imgn0.naturalWidth > imgn0.naturalHeight) {
+                setImageOne(null);
+                setImageTwo(images[0]);
+                setCurrentPage(page);
+            } else if (imgn1.naturalWidth > imgn1.naturalHeight) {
+                setImageOne(null);
+                setImageTwo(images[1]);
+                setCurrentPage(page);
+            } else {
+                if (page === 0 || page === -1) {
+                    if (page === 2) {
+                        setImageOne(images[1]);
+                        setImageTwo(null);
+                    } else {
+                        setImageOne(images[0]);
+                        setImageTwo(null);
+                    }
+                } else {
+                    if (mangaMode === true) {
+                        setImageOne(images[1]);
+                        setImageTwo(images[0]);
+                        setCurrentPage(page + 1);
+                    } else {
+                        setImageOne(images[0]);
+                        setImageTwo(images[1]);
+                        setCurrentPage(page + 1);
+                    }
                 }
             }
         } else {
@@ -419,21 +480,6 @@ export default function PersistentDrawerLeft() {
             }
         } else {
             window.scrollTo(0, 0);
-            if (DPMNoH === true) {
-                const PLI1: HTMLImageElement = new Image();
-                PLI1.src = preloadedImages[currentPage + 1];
-                const PLI2: HTMLImageElement = new Image();
-                PLI2.src = preloadedImages[currentPage + 2];
-                const NW = PLI1.naturalWidth;
-                const NH = PLI1.naturalHeight;
-                const NW2 = PLI2.naturalWidth;
-                const NH2 = PLI2.naturalHeight;
-                if (NW > NH || NW2 > NH2) {
-                    setDoublePageMode(false);
-                } else {
-                    setDoublePageMode(true);
-                }
-            }
             if (currentPage < totalPages) {
                 setCurrentPage(currentPage + 1);
                 if (currentPage === totalPages - 1) {
@@ -541,23 +587,8 @@ export default function PersistentDrawerLeft() {
                 DPMNoH === true
             ) {
                 if (currentPage > 2) {
-                    const PLI1: HTMLImageElement = new Image();
-                    PLI1.src = preloadedImages[currentPage - 1];
-                    const PLI2: HTMLImageElement = new Image();
-                    PLI2.src = preloadedImages[currentPage - 2];
-                    const NW = PLI1.naturalWidth;
-                    const NH = PLI1.naturalHeight;
-                    const NW2 = PLI2.naturalWidth;
-                    const NH2 = PLI2.naturalHeight;
-                    if (NW > NH || NW2 > NH2) {
-                        setDoublePageMode(false);
-                        setCurrentPage(currentPage - 1);
-                        Reader(listofImgState, currentPage - 1);
-                    } else {
-                        setDoublePageMode(true);
-                        setCurrentPage(currentPage - 3);
-                        Reader(listofImgState, currentPage - 3);
-                    }
+                    setCurrentPage(currentPage - 3);
+                    Reader(listofImgState, currentPage - 3);
                 } else {
                     if (currentPage - 2 !== -1) {
                         setCurrentPage(currentPage - 2);
@@ -582,41 +613,11 @@ export default function PersistentDrawerLeft() {
                 DPMNoH === true
             ) {
                 if (currentPage !== 0 && currentPage - 3 !== -1) {
-                    const PLI1: HTMLImageElement = new Image();
-                    PLI1.src = preloadedImages[currentPage - 2];
-                    const PLI2: HTMLImageElement = new Image();
-                    PLI2.src = preloadedImages[currentPage - 3];
-                    const NW = PLI1.naturalWidth;
-                    const NH = PLI1.naturalHeight;
-                    const NW2 = PLI2.naturalWidth;
-                    const NH2 = PLI2.naturalHeight;
-                    if (NW > NH || NW2 > NH2) {
-                        setDoublePageMode(false);
-                        setCurrentPage(currentPage - 2);
-                        Reader(listofImgState, currentPage - 2);
-                    } else {
-                        setDoublePageMode(true);
-                        setCurrentPage(currentPage - 2);
-                        Reader(listofImgState, currentPage - 2);
-                    }
+                    setCurrentPage(currentPage - 2);
+                    Reader(listofImgState, currentPage - 2);
                 } else if (currentPage - 3 === -1) {
-                    const PLI1: HTMLImageElement = new Image();
-                    PLI1.src = preloadedImages[currentPage - 1];
-                    const PLI2: HTMLImageElement = new Image();
-                    PLI2.src = preloadedImages[currentPage - 2];
-                    const NW = PLI1.naturalWidth;
-                    const NH = PLI1.naturalHeight;
-                    const NW2 = PLI2.naturalWidth;
-                    const NH2 = PLI2.naturalHeight;
-                    if (NW > NH || NW2 > NH2) {
-                        setDoublePageMode(false);
-                        setCurrentPage(currentPage - 1);
-                        Reader(listofImgState, currentPage - 1);
-                    } else {
-                        setDoublePageMode(true);
-                        setCurrentPage(currentPage - 2);
-                        Reader(listofImgState, currentPage - 2);
-                    }
+                    setCurrentPage(currentPage - 2);
+                    Reader(listofImgState, currentPage - 2);
                 }
             } else {
                 if (currentPage !== 0) {
@@ -1056,11 +1057,12 @@ export default function PersistentDrawerLeft() {
                             }
                         </> :
                             isMagnifierOn ? <Magnifier zoomFactor={2}>
-                                <MovableImage id={"imgViewer_0"} disableMove={true} src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
+                                {imageOne !== null ? <MovableImage id={"imgViewer_0"} disableMove={true} src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
+                                }
                                 {
                                     imageTwo !== null ? <MovableImage id={"imgViewer_1"} disableMove={true} src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
                                 }
-                            </Magnifier> : <><MovableImage id={"imgViewer_0"} src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" />
+                            </Magnifier> : <>{imageOne !== null ? <MovableImage id={"imgViewer_0"} src={imageOne} origin={origins[0]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null}
                                 {
                                     imageTwo !== null ? <MovableImage id={"imgViewer_1"} src={imageTwo} origin={origins[1]} width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"} height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"} rotation={rotation} alt="Logo" /> : null
                                 }</>}
