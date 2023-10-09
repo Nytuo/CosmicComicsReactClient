@@ -20,7 +20,7 @@ import { ModifyDB, getFromDB, modifyConfigJson } from '@/utils/Fetchers.ts';
  * @param {Function} createFunction - The function to call when the OK button is clicked.
  * @returns {JSX.Element} - A dialog component for creating a new account.
  */
-export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON, slideShow, setSlideShow, setSlideShowInterval, slideShowInterval, mangaMode, setMangaMode, VIV_On, setVIVOn, setWebToonMode, fixWidth, fixHeight, setBackgroundColorAuto, backgroundColorAuto }: {
+export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, currentPage, setCurrentPage, setDoublePageMode, setBlankFirstPage, setDPMNoH, setActionbarON, actionbarON, slideShow, setSlideShow, setSlideShowInterval, slideShowInterval, mangaMode, setMangaMode, VIV_On, setVIVOn, setWebToonMode, fixWidth, fixHeight, setBackgroundColorAuto, backgroundColorAuto, userSettings }: {
 	onClose: any,
 	openModal: boolean,
 	Reader: any;
@@ -45,6 +45,22 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 	fixHeight: any;
 	setBackgroundColorAuto: any;
 	backgroundColorAuto: boolean;
+	userSettings: {
+		"Double_Page_Mode": false,
+		"Blank_page_At_Begginning": false,
+		"No_Double_Page_For_Horizontal": false,
+		"Manga_Mode": false,
+		"webToonMode": false,
+		"Automatic_Background_Color": false,
+		"SlideShow_Time": 0,
+		"SlideShow": false,
+		"NoBar": false,
+		"SideBar": false,
+		"Page_Counter": false,
+		"Vertical_Reader_Mode": false,
+		"Background_color": "#000000",
+		"Scroll_bar_visible": false,
+	};
 }) {
 	const { t } = useTranslation();
 	const [open, setOpen] = React.useState(openModal);
@@ -63,27 +79,65 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 	};
 
 	const [state, setState] = React.useState([
-		{ "double_page_mode": false },
-		{ "blank_at_beggining": false },
-		{ "no_dpm_horizontal": false },
-		{ "manga_mode": false },
-		{ "Slideshow": false },
-		{ "nobar": false },
-		{ "PageCount": true },
-		{ "vertical_reader": false },
-		{ "Webtoon_Mode": false },
-		{ "scrollBar_visible": true },
+		{ "Double_Page_Mode": false },
+		{ "Blank_page_At_Begginning": false },
+		{ "No_Double_Page_For_Horizontal": false },
+		{ "Manga_Mode": false },
+		{ "SlideShow": false },
+		{ "NoBar": false },
+		{ "Page_Counter": true },
+		{ "Vertical_Reader_Mode": false },
+		{ "webToonMode": false },
+		{ "Scroll_bar_visible": true },
 	]);
+
+	React.useEffect(() => {
+		setColor(userSettings.Background_color);
+		setBackgroundColorAuto(userSettings.Automatic_Background_Color);
+		document.body.style.background = userSettings.Background_color;
+		setSlideShow(userSettings.SlideShow);
+		setSlideShowInterval(userSettings.SlideShow_Time);
+		setMangaMode(userSettings.Manga_Mode);
+		setVIVOn(userSettings.Vertical_Reader_Mode);
+		setWebToonMode(userSettings.webToonMode);
+		if (userSettings.webToonMode) {
+			setVIVOn(true);
+			fixWidth();
+			state[7] = { "Vertical_Reader_Mode": true };
+		}
+		setActionbarON(!userSettings.NoBar);
+		setDoublePageMode(userSettings.Double_Page_Mode); setDoublePage(userSettings.Double_Page_Mode);
+		setBlankFirstPage(userSettings.Blank_page_At_Begginning);
+		setDPMNoH(userSettings.No_Double_Page_For_Horizontal);
+		if (!userSettings.Scroll_bar_visible) {
+			const styleSheet = document.styleSheets[1];
+			styleSheet.insertRule("::-webkit-scrollbar {display: none;}", 0);
+		}
+		if (userSettings.Page_Counter) {
+			const pagecount = document.getElementById("pagecount");
+			if (pagecount) {
+				pagecount.style.display = "block";
+			}
+		}
+		for (const usersetting in userSettings) {
+			for (let i = 0; state.length > i; i++) {
+				const itemKey = Object.keys(state[i])[0];
+				if (itemKey === usersetting) {
+					state[i] = { [itemKey]: userSettings[usersetting] };
+				}
+			}
+		}
+	}, [userSettings]);
 
 	const [doublePage, setDoublePage] = React.useState(false);
 	React.useEffect(() => {
-		state[5] = { "nobar": !actionbarON };
+		state[5] = { "NoBar": !actionbarON };
 	}, [actionbarON, state]);
 
 	React.useEffect(() => {
 		if (!doublePage) {
-			state[2] = { "no_dpm_horizontal": false };
-			state[1] = { "blank_at_beggining": false };
+			state[2] = { "No_Double_Page_For_Horizontal": false };
+			state[1] = { "Blank_page_At_Begginning": false };
 		}
 	}, [doublePage, state]);
 
@@ -93,7 +147,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 		const pagecount = document.getElementById("pagecount");
 		const styleSheet = document.styleSheets[1];
 		switch (event.target.name) {
-			case "PageCount":
+			case "Page_Counter":
 				if (!pagecount) break;
 				if (event.target.checked) {
 					pagecount.style.display = "block";
@@ -101,14 +155,14 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					pagecount.style.display = "none";
 				}
 				break;
-			case "scrollBar_visible":
+			case "Scroll_bar_visible":
 				if (event.target.checked) {
 					styleSheet.deleteRule(0);
 				} else {
 					styleSheet.insertRule("::-webkit-scrollbar {display: none;}", 0);
 				}
 				break;
-			case "double_page_mode":
+			case "Double_Page_Mode":
 				if (event.target.checked) {
 					setDoublePageMode(true);
 					setDoublePage(true);
@@ -135,7 +189,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					setDPMNoH(false);
 				}
 				break;
-			case "blank_at_beggining":
+			case "Blank_page_At_Begginning":
 				if (event.target.checked) {
 					setBlankFirstPage(true);
 					try {
@@ -181,21 +235,21 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					}
 				}
 				break;
-			case "nobar":
+			case "NoBar":
 				if (event.target.checked) {
 					setActionbarON(false);
 				} else {
 					setActionbarON(true);
 				}
 				break;
-			case "Slideshow":
+			case "SlideShow":
 				if (event.target.checked) {
 					setSlideShow(true);
 				} else {
 					setSlideShow(false);
 				}
 				break;
-			case "manga_mode":
+			case "Manga_Mode":
 				if (event.target.checked) {
 					setMangaMode(true);
 					modifyConfigJson("Manga_Mode", "true");
@@ -204,7 +258,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					modifyConfigJson("Manga_Mode", "false");
 				}
 				break;
-			case "vertical_reader":
+			case "Vertical_Reader_Mode":
 				if (event.target.checked) {
 					setVIVOn(true);
 					modifyConfigJson("Vertical_Reader_Mode", "true");
@@ -213,19 +267,19 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 					modifyConfigJson("Vertical_Reader_Mode", "false");
 				}
 				break;
-			case "Webtoon_Mode":
+			case "webToonMode":
 				if (event.target.checked) {
 					modifyConfigJson("WebToonMode", "true");
 					setVIVOn(true);
 					setWebToonMode(true);
 					fixWidth();
-					state[7] = { "vertical_reader": true };
+					state[7] = { "Vertical_Reader_Mode": true };
 				} else {
 					modifyConfigJson("WebToonMode", "false");
 					setVIVOn(false);
 					setWebToonMode(false);
 					fixHeight();
-					state[7] = { "vertical_reader": false };
+					state[7] = { "Vertical_Reader_Mode": false };
 				}
 				break;
 			default:
@@ -461,8 +515,8 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 									return <FormControlLabel key={index}
 										control={
 											<Switch checked={itemValue} id={`id_${itemKey}`} disabled={
-												(!doublePage && (itemKey === "blank_at_beggining" || itemKey === "no_dpm_horizontal")) ||
-												(VIV_On && (itemKey === "double_page_mode" || itemKey === "blank_at_beggining" || itemKey === "no_dpm_horizontal"))
+												(!doublePage && (itemKey === "Blank_page_At_Begginning" || itemKey === "no_dpm_horizontal")) ||
+												(VIV_On && (itemKey === "Double_Page_Mode" || itemKey === "Blank_page_At_Begginning" || itemKey === "no_dpm_horizontal"))
 											} onChange={handleChange} name={itemKey} />
 										}
 										label={t(itemKey)}
@@ -475,7 +529,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 
 						<Slider
 							size="small"
-							defaultValue={5}
+							defaultValue={userSettings.SlideShow_Time | 1}
 							value={slideShowInterval / 1000}
 							step={1}
 							onChange={(e) => {

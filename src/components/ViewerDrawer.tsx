@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { AlignHorizontalCenter, ArrowBack, CollectionsBookmark, FirstPage, Fullscreen, FullscreenExit, LastPage, NavigateBefore, NavigateNext, Tune, VerticalAlignCenter } from '@mui/icons-material';
+import { AlignHorizontalCenter, CollectionsBookmark, FirstPage, Fullscreen, FullscreenExit, LastPage, NavigateBefore, NavigateNext, Tune, VerticalAlignCenter } from '@mui/icons-material';
 import { Stack, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import MovableImage from './MovableImage.tsx';
@@ -180,11 +180,50 @@ export default function PersistentDrawerLeft() {
         //return colorThief.getColor(img);
     }
 
+    const [userSettings, setUserSettings] = React.useState({
+        "Double_Page_Mode": false,
+        "Blank_page_At_Begginning": false,
+        "No_Double_Page_For_Horizontal": false,
+        "Manga_Mode": false,
+        "webToonMode": false,
+        "Automatic_Background_Color": false,
+        "SlideShow_Time": 1,
+        "SlideShow": false,
+        "NoBar": false,
+        "SideBar": false,
+        "Page_Counter": false,
+        "Vertical_Reader_Mode": false,
+        "Background_color": "#000000",
+        "Scroll_bar_visible": false,
+    });
+
+    async function getUserConfig() {
+        await fetch(PDP + "/config/getConfig/" + connected).then(function (response) {
+            return response.json();
+        }).then(function (data) {
+            const newConfig = data;
+            for (const key in newConfig) {
+                if (Object.prototype.hasOwnProperty.call(newConfig, key)) {
+                    const element = newConfig[key];
+                    if (element === "true") {
+                        newConfig[key] = true;
+                    } else if (element === "false") {
+                        newConfig[key] = false;
+                    }
+                }
+            }
+            setUserSettings(newConfig);
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
     async function getBookID() {
         await getFromDB("Books", "ID_book FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'").then((res) => {
             bookID = JSON.parse(res)[0]["ID_book"];
         });
     }
+
 
     async function prepareReader() {
         ToasterHandler(t("loading_cache"), "info");
@@ -196,6 +235,7 @@ export default function PersistentDrawerLeft() {
         const currentPage = localStorage.getItem("currentPage");
         setCurrentPage(currentPage === null ? 0 : parseInt(currentPage));
         const filepage = currentPage === null ? 0 : parseInt(currentPage);
+        await getUserConfig();
         await getBookID();
         await preloadImage(listofImg);
         console.log(filepage);
@@ -1226,7 +1266,7 @@ export default function PersistentDrawerLeft() {
                     </div>
                 </Main>
             </Box>
-            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn} slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval} mangaMode={mangaMode} setMangaMode={setMangaMode} VIV_On={VIV_On} setVIVOn={setVIV_On} setWebToonMode={setWebToonMode} fixWidth={fixWidth} fixHeight={fixHeight} setBackgroundColorAuto={setBackgroundColorAuto} backgroundColorAuto={backgroundColorAuto} />
+            <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader} LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage} setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage} setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON} slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn} slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval} mangaMode={mangaMode} setMangaMode={setMangaMode} VIV_On={VIV_On} setVIVOn={setVIV_On} setWebToonMode={setWebToonMode} fixWidth={fixWidth} fixHeight={fixHeight} setBackgroundColorAuto={setBackgroundColorAuto} backgroundColorAuto={backgroundColorAuto} userSettings={userSettings} />
         </>
     );
 
