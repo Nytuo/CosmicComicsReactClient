@@ -1,6 +1,9 @@
 import {translateString} from "@/i18n.ts";
 import Logger from "@/logger.ts";
 import {currentProfile, PDP} from "@/utils/Common.ts";
+import {ToasterHandler} from "@/components/common/ToasterHandler.tsx";
+import {t} from "i18next";
+import {IBook} from "@/interfaces/IBook.ts";
 
 /**
  * Make a request to the DB and get the data
@@ -309,6 +312,58 @@ async function AllBooks(filters = ""): Promise<null | any> {
     });
 }
 
+async function makeFavorite(book: IBook) {
+    if (book.favorite === 1) {
+        book.favorite = 0;
+        ToasterHandler(t("remove_fav"), "success");
+        await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
+            if (!resa) return;
+            const bookList = JSON.parse(resa);
+            for (let i = 0; i < bookList.length; i++) {
+                if (bookList[i].ID_book === book.ID_book) {
+                    const options = {
+                        method: "POST", headers: {
+                            "Content-Type": "application/json"
+                        }, body: JSON.stringify({
+                            "token": currentProfile.getToken,
+                            "table": "Books",
+                            "column": "favorite",
+                            "whereEl": bookList[i].ID_book,
+                            "value": false,
+                            "where": "ID_book"
+                        }, null, 2)
+                    };
+                    await fetch(PDP + "/DB/update", options);
+                }
+            }
+        });
+    } else {
+        book.favorite = 1;
+        ToasterHandler(t("add_fav"), "success");
+        await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
+            if (!resa) return;
+            const bookList = JSON.parse(resa);
+            for (let i = 0; i < bookList.length; i++) {
+                if (bookList[i].ID_book === book.ID_book) {
+                    const options = {
+                        method: "POST", headers: {
+                            "Content-Type": "application/json"
+                        }, body: JSON.stringify({
+                            "token": currentProfile.getToken,
+                            "table": "Books",
+                            "column": "favorite",
+                            "whereEl": bookList[i].ID_book,
+                            "value": true,
+                            "where": "ID_book"
+                        }, null, 2)
+                    };
+                    await fetch(PDP + "/DB/update", options);
+                }
+            }
+        });
+    }
+}
+
 export {
     getFromDB,
     InsertIntoDB,
@@ -325,5 +380,6 @@ export {
     deleteLib,
     AllBooks,
     ModifyDB,
-    DeleteFromDB
+    DeleteFromDB,
+    makeFavorite
 };

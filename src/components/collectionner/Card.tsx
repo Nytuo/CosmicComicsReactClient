@@ -1,10 +1,10 @@
 import {IBook} from "@/interfaces/IBook.ts";
-import {getFromDB, updateBookStatusForOne} from "@/utils/Fetchers.ts";
+import {makeFavorite, updateBookStatusForOne} from "@/utils/Fetchers.ts";
 import {AutoStories, Close, Done, Favorite, PlayArrow} from "@mui/icons-material";
 import {Badge, IconButton} from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import {ToasterHandler} from "../common/ToasterHandler.tsx";
-import {currentProfile, PDP} from "@/utils/Common.ts";
+import {PDP} from "@/utils/Common.ts";
 import {useTranslation} from "react-i18next";
 
 function Card({book, provider, handleOpenDetails, onClick, type}: {
@@ -80,58 +80,7 @@ function Card({book, provider, handleOpenDetails, onClick, type}: {
                           id={"btn_id_fav_" + book.ID_book + "_" + Math.random() * 8000}
                     >
                         <IconButton onClick={
-                            async () => {
-                                if (book.favorite === 1) {
-                                    book.favorite = 0;
-                                    ToasterHandler(t("remove_fav"), "success");
-                                    await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
-                                        if (!resa) return;
-                                        const bookList = JSON.parse(resa);
-                                        for (let i = 0; i < bookList.length; i++) {
-                                            if (bookList[i].ID_book === book.ID_book) {
-                                                const options = {
-                                                    method: "POST", headers: {
-                                                        "Content-Type": "application/json"
-                                                    }, body: JSON.stringify({
-                                                        "token": currentProfile.getToken,
-                                                        "table": "Books",
-                                                        "column": "favorite",
-                                                        "whereEl": bookList[i].ID_book,
-                                                        "value": false,
-                                                        "where": "ID_book"
-                                                    }, null, 2)
-                                                };
-                                                await fetch(PDP + "/DB/update", options);
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    book.favorite = 1;
-                                    ToasterHandler(t("add_fav"), "success");
-                                    await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
-                                        if (!resa) return;
-                                        const bookList = JSON.parse(resa);
-                                        for (let i = 0; i < bookList.length; i++) {
-                                            if (bookList[i].ID_book === book.ID_book) {
-                                                const options = {
-                                                    method: "POST", headers: {
-                                                        "Content-Type": "application/json"
-                                                    }, body: JSON.stringify({
-                                                        "token": currentProfile.getToken,
-                                                        "table": "Books",
-                                                        "column": "favorite",
-                                                        "whereEl": bookList[i].ID_book,
-                                                        "value": true,
-                                                        "where": "ID_book"
-                                                    }, null, 2)
-                                                };
-                                                await fetch(PDP + "/DB/update", options);
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                        }>
+                            async () => makeFavorite(book)}>
                             <Favorite/>
                         </IconButton>
                     </span>

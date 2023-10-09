@@ -1,6 +1,5 @@
 import TextField from '@mui/material/TextField';
 import {useEffect, useLayoutEffect} from "react";
-import {useTranslation} from 'react-i18next';
 import {IBook} from '@/interfaces/IBook.ts';
 import {currentProfile, PDP} from '@/utils/Common.ts';
 import {Checkbox, FormControlLabel} from '@mui/material';

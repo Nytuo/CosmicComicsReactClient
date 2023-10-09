@@ -12,7 +12,7 @@ interface MovableImageProps {
     disableMove: boolean;
 }
 class MovableImage extends Component<MovableImageProps>{
-    image: HTMLImageElement | null;
+    image: any;
     state = {
         dragging: false,
         initialX: this.props.origin[0],
@@ -66,7 +66,7 @@ class MovableImage extends Component<MovableImageProps>{
                     transform: `rotate(${this.props.rotation}deg)`, opacity: this.state.isLoading ? 0 : 1
                 }}
                 onMouseDown={this.handleMouseDown}
-                onError={(e) => {
+                onError={(e:any) => {
                     e.target.src = "Images/fileDefault.webp";
                 }
                 }

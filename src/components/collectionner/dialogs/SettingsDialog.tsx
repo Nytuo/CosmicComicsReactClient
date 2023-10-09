@@ -130,7 +130,7 @@ export default function SettingsDialog({onClose, openModal}: {
                                     label={t("select_a_language")}
                                     onChange={async (lang: any) => {
                                         setLanguage(lang.target.value);
-                                        i18next.changeLanguage(lang.target.value);
+                                        await i18next.changeLanguage(lang.target.value);
                                         localStorage.setItem("language", lang.target.value);
                                     }}
                                 >

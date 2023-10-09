@@ -1,3 +1,5 @@
+import {IProviderEnum} from "@/interfaces/IProviderEnum.ts";
+
 /**
  * Resolve the title of a book
  * @param {string} title - The title of the book
@@ -66,13 +68,13 @@ function _01toBool(number: number) {
     return number === 0;
 }
 
-const providerEnum = {
+const providerEnum : IProviderEnum = {
     "Marvel": 1,
     "Anilist": 2,
     "MANUAL": 0,
     "GBooks": 4,
     "OL": 3
-};
+}
 
 //Search element on the JSON
 function SearchInJSON(search: string, info: any) {

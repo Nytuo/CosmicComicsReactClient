@@ -209,7 +209,14 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
                             ]}
                                              onFinish={() => {
                                                  setTimeout(() => {
-                                                     currentProfile.createAccount(document.querySelector("#usernameEdit").value, document.querySelector("#passwordEdit").value, document.querySelector("#newImage").src);
+                                                     const newImage = document.querySelector("#newImage") as HTMLInputElement;
+                                                     const newusername = document.querySelector("#usernameEdit") as HTMLInputElement;
+                                                     const newpassword = document.querySelector("#passwordEdit") as HTMLInputElement;
+                                                     if (newImage == null || newusername == null || newpassword == null) {
+                                                         return;
+                                                     }
+
+                                                     currentProfile.createAccount(newImage.value, newusername.value, newpassword.src);
                                                  }, 500);
                                              }}
                             />

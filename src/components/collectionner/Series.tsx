@@ -1,6 +1,7 @@
 import {IBook} from "@/interfaces/IBook.ts";
 import ContentViewer from "./ContentViewer.tsx";
 import {useEffect} from "react";
+import {ISeriesOfBook} from "@/interfaces/ISeriesOfBook.ts";
 
 /**
  * Renders a component that displays a series of books.
@@ -11,12 +12,13 @@ import {useEffect} from "react";
  * @returns A JSX element that displays the series of books.
  */
 function Series({stateSeries, handleAddBreadcrumbs, handleChangeToDetails, handleChangeToSeries}: {
-    stateSeries: { open: boolean; series: IBook[]; provider: any; } | null;
+    stateSeries: { open: boolean; series: ISeriesOfBook[]; provider: any; } | null;
     handleAddBreadcrumbs: any;
     handleChangeToDetails: (open: boolean, book: IBook, provider: any) => void;
-    handleChangeToSeries: (open: boolean, series: IBook[], provider: any) => void;
+    handleChangeToSeries: (open: boolean, series: ISeriesOfBook[], provider: any) => void;
 }) {
     useEffect(() => {
+        if (stateSeries && stateSeries.series)
         handleAddBreadcrumbs(stateSeries.series.NOM, () => {
             handleChangeToSeries(true, stateSeries.series, stateSeries.provider);
         });

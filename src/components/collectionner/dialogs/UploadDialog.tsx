@@ -41,9 +41,9 @@ export default function UploadDialog({onClose, openModal, cosmicComicsTemp}: {
     /**
      * Sends a POST request to upload a comic and opens it in the viewer if successful.
      */
-    function openInViewer(): void {
+    function uploadAndOpen(): void {
         const form = document.getElementById("uploader") as HTMLFormElement;
-        if (!form || form === null) return;
+        if (!form) return;
         const formData = new FormData(form);
         const xhr = new XMLHttpRequest();
         xhr.open("POST", PDP + "/uploadComic", true);
@@ -53,8 +53,8 @@ export default function UploadDialog({onClose, openModal, cosmicComicsTemp}: {
                 const response = xhr.responseText;
                 if (response === "OK") {
                     const fileUPElement = document.getElementById("fileUp") as HTMLInputElement;
-                    if (!fileUPElement || fileUPElement === null) return;
-                    if (!fileUPElement.files || fileUPElement.files === null) return;
+                    if (!fileUPElement) return;
+                    if (!fileUPElement.files) return;
                     const url = cosmicComicsTemp + "/uploads/" + fileUPElement.files[0].name;
                     localStorage.setItem("currentBook", url);
                     window.location.href = "/viewer";
@@ -75,7 +75,7 @@ export default function UploadDialog({onClose, openModal, cosmicComicsTemp}: {
                     <DialogContentText>
                         <iframe name="dummyUpload" id="dummyUpload" style={{display: "none"}}
                                 title="dummyUpload"></iframe>
-                        <form action="/" target="dummyUpload" onSubmit={openInViewer} method="post" id="uploader"
+                        <form action="/" target="dummyUpload" onSubmit={uploadAndOpen} method="post" id="uploader"
                               encType="multipart/form-data">
                             <input type="file" name="ComicTemp" id="fileUp"/>
                             <Button style={{marginTop: "10px"}} type="submit"

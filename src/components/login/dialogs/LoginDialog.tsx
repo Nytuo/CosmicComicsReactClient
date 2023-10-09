@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import IProfile from "../../../interfaces/IProfile.ts";
-import {PDP, setCookie} from "../../../utils/Common.ts";
+import {PDP, setCookie} from "@/utils/Common.ts";
 import {ToasterHandler} from "../../common/ToasterHandler.tsx";
 import {useTranslation} from 'react-i18next';
 import Logger from '@/logger.ts';

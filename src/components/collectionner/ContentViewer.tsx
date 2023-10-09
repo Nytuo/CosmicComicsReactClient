@@ -36,26 +36,24 @@ import {API} from "@/API/API.ts";
 import Card from "./Card.tsx";
 import Book from "@/utils/Book.ts";
 import MoreInfoDialog from "./dialogs/MoreInfoDialog.tsx";
-import {ScrollMenu, VisibilityContext} from 'react-horizontal-scrolling-menu';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import {ScrollMenu, VisibilityContext} from "react-horizontal-scrolling-menu";
 import {Anilist} from "@/API/Anilist.ts";
 import {GoogleBooks} from "@/API/GoogleBooks.ts";
 import {Marvel} from "@/API/Marvel.ts";
 import {OpenLibrary} from "@/API/OpenLibrary.ts";
 import ContainerExplorer from "./ContainerExplorer.tsx";
 import RematchDialog from "./dialogs/RematchDialog.tsx";
+import {ISeriesOfBook} from "@/interfaces/ISeriesOfBook.ts";
 
 
 //providerEnum to type
-type TProvider =
-    providerEnum.Marvel
-    | providerEnum.Anilist
-    | providerEnum.MANUAL
-    | providerEnum.OL
-    | providerEnum.GBooks;
+type TProvider = 0 | 1 | 2 | 3 | 4;
 
 function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleChangeToDetails}: {
     provider: TProvider;
-    TheBook: IBook;
+    TheBook: ISeriesOfBook;
     type: 'series' | 'volume';
     handleAddBreadcrumbs: any;
     handleChangeToDetails?: (open: boolean, book: IBook, provider: any) => void;
@@ -80,8 +78,6 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
         setOpenMoreInfo(false);
     };
     const APINOTFOUND = /[a-zA-Z]/g.test(TheBook.ID_book);
-
-    console.log("TheBook", TheBook);
 
     const fetchCharacters = async () => {
         if (type === "volume") {
@@ -131,15 +127,15 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
         if (TheBook.creators !== "null" && TheBook.creators !== null && TheBook.creators !== undefined && TheBook.creators !== "") {
             const StaffToFetchList: string[] = [];
             if (provider === providerEnum.Marvel) {
-                tryToParse(TheBook.creators)["items"].forEach((el) => {
+                tryToParse(TheBook.creators)["items"].forEach((el: { name: string; }) => {
                     StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
                 });
             } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL) {
-                tryToParse(TheBook.creators).forEach((el) => {
+                tryToParse(TheBook.creators).forEach((el: { name: string; }) => {
                     StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
                 });
             } else if (provider === providerEnum.GBooks) {
-                tryToParse(TheBook.creators).forEach((el) => {
+                tryToParse(TheBook.creators).forEach((el: string) => {
                     StaffToFetchList.push("'" + el.replaceAll("'", "''") + "'");
                 });
             }
@@ -184,7 +180,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
      * @param {*} date The date of the element
      * @param {providerEnum} provider The provider of the element
      */
-    function loadView(FolderRes: string, libraryPath: string, date = "", provider = providerEnum.MANUAL) {
+    function loadView(FolderRes: string, libraryPath: string, date: any = "", provider: providerEnum = providerEnum.MANUAL) {
         FolderRes = FolderRes.replaceAll("\\", "/");
         FolderRes = FolderRes.replaceAll("//", "/");
         FolderRes = FolderRes.replaceAll("/", "ù");
@@ -196,11 +192,12 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
             for (let index = 0; index < data.length; index++) {
                 const path = data[index];
                 const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "");
-                const realnameREG = /[^\\\/]+(?=\.\w+$)|[^\\\/]+$/.exec(name);
+                const realnameREG = /[^\\/]+(?=\.\w+$)|[^\\/]+$/.exec(name);
                 if (realnameREG === null) continue;
                 const realname = realnameREG[0];
                 const readBookNB = await getFromDB("Books", "COUNT(*) FROM Books WHERE READ = 1 AND PATH = '" + path + "'");
                 setReadStatSeries(readBookNB ? JSON.parse(readBookNB)[0]["COUNT(*)"] + " / " + data.length + " volumes read" : "0 / 0 volumes read");
+                // TODO : REFACTOR DUP CODE
                 await getFromDB("Books", "* FROM Books WHERE PATH = '" + path + "'").then(async (resa) => {
                     if (!resa) return;
                     const bookList = JSON.parse(resa);
@@ -295,7 +292,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
         fetchRelations();
         if (type == "series") {
             let libraryPath = TheBook.PATH.replaceAll("\\", "/");
-            libraryPath = libraryPath.replace(/\/[^\/]+$/, "");
+            libraryPath = libraryPath.replace(/\/[^/]+$/, "");
             libraryPath = libraryPath.replaceAll("/", "\\");
             if (provider === providerEnum.Marvel) {
                 loadView(TheBook.PATH, libraryPath, tryToParse(TheBook.start_date), provider);
@@ -333,9 +330,11 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
 
         };
         handleAsyncBG();
-    }, [TheBook.URLCover]);
+    }, [TheBook.BG_cover, TheBook.PATH, TheBook.URLCover, TheBook.start_date, fetchCharacters, fetchCreators, fetchRelations, loadView, provider, type]);
 
     function LeftArrow() {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const {isFirstItemVisible, scrollPrev} = useContext(VisibilityContext);
 
         return (
@@ -344,6 +343,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
     }
 
     function RightArrow() {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const {isLastItemVisible, scrollNext} = useContext(VisibilityContext);
 
         return (
@@ -769,9 +770,9 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                             ToasterHandler(t("providerCannotRematch"), "error");
                                                         } else {
                                                             if (TheBook.lock !== 1) {
-                                                                await new API().refreshMeta(TheBook.ID_book, provider, type === "series" ? "series" : "book");
+                                                                await new API().refreshMeta(TheBook.ID_book, provider, "book");
                                                             } else {
-                                                                ToasterHandler(type === "series" ? t("seriesLocked") : t("bookLocked"), "error");
+                                                                ToasterHandler(t("bookLocked"), "error");
                                                             }
                                                         }
                                                     } else {
@@ -779,9 +780,9 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                             ToasterHandler(t("providerCannotRematch"), "error");
                                                         } else {
                                                             if (TheBook.lock !== 1) {
-                                                                await new API().refreshMeta(TheBook.ID_book, provider, type === "series" ? "series" : "book");
+                                                                await new API().refreshMeta(TheBook.ID_book, provider, "series");
                                                             } else {
-                                                                ToasterHandler(type === "series" ? t("seriesLocked") : t("bookLocked"), "error");
+                                                                ToasterHandler(t("seriesLocked"), "error");
                                                             }
                                                         }
                                                     }
@@ -800,7 +801,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                         </Grid2>
                             <div id="ratingContainer" className="rating">
                                 <Rating name="no-value" value={rating} onChange={
-                                    (event, newValue) => {
+                                    (_event, newValue) => {
                                         setRating(newValue);
                                         if (newValue === null) return;
                                         if (type === 'volume') {
@@ -889,7 +890,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                         </div>
                         <div id="chapters">
                             {
-                                type === "volume" ? TheBook.issueNumber === (null || "null" || "") ? "" : t("Numberofthisvolumewithintheseries") + ": " + TheBook.issueNumber : ((provider === providerEnum.Marvel) ? (t("NumberComics")) : (t("NumberChapter"))) + ": " + TheBook.issueNumber
+                                type === "volume" ? TheBook.issueNumber === ("null" || "") ? "" : t("Numberofthisvolumewithintheseries") + ": " + TheBook.issueNumber : ((provider === providerEnum.Marvel) ? (t("NumberComics")) : (t("NumberChapter"))) + ": " + TheBook.issueNumber
                             }
                         </div>
                         <div id="id">
@@ -999,7 +1000,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                         onClick={
                                                             () => {
                                                                 if (provider === providerEnum.Marvel) {
-                                                                    handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url);
+                                                                    handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"], tryToParse(el.url)[0].url);
                                                                 } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                                                                     handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
                                                                 }
@@ -1010,7 +1011,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                     (provider === providerEnum.Marvel) ? <Box>
                                                             <Avatar sx={{width: 120, height: 120}}
                                                                     alt='a character'
-                                                                    src={tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension}/>
+                                                                    src={tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]}/>
                                                             <Typography>{el.name}</Typography></Box> :
                                                         (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ?
                                                             <Box sx={{textAlign: "center"}}>
@@ -1046,7 +1047,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                         onClick={
                                                             () => {
                                                                 if (provider === providerEnum.Marvel) {
-                                                                    handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url);
+                                                                    handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"], tryToParse(el.url)[0].url);
                                                                 } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                                                                     handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
                                                                 }
@@ -1057,7 +1058,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                     (provider === providerEnum.Marvel) ?
                                                         (el.name === tryToParse(TheBook.creators)["items"][index].name) ?
                                                             <><Avatar
-                                                                src={tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension}></Avatar><span>{el.name}</span><br/><span
+                                                                src={tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]}></Avatar><span>{el.name}</span><br/><span
                                                                 style={{
                                                                     fontSize: "14px",
                                                                     color: "#a8a8a8a8"
@@ -1089,13 +1090,13 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                             return <Card key={index} type="lite" onClick={
                                                 () => {
                                                     if (provider === providerEnum.Marvel) {
-                                                        handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension, tryToParse(el.url)[0].url, "cover");
+                                                        handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"], tryToParse(el.url)[0].url, "cover");
                                                     } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                                                         handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url, "cover");
                                                     }
                                                 }
                                             }
-                                                         book={new Book(el.ID_book, el.name, ((provider === providerEnum.Marvel) ? (tryToParse(el.image).path + "/detail." + tryToParse(el.image).extension) : (el.image)), "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, provider)}
+                                                         book={new Book(el.ID_book, el.name, ((provider === providerEnum.Marvel) ? (tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]) : (el.image)), "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, provider)}
                                                          provider={provider}
                                             />;
                                         })}
