@@ -58,7 +58,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 		"SideBar": false,
 		"Page_Counter": false,
 		"Vertical_Reader_Mode": false,
-		"Background_color": "#000000",
+		"Background_color": "rgba(0,0,0,0)",
 		"Scroll_bar_visible": false,
 	};
 }) {
@@ -93,8 +93,8 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 
 	React.useEffect(() => {
 		setColor(userSettings.Background_color);
-		setBackgroundColorAuto(userSettings.Automatic_Background_Color);
 		document.body.style.background = userSettings.Background_color;
+		setBackgroundColorAuto(userSettings.Automatic_Background_Color);
 		setSlideShow(userSettings.SlideShow);
 		setSlideShowInterval(userSettings.SlideShow_Time);
 		setMangaMode(userSettings.Manga_Mode);
@@ -301,7 +301,7 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 
 	const [value, setValue] = React.useState(currentPage + 1);
 
-	const [color, setColor] = React.useState('#000000');
+	const [color, setColor] = React.useState('rgba(0,0,0,0)');
 
 	const handleSliderChange = (event: Event, newValue: number | number[]) => {
 		setValue(newValue as number);
@@ -572,7 +572,6 @@ export default function BookSettingsDialog({ onClose, openModal, Reader, LOI, cu
 							</Grid>
 						</Grid2>
 						<FormLabel component="legend">Background color</FormLabel>
-
 						<MuiColorInput value={color} onChange={(e) => {
 							setColor(e);
 							document.body.style.background = e;

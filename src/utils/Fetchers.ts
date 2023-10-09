@@ -264,7 +264,7 @@ function modifyConfigJson(tomod: string | number, mod: any) {
         const option = {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config, null, 2)
         };
-        fetch('/config/writeConfig/' + currentProfile.getToken, option);
+        fetch(PDP + '/config/writeConfig/' + currentProfile.getToken, option);
     }).catch(function (error) {
         Logger.error(error);
     });

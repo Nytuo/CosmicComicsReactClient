@@ -191,10 +191,10 @@ export default function PersistentDrawerLeft() {
         "SlideShow": false,
         "NoBar": false,
         "SideBar": false,
-        "Page_Counter": false,
+        "Page_Counter": true,
         "Vertical_Reader_Mode": false,
-        "Background_color": "#000000",
-        "Scroll_bar_visible": false,
+        "Background_color": "rgb(0,0,0)",
+        "Scroll_bar_visible": true,
     });
 
     async function getUserConfig() {
