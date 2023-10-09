@@ -1,9 +1,8 @@
-import PersistentDrawerLeft from '@/components/ViewerDrawer.tsx';
-import { PDP, checkLogin, currentProfile } from '@/utils/Common.ts';
-import React, { useEffect, useLayoutEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import ViewerDrawer from '@/components/viewer/ViewerDrawer.tsx';
+import {checkLogin, currentProfile, PDP} from '@/utils/Common.ts';
+import {useEffect, useLayoutEffect} from 'react';
+
 function Viewer() {
-    const { t } = useTranslation();
     useEffect(() => {
         document.title = "Viewer";
     }, []);
@@ -16,7 +15,6 @@ function Viewer() {
     }, []);
 
     useEffect(() => {
-
         const fetchLocation = async () => {
 
             await fetch(PDP + "/CosmicDataLoc").then(function (response) {
@@ -27,8 +25,7 @@ function Viewer() {
             await fetch(PDP + "/dirname").then(function (response) {
                 return response.text();
             }).then(function (data) {
-                const dirnameFE = data;
-                localStorage.setItem("CosmicComicsData", dirnameFE + "/CosmicComics_data");
+                localStorage.setItem("CosmicComicsData", data + "/CosmicComics_data");
                 localStorage.setItem("CosmicComicsTempI", localStorage.getItem("CosmicComicsTemp") + "/profiles/" + currentProfile.getName + "/current_book/");
             }).catch(function (error) {
                 console.log(error);
@@ -41,8 +38,7 @@ function Viewer() {
 
     return (
         <>
-            <PersistentDrawerLeft />
-
+            <ViewerDrawer/>
         </>
     );
 }

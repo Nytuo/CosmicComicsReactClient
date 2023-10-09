@@ -1,6 +1,6 @@
-import { ToasterHandler } from "@/components/ToasterHandler.tsx";
+import {ToasterHandler} from "@/components/common/ToasterHandler.tsx";
 import logger from "@/logger.ts";
-import { PDP, currentProfile } from "@/utils/Common.ts";
+import {currentProfile, PDP} from "@/utils/Common.ts";
 
 /**
  * Marvel class for interacting with the Marvel API.
@@ -100,4 +100,5 @@ class Marvel {
         });
     }
 }
-export { Marvel };
+
+export {Marvel};

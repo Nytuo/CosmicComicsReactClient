@@ -1,5 +1,5 @@
 import logger from "@/logger.ts";
-import { PDP, currentProfile } from "@/utils/Common.ts";
+import {currentProfile, PDP} from "@/utils/Common.ts";
 
 /**
  * A class representing the OpenLibrary API.
@@ -45,4 +45,4 @@ class OpenLibrary {
     }
 }
 
-export { OpenLibrary };
+export {OpenLibrary};

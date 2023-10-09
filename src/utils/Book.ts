@@ -1,322 +1,347 @@
-import { PDP } from "../utils/Common.ts";
-import { IBook } from "../interfaces/IBook.ts";
+import {PDP} from "../utils/Common.ts";
+import {IBook} from "../interfaces/IBook.ts";
+
 /**
  * Class representing a book
  */
 
 class Book implements IBook {
-  private _ID_book: string;
-  private _NOM: string;
-  private _URLCover: any;
-  private _description: string;
-  private _creators: any;
-  private _characters: any;
-  private _URLs: any;
-  private _note: number | null;
-  private _read: number;
-  private _reading: number;
-  private _unread: number;
-  private _favorite: number;
-  private _last_page: number;
-  private _folder: any;
-  private _PATH: string;
-  private _issueNumber: string;
-  private _format: any;
-  private _pageCount: number;
-  private _series: any;
-  private _prices: any;
-  private _dates: any;
-  private _collectedIssues: any;
-  private _collections: any;
-  private _variants: any;
-  private _lock: number;
-  private _API_ID: string;
-  constructor(ID_book: string, NOM: string, URLCover: any, description: string, creators: any, characters: any, URLs: any, note: number | null, read: number, reading: number, unread: number, favorite: number, last_page: number, folder: any, PATH: string, issueNumber: string, format: any, pageCount: number, series: any, prices: any, dates: any, collectedIssues: any, collections: any, variants: any, lock: number, API_ID: string) {
-    this._ID_book = ID_book;
-    this._NOM = NOM;
-    this._URLCover = URLCover;
-    this._description = description;
-    this._creators = creators;
-    this._characters = characters;
-    this._URLs = URLs;
-    this._note = note;
-    this._read = read;
-    this._reading = reading;
-    this._unread = unread;
-    this._favorite = favorite;
-    this._last_page = last_page;
-    this._folder = folder;
-    this._PATH = PATH;
-    this._issueNumber = issueNumber;
-    this._format = format;
-    this._pageCount = pageCount;
-    this._series = series;
-    this._prices = prices;
-    this._dates = dates;
-    this._collectedIssues = collectedIssues;
-    this._collections = collections;
-    this._variants = variants;
-    this._lock = lock;
-    this._API_ID = API_ID;
-  }
+    constructor(ID_book: string, NOM: string, URLCover: any, description: string, creators: any, characters: any, URLs: any, note: number | null, read: number, reading: number, unread: number, favorite: number, last_page: number, folder: any, PATH: string, issueNumber: string, format: any, pageCount: number, series: any, prices: any, dates: any, collectedIssues: any, collections: any, variants: any, lock: number, API_ID: string) {
+        this._ID_book = ID_book;
+        this._NOM = NOM;
+        this._URLCover = URLCover;
+        this._description = description;
+        this._creators = creators;
+        this._characters = characters;
+        this._URLs = URLs;
+        this._note = note;
+        this._read = read;
+        this._reading = reading;
+        this._unread = unread;
+        this._favorite = favorite;
+        this._last_page = last_page;
+        this._folder = folder;
+        this._PATH = PATH;
+        this._issueNumber = issueNumber;
+        this._format = format;
+        this._pageCount = pageCount;
+        this._series = series;
+        this._prices = prices;
+        this._dates = dates;
+        this._collectedIssues = collectedIssues;
+        this._collections = collections;
+        this._variants = variants;
+        this._lock = lock;
+        this._API_ID = API_ID;
+    }
 
-  //TODO Make a constructor that can take some of the parameters and fill the rest with null
+    private _ID_book: string;
 
-  get API_ID() {
-    return this._API_ID;
-  }
+    get ID_book() {
+        return this._ID_book;
+    }
 
-  set API_ID(value) {
-    this._API_ID = value;
-  }
+    set ID_book(value) {
+        this._ID_book = value;
+    }
 
-  get ID_book() {
-    return this._ID_book;
-  }
+    private _NOM: string;
 
-  set ID_book(value) {
-    this._ID_book = value;
-  }
+    get NOM() {
+        return this._NOM;
+    }
 
-  get NOM() {
-    return this._NOM;
-  }
+    set NOM(value) {
+        this._NOM = value;
+    }
 
-  set NOM(value) {
-    this._NOM = value;
-  }
+    private _URLCover: any;
 
-  get URLCover() {
-    return this._URLCover;
-  }
+    get URLCover() {
+        return this._URLCover;
+    }
 
-  set URLCover(value) {
-    this._URLCover = value;
-  }
+    set URLCover(value) {
+        this._URLCover = value;
+    }
 
-  get description() {
-    return this._description;
-  }
+    private _description: string;
 
-  set description(value) {
-    this._description = value;
-  }
+    get description() {
+        return this._description;
+    }
 
-  get creators() {
-    return this._creators;
-  }
+    set description(value) {
+        this._description = value;
+    }
 
-  set creators(value) {
-    this._creators = value;
-  }
+    private _creators: any;
 
-  get characters() {
-    return this._characters;
-  }
+    get creators() {
+        return this._creators;
+    }
 
-  set characters(value) {
-    this._characters = value;
-  }
+    set creators(value) {
+        this._creators = value;
+    }
 
-  get URLs() {
-    return this._URLs;
-  }
+    private _characters: any;
 
-  set URLs(value) {
-    this._URLs = value;
-  }
+    get characters() {
+        return this._characters;
+    }
 
-  get note() {
-    return this._note;
-  }
+    set characters(value) {
+        this._characters = value;
+    }
 
-  set note(value) {
-    this._note = value;
-  }
+    private _URLs: any;
 
-  get read() {
-    return this._read;
-  }
+    get URLs() {
+        return this._URLs;
+    }
 
-  set read(value) {
-    this._read = value;
-  }
+    set URLs(value) {
+        this._URLs = value;
+    }
 
-  get reading() {
-    return this._reading;
-  }
+    private _note: number | null;
 
-  set reading(value) {
-    this._reading = value;
-  }
+    get note() {
+        return this._note;
+    }
 
-  get unread() {
-    return this._unread;
-  }
+    set note(value) {
+        this._note = value;
+    }
 
-  set unread(value) {
-    this._unread = value;
-  }
+    private _read: number;
 
-  get favorite() {
-    return this._favorite;
-  }
+    get read() {
+        return this._read;
+    }
 
-  set favorite(value) {
-    this._favorite = value;
-  }
+    set read(value) {
+        this._read = value;
+    }
 
-  get last_page() {
-    return this._last_page;
-  }
+    private _reading: number;
 
-  set last_page(value) {
-    this._last_page = value;
-  }
+    get reading() {
+        return this._reading;
+    }
 
-  get folder() {
-    return this._folder;
-  }
+    set reading(value) {
+        this._reading = value;
+    }
 
-  set folder(value) {
-    this._folder = value;
-  }
+    private _unread: number;
 
-  get PATH() {
-    return this._PATH;
-  }
+    get unread() {
+        return this._unread;
+    }
 
-  set PATH(value) {
-    this._PATH = value;
-  }
+    set unread(value) {
+        this._unread = value;
+    }
 
-  get issueNumber() {
-    return this._issueNumber;
-  }
+    private _favorite: number;
 
-  set issueNumber(value) {
-    this._issueNumber = value;
-  }
+    get favorite() {
+        return this._favorite;
+    }
 
-  get format() {
-    return this._format;
-  }
+    set favorite(value) {
+        this._favorite = value;
+    }
 
-  set format(value) {
-    this._format = value;
-  }
+    private _last_page: number;
 
-  get pageCount() {
-    return this._pageCount;
-  }
+    get last_page() {
+        return this._last_page;
+    }
 
-  set pageCount(value) {
-    this._pageCount = value;
-  }
+    set last_page(value) {
+        this._last_page = value;
+    }
 
-  get series() {
-    return this._series;
-  }
+    private _folder: any;
 
-  set series(value) {
-    this._series = value;
-  }
+    get folder() {
+        return this._folder;
+    }
 
-  get prices() {
-    return this._prices;
-  }
+    set folder(value) {
+        this._folder = value;
+    }
 
-  set prices(value) {
-    this._prices = value;
-  }
+    private _PATH: string;
 
-  get dates() {
-    return this._dates;
-  }
+    get PATH() {
+        return this._PATH;
+    }
 
-  set dates(value) {
-    this._dates = value;
-  }
+    set PATH(value) {
+        this._PATH = value;
+    }
 
-  get collectedIssues() {
-    return this._collectedIssues;
-  }
+    private _issueNumber: string;
 
-  set collectedIssues(value) {
-    this._collectedIssues = value;
-  }
+    get issueNumber() {
+        return this._issueNumber;
+    }
 
-  get collections() {
-    return this._collections;
-  }
+    set issueNumber(value) {
+        this._issueNumber = value;
+    }
 
-  set collections(value) {
-    this._collections = value;
-  }
+    private _format: any;
 
-  get variants() {
-    return this._variants;
-  }
+    get format() {
+        return this._format;
+    }
 
-  set variants(value) {
-    this._variants = value;
-  }
+    set format(value) {
+        this._format = value;
+    }
 
-  get lock() {
-    return this._lock;
-  }
+    private _pageCount: number;
 
-  set lock(value) {
-    this._lock = value;
-  }
+    get pageCount() {
+        return this._pageCount;
+    }
 
-  get book() {
-    return {
-      ID_book: this._ID_book,
-      NOM: this._NOM,
-      URLCover: this._URLCover,
-      description: this._description,
-      creators: this._creators,
-      characters: this._characters,
-      URLs: this._URLs,
-      note: this._note,
-      read: this._read,
-      reading: this._reading,
-      unread: this._unread,
-      favorite: this._favorite,
-      last_page: this._last_page,
-      folder: this._folder,
-      PATH: this._PATH,
-      issueNumber: this._issueNumber,
-      format: this._format,
-      pageCount: this._pageCount,
-      series: this._series,
-      prices: this._prices,
-      dates: this._dates,
-      collectedIssues: this._collectedIssues,
-      collections: this._collections,
-      variants: this._variants,
-      lock: this._lock,
-      API_ID: this._API_ID
-    };
-  }
+    set pageCount(value) {
+        this._pageCount = value;
+    }
 
-  /**
-   * Download a book from the server
-   * @param PATH the PATH of the book
-   * @return {Promise<void>} the promise
-   */
-  async downloadBook(PATH: any) {
-    const option = {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-        PATH: PATH
-      }, null, 2)
-    };
-    console.log(option);
-    await fetch(PDP + '/DL', option).then(() => {
-      window.open(PDP + "/getDLBook", "_blank");
-    });
-  }
+    private _series: any;
+
+    get series() {
+        return this._series;
+    }
+
+    set series(value) {
+        this._series = value;
+    }
+
+    private _prices: any;
+
+    get prices() {
+        return this._prices;
+    }
+
+    set prices(value) {
+        this._prices = value;
+    }
+
+    private _dates: any;
+
+    get dates() {
+        return this._dates;
+    }
+
+    set dates(value) {
+        this._dates = value;
+    }
+
+    private _collectedIssues: any;
+
+    get collectedIssues() {
+        return this._collectedIssues;
+    }
+
+    set collectedIssues(value) {
+        this._collectedIssues = value;
+    }
+
+    private _collections: any;
+
+    get collections() {
+        return this._collections;
+    }
+
+    set collections(value) {
+        this._collections = value;
+    }
+
+    private _variants: any;
+
+    get variants() {
+        return this._variants;
+    }
+
+    set variants(value) {
+        this._variants = value;
+    }
+
+    private _lock: number;
+
+    get lock() {
+        return this._lock;
+    }
+
+    set lock(value) {
+        this._lock = value;
+    }
+
+    private _API_ID: string;
+
+    get API_ID() {
+        return this._API_ID;
+    }
+
+    set API_ID(value) {
+        this._API_ID = value;
+    }
+
+    get book() {
+        return {
+            ID_book: this._ID_book,
+            NOM: this._NOM,
+            URLCover: this._URLCover,
+            description: this._description,
+            creators: this._creators,
+            characters: this._characters,
+            URLs: this._URLs,
+            note: this._note,
+            read: this._read,
+            reading: this._reading,
+            unread: this._unread,
+            favorite: this._favorite,
+            last_page: this._last_page,
+            folder: this._folder,
+            PATH: this._PATH,
+            issueNumber: this._issueNumber,
+            format: this._format,
+            pageCount: this._pageCount,
+            series: this._series,
+            prices: this._prices,
+            dates: this._dates,
+            collectedIssues: this._collectedIssues,
+            collections: this._collections,
+            variants: this._variants,
+            lock: this._lock,
+            API_ID: this._API_ID
+        };
+    }
+
+    /**
+     * Download a book from the server
+     * @param PATH the PATH of the book
+     * @return {Promise<void>} the promise
+     */
+    async downloadBook(PATH: any): Promise<void> {
+        const option = {
+            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+                PATH: PATH
+            }, null, 2)
+        };
+        console.log(option);
+        await fetch(PDP + '/DL', option).then(() => {
+            window.open(PDP + "/getDLBook", "_blank");
+        });
+    }
 }
 
 export default Book;

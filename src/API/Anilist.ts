@@ -1,6 +1,6 @@
-import { ToasterHandler } from "@/components/ToasterHandler.tsx";
+import {ToasterHandler} from "@/components/common/ToasterHandler.tsx";
 import logger from "@/logger.ts";
-import { PDP, currentProfile } from "@/utils/Common.ts";
+import {currentProfile, PDP} from "@/utils/Common.ts";
 
 /**
  * Represents a class that interacts with the Anilist API to search and add manga to the database.
@@ -35,7 +35,7 @@ class Anilist {
      * @param {string} name The name of the manga
      * @return {Promise<*>} The list of mangas
      */
-    async GET_SEARCH(name: string) {
+    async GET_SEARCH(name: string): Promise<any> {
         return fetch(PDP + "/api/anilist/searchOnly/" + name).then(function (response) {
             return response.text();
         }).then(function (data) {
@@ -70,4 +70,4 @@ class Anilist {
     }
 }
 
-export { Anilist };
+export {Anilist};

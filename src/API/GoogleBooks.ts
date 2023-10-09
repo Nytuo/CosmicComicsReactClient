@@ -1,5 +1,5 @@
 import logger from "@/logger.ts";
-import { PDP, currentProfile } from "@/utils/Common.ts";
+import {currentProfile, PDP} from "@/utils/Common.ts";
 
 /**
  * A class for interacting with the Google Books API.
@@ -11,7 +11,7 @@ class GoogleBooks {
      * @param {string} path The path of the book.
      * @returns A Promise that resolves to the book data.
      */
-    async InsertBook(name = "", path: string) {
+    async InsertBook(name: string = "", path: string) {
         return fetch(PDP + "/insert/googlebooks/book/", {
             method: "GET",
             headers: {
@@ -50,4 +50,4 @@ class GoogleBooks {
     }
 }
 
-export { GoogleBooks };
+export {GoogleBooks};

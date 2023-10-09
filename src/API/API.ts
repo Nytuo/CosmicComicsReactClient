@@ -1,7 +1,7 @@
-import { ToasterHandler } from "@/components/ToasterHandler.tsx";
+import {ToasterHandler} from "@/components/common/ToasterHandler.tsx";
 import logger from "@/logger.ts";
-import { PDP, currentProfile } from "@/utils/Common.ts";
-import { DetectFolderInLibrary, getFromDB } from "@/utils/Fetchers.ts";
+import {currentProfile, PDP} from "@/utils/Common.ts";
+import {DetectFolderInLibrary, getFromDB} from "@/utils/Fetchers.ts";
 
 /**
  * Represents an API class that provides methods for refreshing metadata and launching metadata refresh.
@@ -31,6 +31,7 @@ class API {
             });
         });
     }
+
     /**
      * Rematch the element of old_id by the new_id
      * @param {string} new_id New id
@@ -39,7 +40,7 @@ class API {
      * @param {string} old_id The old id
      * @param {boolean} isSeries Is the element a series
      */
-    async rematch(new_id: string, provider: number, type: string, old_id: string, isSeries = false) {
+    async rematch(new_id: string, provider: number, type: string, old_id: string, isSeries: boolean = false) {
         logger.info("Rematching " + old_id + " to " + new_id + " from " + provider + " (" + type + ")");
         await fetch(PDP + "/DB/update", {
             method: "POST", headers: {
@@ -89,4 +90,4 @@ class API {
     }
 }
 
-export { API };
+export {API};

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/cosmic-comics-react-client-vite.iml" filepath="$PROJECT_DIR$/.idea/cosmic-comics-react-client-vite.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/CosmicComicsReactClient.iml" filepath="$PROJECT_DIR$/.idea/CosmicComicsReactClient.iml" />
     </modules>
   </component>
 </project>

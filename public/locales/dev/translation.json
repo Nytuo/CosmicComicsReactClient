@@ -313,5 +313,7 @@
             "wrong_password" : "dev",
             "no_password" : "dev"
         },
-        "back": "dev"
+        "back": "dev",
+        "Continue": "dev",
+        "Last_step": "dev"
     }

@@ -12,6 +12,7 @@ export default class Logger {
     static info(message: string) {
         console.log("%c [INFO] " + JSON.stringify(message), "background: rgb(46,46,254);");
     }
+
     /**
      * Logs an error message to the console with a red color.
      * @param message - The error message to log.
@@ -19,6 +20,7 @@ export default class Logger {
     static error(message: string) {
         console.error("%c [ERROR] " + JSON.stringify(message));
     }
+
     /**
      * Logs a warning message to the console with a custom color.
      * @param message - The message to log.
@@ -26,6 +28,7 @@ export default class Logger {
     static warn(message: string) {
         console.warn("%c [WARN] " + JSON.stringify(message), "background: rgb(141,84,14);");
     }
+
     /**
      * Logs a debug message to the console with a green color.
      * @param message - The message to log.

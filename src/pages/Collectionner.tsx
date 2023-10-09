@@ -1,12 +1,11 @@
-import MiniDrawer from '@/components/Drawer.tsx';
-import { PDP, checkLogin } from '@/utils/Common.ts';
-import React, { useEffect, useLayoutEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import CollectionnerDrawer from '@/components/collectionner/Drawer.tsx';
+import {checkLogin, PDP} from '@/utils/Common.ts';
+import React, {useEffect, useLayoutEffect} from 'react';
+
 function Collectionner() {
-    const { t } = useTranslation();
-    const [CosmicComicsData, setCosmicComicsData] = React.useState("C:/Users/Public/Cosmic-Comics/data");
+    const [, setCosmicComicsData] = React.useState("C:/Users/Public/Cosmic-Comics/data");
     const [CosmicComicsTemp, setCosmicComicsTemp] = React.useState("C:/Users/Public/Cosmic-Comics/temp");
-    const [CosmicComicsTempI, setCosmicComicsTempI] = React.useState("setCosmicComicsData");
+    const [, setCosmicComicsTempI] = React.useState("setCosmicComicsData");
     useEffect(() => {
         document.title = "Collectionner";
     }, []);
@@ -30,8 +29,7 @@ function Collectionner() {
             await fetch(PDP + "/dirname").then(function (response) {
                 return response.text();
             }).then(function (data) {
-                const dirnameFE = data;
-                setCosmicComicsData(dirnameFE + "/CosmicComics_data");
+                setCosmicComicsData(data + "/CosmicComics_data");
                 setCosmicComicsTempI(CosmicComicsTemp + "/current_book/");
             }).catch(function (error) {
                 console.log(error);
@@ -43,9 +41,9 @@ function Collectionner() {
     }, []);
     return (
         <>
-            <MiniDrawer CosmicComicsTemp={
+            <CollectionnerDrawer CosmicComicsTemp={
                 CosmicComicsTemp
-            } />
+            }/>
 
         </>
     );

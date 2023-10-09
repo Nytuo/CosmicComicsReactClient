@@ -1,6 +1,6 @@
-import { translateString } from "@/i18n.ts";
+import {translateString} from "@/i18n.ts";
 import Logger from "@/logger.ts";
-import { PDP, currentProfile } from "@/utils/Common.ts";
+import {currentProfile, PDP} from "@/utils/Common.ts";
 
 /**
  * Make a request to the DB and get the data
@@ -8,9 +8,9 @@ import { PDP, currentProfile } from "@/utils/Common.ts";
  * @param request The SQL(ite) request
  * @returns {Promise<string>} The data returned by the DB
  */
-async function getFromDB(dbname: string, request: string) {
+async function getFromDB(dbname: string, request: string): Promise<string | void> {
     const option = {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
             "request": request
         }, null, 2)
     };
@@ -24,6 +24,7 @@ async function getFromDB(dbname: string, request: string) {
         Logger.error(error);
     });
 }
+
 /**
  * Insert values in a specific table of the DB
  * @param {string} dbname The name of the DB
@@ -32,18 +33,19 @@ async function getFromDB(dbname: string, request: string) {
  */
 async function InsertIntoDB(dbname: string, dbinfo: string, values: string) {
     const option = {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
             "into": dbinfo, "val": values
         }, null, 2)
     };
     return fetch(PDP + '/DB/insert/' + currentProfile.getToken + "/" + dbname, option);
 }
+
 /**
  * Scan for folders in the library
  * @param {string} result The path to the library
  * @returns {Promise<string[]>} The list of folders
  */
-async function DetectFolderInLibrary(result: string) {
+async function DetectFolderInLibrary(result: string): Promise<string | void> {
     result = result.replaceAll("\\", "/");
     result = result.replaceAll("//", "/");
     result = result.replaceAll("/", "ù");
@@ -55,6 +57,7 @@ async function DetectFolderInLibrary(result: string) {
         console.log(error);
     });
 }
+
 /**
  * Add a new library
  * @param {{form: HTMLElement[]}} forma The form to get the data (The HTML element)
@@ -71,9 +74,9 @@ async function addLibrary(forma: any) {
  * @param {{form: HTMLElement}} forma The form to get the data (The HTML element)
  * @param {string} id The id of the library
  */
-async function updateLibrary(forma: HTMLFormElement, id: string) {
+async function updateLibrary(forma: { form: any[] }, id: string) {
     const option = {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
             "name": forma.form[0], "path": forma.form[1], "api_id": forma.form[2]
         }, null, 2)
     };
@@ -174,14 +177,15 @@ async function DeleteFromDB(dbName: string, id: string, option: string) {
     const connected = currentProfile.getToken;
     return fetch(PDP + '/DB/delete/' + connected + "/" + dbName + "/" + id + "/" + option);
 }
+
 /**
  * Download a book from the server
  * @param path the path of the book
  * @return {Promise<void>} the promise
  */
-async function downloadBook(path: string) {
+async function downloadBook(path: string): Promise<void> {
     const option = {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
             path: path
         }, null, 2)
     };
@@ -194,9 +198,9 @@ async function downloadBook(path: string) {
  * Logout the user
  * @return {Promise<void>}
  */
-async function logout() {
+async function logout(): Promise<void> {
     const option = {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }
+        method: 'POST', headers: {'Content-Type': 'application/json'}
     };
     await fetch(PDP + '/profile/logout/' + currentProfile.getToken, option).then(() => {
         window.location.href = 'login';
@@ -262,7 +266,7 @@ function modifyConfigJson(tomod: string | number, mod: any) {
             }
         }
         const option = {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config, null, 2)
+            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(config, null, 2)
         };
         fetch(PDP + '/config/writeConfig/' + currentProfile.getToken, option);
     }).catch(function (error) {
@@ -275,7 +279,7 @@ function modifyConfigJson(tomod: string | number, mod: any) {
  * @param elElement The element to delete
  * @returns {Promise<void>} The response
  */
-async function deleteLib(elElement: any) {
+async function deleteLib(elElement: any): Promise<void> {
     const confirmDelete = confirm(translateString("deleteaccount") + elElement["NAME"] + " ?");
     if (confirmDelete) {
         await fetch(PDP + '/DB/lib/delete/' + currentProfile.getToken + "/" + elElement["ID_LIBRARY"]).then(() => {
@@ -301,9 +305,25 @@ async function AllBooks(filters = ""): Promise<null | any> {
     }
     return await getFromDB("Books", request).then(async (res) => {
         if (res === "" || res === null || res === undefined) return null;
-        const TheBookun = JSON.parse(res);
-        return TheBookun;
+        return JSON.parse(res);
     });
 }
 
-export { getFromDB, InsertIntoDB, DetectFolderInLibrary, addLibrary, updateLibrary, updateBookStatusForAll, updateBookStatusForOne, TrueDeleteFromDB, downloadBook, logout, changeRating, modifyConfigJson, deleteLib, AllBooks, ModifyDB, DeleteFromDB };
+export {
+    getFromDB,
+    InsertIntoDB,
+    DetectFolderInLibrary,
+    addLibrary,
+    updateLibrary,
+    updateBookStatusForAll,
+    updateBookStatusForOne,
+    TrueDeleteFromDB,
+    downloadBook,
+    logout,
+    changeRating,
+    modifyConfigJson,
+    deleteLib,
+    AllBooks,
+    ModifyDB,
+    DeleteFromDB
+};

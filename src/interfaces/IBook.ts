@@ -3,10 +3,10 @@ interface IBook {
     API_ID: string;
     NOM: string;
     note?: any;
-    read: number;
-    reading: number;
-    unread: number;
-    favorite: number;
+    read: number | string;
+    reading: number | string;
+    unread: number | string;
+    favorite: number | string;
     last_page: number;
     folder: number;
     PATH: string;
@@ -27,4 +27,4 @@ interface IBook {
     lock: number;
 }
 
-export type { IBook };
+export type {IBook};
