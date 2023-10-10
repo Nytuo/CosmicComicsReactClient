@@ -1,10 +1,24 @@
 import Profile from "./Profile";
 import {_01toBool, SearchInJSON} from "./utils";
 
-const domain = "localhost";
-const port = 4696;
-const isHttps = false;
-const protocol = isHttps ? "https://" : "http://";
+let domain = localStorage.getItem("hostname");
+let port = localStorage.getItem("port");
+let isHttps = localStorage.getItem("isHTTPS") === "true";
+if (domain === null) domain = "localhost";
+if (port === null) port = "4696";
+if (isHttps === null) isHttps = false;
+let protocol = isHttps ? "https://" : "http://";
+
+
+function changeDomainAndAddr(newAddr: string, newPort: string, isHTTPS: boolean) {
+    localStorage.setItem("hostname", newAddr);
+    localStorage.setItem("port", String(newPort));
+    localStorage.setItem("isHTTPS", String(isHTTPS));
+    domain = newAddr;
+    port = String(newPort);
+    isHttps = isHTTPS;
+    protocol = isHttps ? "https://" : "http://";
+}
 
 /**
  * The protocol, domain and port using in the app
@@ -102,4 +116,4 @@ function checkLogin() {
     }
 }
 
-export {PDP, currentProfile, getCookie, setCookie, checkLogin, cardMode as cardModeEX, setTheme};
+export {PDP, currentProfile, getCookie, setCookie, checkLogin, cardMode as cardModeEX, setTheme, changeDomainAndAddr};

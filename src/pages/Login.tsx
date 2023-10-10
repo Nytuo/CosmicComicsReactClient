@@ -8,17 +8,25 @@ import StarBackground from "@/components/common/StarBackground.tsx";
 import {ToasterHandler} from "@/components/common/ToasterHandler.tsx";
 import {useTranslation} from "react-i18next";
 import {useTheme} from "@mui/material";
+import ChangeServerAddr from "@/components/login/ChangeServerAddr.tsx";
+import {Settings} from "@mui/icons-material";
+import IconButton from "@mui/material/IconButton";
 
 export default function Login() {
     const [openLogin, setOpenLogin] = useState(false);
     const [openCreateAccount, setOpenCreateAccount] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState<IProfile | undefined>();
     const [profiles, setProfiles] = useState<IProfile[]>([]);
+    const [openChangeAddr, setOpenChangeAddr] = useState(false);
+
     const {t} = useTranslation();
     const theme = useTheme();
     const onLoginModalClose = () => {
         setOpenLogin(false);
     };
+    const onChangeAddrClose = () => {
+        setOpenChangeAddr(false);
+    }
     const servConfig = (name: HTMLInputElement, pass: HTMLInputElement, aport: HTMLInputElement): void => {
         setOpenCreateAccount(false);
         fetch(PDP + "/configServ/" + name.value + "/" + pass.value + "/" + aport.value, {method: 'POST'}).then((response) => response.text()).then((data) => {
@@ -39,8 +47,9 @@ export default function Login() {
     }, []);
 
     useEffect(() => {
-        discover();
-    }, []);
+        if (openChangeAddr) return;
+        else discover();
+    }, [openChangeAddr]);
     const discover = (): void => {
         fetch(PDP + "/profile/discover", {cache: 'no-store'}).then(function (response) {
             return response.text();
@@ -58,17 +67,28 @@ export default function Login() {
     };
     return (
         <div style={{width: "100vw", height: "100vh", background: theme.palette.background.default}}>
+            <IconButton
+                onClick={() => {
+                    setOpenChangeAddr(true);
+                }}
+            >
+                <Settings/>
+            </IconButton>
             <StarBackground/>
             <div style={{paddingTop: "100px", textAlign: 'center', width: "100%"}}>
                 <h1 id="whosreading">{t("whosreading")}</h1>
             </div>
             <div id="login_discover">
-                {profiles.map((profile, index) => {
-                    return (
-                        <LoginCard profile={profile} key={index} setOpenLogin={setOpenLogin}
-                                   setSelectedProfile={setSelectedProfile}/>
-                    );
-                })}
+                {
+                    (profiles.length === 0) ? <h1>{t("noProfile")}</h1> : <>
+                        {profiles.map((profile, index) => {
+                        return (
+                            <LoginCard profile={profile} key={index} setOpenLogin={setOpenLogin}
+                                       setSelectedProfile={setSelectedProfile}/>
+                        );
+                    })}</>
+                }
+
             </div>
             <LoginDialog openModal={openLogin} onClose={onLoginModalClose} title={t("login")}
                          text={t("InsertPassword")} okBtn={t("loginInBtn")} cancelBtn={t("cancel")}
@@ -76,6 +96,8 @@ export default function Login() {
             <CreateAccountDialog openModal={openCreateAccount} title={t("firstConfig")}
                                  text={t("createFirstAccount")}
                                  createFunction={servConfig}/>
+            <ChangeServerAddr onClose={onChangeAddrClose} openModal={openChangeAddr}
+                             okBtn={t("change")} cancelBtn={t("cancel")}/>
         </div>
     );
 }
