@@ -9,6 +9,7 @@ import Menu from '@mui/material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import {t} from "i18next";
 
 /**
  * A navigation bar component that displays a logo and menu options for desktop and mobile views.
@@ -51,8 +52,8 @@ export default function Navbar() {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-            <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+            <MenuItem onClick={handleMenuClose}>{t('profile')}</MenuItem>
+            <MenuItem onClick={handleMenuClose}>{t('myAccount')}</MenuItem>
         </Menu>
     );
 
@@ -74,36 +75,35 @@ export default function Navbar() {
             onClose={handleMobileMenuClose}
         >
             <MenuItem>
-                <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+                <IconButton size="large" color="inherit">
                     <Badge badgeContent={4} color="error">
                         <MailIcon/>
                     </Badge>
                 </IconButton>
-                <p>Messages</p>
+                <p>{t('messages')}</p>
             </MenuItem>
             <MenuItem>
                 <IconButton
                     size="large"
-                    aria-label="show 17 new notifications"
                     color="inherit"
                 >
                     <Badge badgeContent={17} color="error">
                         <NotificationsIcon/>
                     </Badge>
                 </IconButton>
-                <p>Notifications</p>
+                <p>{t('notifications')}</p>
             </MenuItem>
             <MenuItem onClick={handleProfileMenuOpen}>
                 <IconButton
                     size="large"
-                    aria-label="account of current user"
+                    aria-label={t('accountOfCurrentUser')}
                     aria-controls="primary-search-account-menu"
                     aria-haspopup="true"
                     color="inherit"
                 >
                     <AccountCircle/>
                 </IconButton>
-                <p>Profile</p>
+                <p>{t('profile')}</p>
             </MenuItem>
         </Menu>
     );

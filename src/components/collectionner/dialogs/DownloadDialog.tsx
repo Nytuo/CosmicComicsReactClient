@@ -96,9 +96,9 @@ export default function DownloadDialog({onClose, openModal, CosmicComicsTemp}: {
                         autoComplete="off"
                     >
                         <Stack spacing={2}>
-                            <TextField id="id_NAME_DL" label="Name of the series" variant="outlined"/>
-                            <TextField id="id_VOL_DL" label="Chapter / Volume" variant="outlined"/>
-                            <TextField id="id_URLDL" label="URL" variant="outlined"/>
+                            <TextField id="id_NAME_DL" label={t('nameOfTheSeries')} variant="outlined"/>
+                            <TextField id="id_VOL_DL" label={t('chapterVolume')} variant="outlined"/>
+                            <TextField id="id_URLDL" label={t('url')} variant="outlined"/>
                         </Stack>
                     </Box>
                     <Box

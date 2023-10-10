@@ -55,21 +55,21 @@ export default function ChangeServerAddr({onClose, openModal, okBtn, cancelBtn}:
         <div>
             <Dialog open={open} onClose={handleClose} fullWidth={true}
                     maxWidth="md">
-                <DialogTitle>Manage server</DialogTitle>
+                <DialogTitle>{t('manageServer')}</DialogTitle>
                 <DialogContent>
-                    <h3>Current Config</h3>
+                    <h3>{t('currentConfig')}</h3>
                     <div style={{margin: "15px"}}>
-                        <h4>Web Interface</h4>
-                        <p>HOST: {window.location.hostname}</p>
-                        <p>PORT: {window.location.port}</p>
-                        <p>HTTPS: {window.location.protocol === "https:" ? "true" : "false"}</p>
+                        <h4>{t('webInterface')}</h4>
+                        <p>{t('host')} {window.location.hostname}</p>
+                        <p>{t('port')} {window.location.port}</p>
+                        <p>{t('https')} {window.location.protocol === "https:" ? "true" : "false"}</p>
 
-                        <h4>Server</h4>
-                        <p>HOST: {localStorage.getItem("hostname")}</p>
-                        <p>PORT: {localStorage.getItem("port")}</p>
-                        <p>HTTPS: {localStorage.getItem("isHTTPS") === "true" ? "true" : "false"}</p>
+                        <h4>{t('server')}</h4>
+                        <p>{t('host')} {localStorage.getItem("hostname")}</p>
+                        <p>{t('port')} {localStorage.getItem("port")}</p>
+                        <p>{t('https')} {localStorage.getItem("isHTTPS") === "true" ? "true" : "false"}</p>
                     </div>
-                    <h3>Change the SERVER config</h3>
+                    <h3>{t('changeTheServerConfig')}</h3>
                     <TextField
                         autoFocus
                         margin="dense"
@@ -90,7 +90,7 @@ export default function ChangeServerAddr({onClose, openModal, okBtn, cancelBtn}:
                     <FormControlLabel control={<Checkbox id='newIsHTTPSForChange'
                                                          defaultChecked={true}
                     />}
-                                      label="Does this server use HTTPS ?"/>
+                                      label={t('doesThisServerUseHttps')}/>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>{cancelBtn}</Button>

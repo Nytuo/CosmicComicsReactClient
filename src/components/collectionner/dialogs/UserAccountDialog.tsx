@@ -109,7 +109,7 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
                                                         }
                                                         }
                                                         style={{width: "60px", height: "60px", marginLeft: "5px"}}
-                                                        alt="Account profile picture"/></Badge>
+                                                        alt={t('accountProfilePicture')}/></Badge>
                                                 );
                                             } else {
                                                 return (
@@ -126,7 +126,7 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
                                                          }
                                                          }
                                                          style={{width: "60px", height: "60px", marginLeft: "5px"}}
-                                                         alt="Account profile picture"/>
+                                                         alt={t('accountProfilePicture')}/>
                                                 );
                                             }
 
@@ -187,7 +187,7 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
                                                             src={"Images/account_default/" + index + ".jpg"}
                                                             id='newImage'
                                                             style={{width: "60px", height: "60px", marginLeft: "5px"}}
-                                                            alt="Account profile picture"/></Badge>
+                                                            alt={t('accountProfilePicture')}/></Badge>
                                                     );
                                                 } else {
                                                     return (
@@ -197,7 +197,7 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
                                                              }
                                                              }
                                                              style={{width: "60px", height: "60px", marginLeft: "5px"}}
-                                                             alt="Account profile picture"/>
+                                                             alt={t('accountProfilePicture')}/>
                                                     );
                                                 }
 

@@ -104,7 +104,7 @@ export default function AddingLibraryDialog({onClose, openModal, type = "add", o
                                             setProvider(provider.target.value);
                                         }}
                                     >
-                                        <MenuItem value={1}>Marvel (Comics Marvel & Star Wars)</MenuItem>
+                                        <MenuItem value={1}>Marvel (Marvel & Star Wars)</MenuItem>
                                         <MenuItem value={2}>Anilist (Manga)</MenuItem>
                                         <MenuItem value={3}>Open Library</MenuItem>
                                         <MenuItem value={4}>Google Books</MenuItem>

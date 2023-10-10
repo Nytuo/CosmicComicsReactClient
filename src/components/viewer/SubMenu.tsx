@@ -50,7 +50,7 @@ export default function SubMenu({
     return (
         <div>
             <IconButton
-                aria-label="more"
+                aria-label={t('more')}
                 id="long-button"
                 aria-controls={open ? 'long-menu' : undefined}
                 aria-expanded={open ? 'true' : undefined}

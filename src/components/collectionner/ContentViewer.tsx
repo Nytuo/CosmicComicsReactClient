@@ -1010,13 +1010,13 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                 {
                                                     (provider === providerEnum.Marvel) ? <Box>
                                                             <Avatar sx={{width: 120, height: 120}}
-                                                                    alt='a character'
+                                                                    alt={t('aCharacter')}
                                                                     src={tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]}/>
                                                             <Typography>{el.name}</Typography></Box> :
                                                         (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ?
                                                             <Box sx={{textAlign: "center"}}>
                                                                 <Avatar sx={{width: 120, height: 120}}
-                                                                        alt='a character'
+                                                                        alt={t('aCharacter')}
                                                                         src={el.image.replaceAll('"', '')}/><Typography
                                                                 textAlign={"center"}>{el.name}</Typography></Box> : ""
                                                 }

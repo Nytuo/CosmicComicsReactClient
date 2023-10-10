@@ -75,11 +75,11 @@ export default function APISelectorDialog({onClose, openModal}: {
                                 }
                             }}
                         >
-                            <MenuItem value={1}>Marvel (Comics Marvel & Star Wars)</MenuItem>
+                            <MenuItem value={1}>Marvel (Marvel & Star Wars)</MenuItem>
                             <MenuItem value={2}>Anilist (Manga)</MenuItem>
                             <MenuItem value={3}>Open Library</MenuItem>
                             <MenuItem value={4}>Google Books</MenuItem>
-                            <MenuItem value={0}>MANUAL</MenuItem>
+                            <MenuItem value={0}>{t('manual')}</MenuItem>
                         </Select>
                     </FormControl>
 

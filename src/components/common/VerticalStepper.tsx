@@ -90,7 +90,7 @@ export default function VerticalStepper({steps, onFinish}: { steps: any[]; onFin
                 <Paper square elevation={0} sx={{p: 3}}>
                     <Typography>{t("All_steps_completed")}</Typography>
                     <Button onClick={handleReset} sx={{mt: 1, mr: 1}}>
-                        Reset
+                        {t('reset')}
                     </Button>
                 </Paper>
             )}

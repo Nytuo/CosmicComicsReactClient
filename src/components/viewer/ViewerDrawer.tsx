@@ -919,10 +919,10 @@ export default function PersistentDrawerLeft() {
                 <CssBaseline/>
                 <AppBar position="fixed" open={open}>
                     <Toolbar>
-                        <Tooltip title="Open Drawer">
+                        <Tooltip title={t('openDrawer')}>
                             <IconButton
                                 color="inherit"
-                                aria-label="open drawer"
+                                aria-label={t('openDrawer')}
                                 onClick={handleDrawerOpen}
                                 edge="start"
                                 sx={{mr: 2, ...(open && {display: 'none'})}}

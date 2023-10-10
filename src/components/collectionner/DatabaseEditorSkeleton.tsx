@@ -4,6 +4,7 @@ import {IBook} from '@/interfaces/IBook.ts';
 import {currentProfile, PDP} from '@/utils/Common.ts';
 import {Checkbox, FormControlLabel} from '@mui/material';
 import {ToasterHandler} from '../common/ToasterHandler.tsx';
+import {t} from "i18next";
 
 /**
  * A skeleton component for editing a book or series in the database.
@@ -115,15 +116,12 @@ export default function DatabaseEditorSkeleton({TheBook, type, triggerSend, trac
 
     return (
         <div>
-            Warning : Be careful when you modify those fields, DO NOT change the way they are written. If an item
-            have '"', {} or [] at the beginning and at the end DO NOT remove them change only the
-            content. The required fields have to respect this
-            pattern.
+            {t('warningBeCarefulWhenYouModifyThoseFieldsDoNotChang')}
             <div id="commonEdit">
                 <FormControlLabel control={<Checkbox id='lockCheck'
                                                      defaultChecked={TheBook.lock === 1}
                 />}
-                                  label="Lock this item ? (That prevent the metadata to be overwritten when refresh and disable rematch)"/>
+                                  label={t('lockThisItemThatPreventTheMetadataToBeOverwrittenW')}/>
 
                 <TextField
                     autoFocus

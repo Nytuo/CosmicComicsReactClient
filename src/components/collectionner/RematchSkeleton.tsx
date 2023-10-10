@@ -33,8 +33,8 @@ export default function RematchSkeleton({provider, type, oldID}: {
                 marginTop: "20px",
             }}
         >
-            <TextField id="rematchSearch" label="Search title in the library's API" variant="outlined"/>
-            <TextField id="rematchYearSearch" label="Year (optional)" variant="outlined"/>
+            <TextField id="rematchSearch" label={t('searchTitleInTheLibrarysApi')} variant="outlined"/>
+            <TextField id="rematchYearSearch" label={t('yearOptional')} variant="outlined"/>
             <Button id="rematchSearchSender"
                     onClick={
                         () => {
@@ -159,7 +159,7 @@ export default function RematchSkeleton({provider, type, oldID}: {
 
                         }
                     }
-            >Search</Button>
+            >{t('search')}</Button>
             <div id="resultRematch">
                 {
                     rematchResult.map(({book, onclick}, index) => {

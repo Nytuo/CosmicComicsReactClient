@@ -520,7 +520,7 @@ export default function BookSettingsDialog({
                     <FormControl component="fieldset" variant="standard" sx={{
                         width: "100%",
                     }}>
-                        <FormLabel component="legend">Reader settings</FormLabel>
+                        <FormLabel component="legend">{t('readerSettings')}</FormLabel>
                         <FormGroup>
                             {
                                 state.map((item: any, index: number) => {
@@ -540,7 +540,7 @@ export default function BookSettingsDialog({
                             }
                         </FormGroup>
 
-                        <FormLabel component="legend">SlideShow Interval time</FormLabel>
+                        <FormLabel component="legend">{t('slideshowIntervalTime')}</FormLabel>
 
                         <Slider
                             size="small"
@@ -552,11 +552,10 @@ export default function BookSettingsDialog({
                             }}
                             min={1}
                             max={60}
-                            aria-label="Small"
                             valueLabelDisplay="auto"
                             valueLabelFormat={(x) => x + 's'}
                         />
-                        <FormLabel component="legend">Page Slider</FormLabel>
+                        <FormLabel component="legend">{t('pageSlider')}</FormLabel>
 
                         <Grid2 container spacing={2} alignItems="center">
                             <Grid item xs>
@@ -586,7 +585,7 @@ export default function BookSettingsDialog({
                                 />
                             </Grid>
                         </Grid2>
-                        <FormLabel component="legend">Background color</FormLabel>
+                        <FormLabel component="legend">{t('backgroundColor')}</FormLabel>
                         <MuiColorInput value={color} onChange={(e) => {
                             setColor(e);
                             document.body.style.background = e;

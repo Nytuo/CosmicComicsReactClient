@@ -740,14 +740,14 @@ export default function MiniDrawer({
             <MenuItem onClick={handleProfileMenuOpen}>
                 <IconButton
                     size="large"
-                    aria-label="account of current user"
+                    aria-label={t('accountOfCurrentUser')}
                     aria-controls="primary-search-account-menu"
                     aria-haspopup="true"
                     color="inherit"
                 >
                     <Avatar alt="" src={currentProfile.getPP}/>
                 </IconButton>
-                <p style={{marginLeft: "10px"}}>Profile</p>
+                <p style={{marginLeft: "10px"}}>{t('profile')}</p>
             </MenuItem>
         </Menu>
     );
@@ -777,7 +777,7 @@ export default function MiniDrawer({
                 <Toolbar>
                     <IconButton
                         color="inherit"
-                        aria-label="open drawer"
+                        aria-label={t('openDrawer')}
                         onClick={handleDrawerOpen}
                         edge="start"
                         sx={{
@@ -823,7 +823,7 @@ export default function MiniDrawer({
                                 renderInput={(params) => (
                                     <StyledInputBase
                                         {...params}
-                                        label="Search"
+                                        label={t('search')}
                                         InputProps={{
                                             ...params.InputProps,
                                             endAdornment: (
@@ -911,7 +911,7 @@ export default function MiniDrawer({
 
                     <Box sx={{flexGrow: 1}}/>
                     <Box sx={{display: {xs: 'none', md: 'flex'}}}>
-                        <IconButton size="large" aria-label="show 4 new mails" color="inherit"
+                        <IconButton size="large" color="inherit"
                                     onClick={handleOpenNavigation}
                         >
                             <MoreHoriz/>
@@ -920,7 +920,7 @@ export default function MiniDrawer({
                         <IconButton
                             size="large"
                             edge="end"
-                            aria-label="account of current user"
+                            aria-label={t('accountOfCurrentUser')}
                             aria-controls={menuId}
                             aria-haspopup="true"
                             onClick={handleProfileMenuOpen}
@@ -932,7 +932,7 @@ export default function MiniDrawer({
                     <Box sx={{display: {xs: 'flex', md: 'none'}}}>
                         <IconButton
                             size="large"
-                            aria-label="show more"
+                            aria-label={t('showMore')}
                             aria-controls={mobileMenuId}
                             aria-haspopup="true"
                             onClick={handleMobileMenuOpen}
@@ -1227,7 +1227,7 @@ export default function MiniDrawer({
                                         <IconButton
                                             size="large"
                                             edge="end"
-                                            aria-label="account of current user"
+                                            aria-label={t('accountOfCurrentUser')}
                                             aria-controls={"api-list-" + index}
                                             aria-haspopup="true"
                                             onClick={(event: any) => {

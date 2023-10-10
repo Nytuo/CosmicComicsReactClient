@@ -79,10 +79,10 @@ export default function UploadDialog({onClose, openModal, cosmicComicsTemp}: {
                               encType="multipart/form-data">
                             <input type="file" name="ComicTemp" id="fileUp"/>
                             <Button style={{marginTop: "10px"}} type="submit"
-                                    id="uploadBtn">Upload
+                                    id="uploadBtn">{t('upload')}
                             </Button>
                             <Button style={{marginTop: "10px"}} type="reset"
-                                    id="resetBtn">Reset
+                                    id="resetBtn">{t('reset')}
                             </Button>
                         </form>
                     </DialogContentText>

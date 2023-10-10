@@ -2,6 +2,7 @@ import {ToasterHandler} from "@/components/common/ToasterHandler.tsx";
 import {PDP} from "./Common.ts";
 import Logger from "@/logger.ts";
 import {tryToParse} from "./utils.ts";
+import {t} from "i18next";
 
 export default class Profile {
     private readonly _token: string;
@@ -10,7 +11,7 @@ export default class Profile {
 
     constructor(token: string) {
         this._token = token;
-        this._name = "Unknown";
+        this._name = t("unknown");
         this._pp = PDP + "/profile/getPP/" + this._token;
 
     }
