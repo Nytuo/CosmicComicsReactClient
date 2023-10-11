@@ -194,7 +194,6 @@ export default function MiniDrawer({
         booksNumber: number;
         type: "series" | "books";
     }>(({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"}));
-    const [openError, setOpenError] = React.useState(false);
     const [openAPISelector, setOpenAPISelector] = React.useState(false);
     const [breadcrumbs, setBreadcrumbs] = React.useState<{ text: string; onClick: () => void; }[]>([{
         text: t("HOME"), onClick: () => {
@@ -204,7 +203,7 @@ export default function MiniDrawer({
             handleRemoveBreadcrumbsTo(1);
         }
     }]);
-    const [cardMode, setCardMode] = React.useState(cardModeEX);
+    const [cardMode] = React.useState(cardModeEX);
     const [isLoading, setIsLoading] = React.useState(false);
     const [searchOpen, setSearchOpen] = React.useState(false);
     const [searchOptions, setSearchOptions] = React.useState<ISearchElement[]>([]);
@@ -291,13 +290,13 @@ export default function MiniDrawer({
         setOpenSeries({open: open, series: series, provider: provider});
     };
 
-    const handleChangeToDetails = (open: boolean, book: IBook, provider: any) => {
+    const handleChangeToDetails = (_open: boolean, book: IBook, provider: any) => {
         setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
         setOpenSeries({open: false, series: [], provider: null});
         setOpenDetails({open: true, book: book, provider: provider});
     };
 
-    const handleChangeToSeries = (open: boolean, series: IBook[], provider: any) => {
+    const handleChangeToSeries = (_open: boolean, series: IBook[], provider: any) => {
         setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
         setOpenDetails(null);
         setOpenSeries({open: true, series: series, provider: provider});
@@ -335,8 +334,7 @@ export default function MiniDrawer({
             for (let index = 0; index < FolderRes.length; index++) {
                 const path = FolderRes[index];
                 const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "").replace("/", "");
-                const realname = name;
-                console.log(realname);
+                console.log(name);
                 let found = false;
                 const titlesList = [];
                 const returnedPath = JSON.parse(res);
@@ -351,7 +349,7 @@ export default function MiniDrawer({
                         foundPATH = el;
                     }
                 });
-                if (found === false) {
+                if (!found) {
                     if (provider === providerEnum.Anilist) {
                         console.log("provider Anilist");
                         new Anilist().POST_SEARCH(name, path);
@@ -380,7 +378,7 @@ export default function MiniDrawer({
                             // } else {
                             //     node = JSON.parse(res[0].title);
                             // }
-                            node = (JSON.parse(res[0].title).english + " / " + JSON.parse(res[0].title).romaji + " / " + JSON.parse(res[0].title).native);
+                            node = (JSON.parse(res[0].title)["english"] + " / " + JSON.parse(res[0].title)["romaji"] + " / " + JSON.parse(res[0].title)["native"]);
                         } else if (provider == providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                             node = res[0].title;
                         }
@@ -389,7 +387,7 @@ export default function MiniDrawer({
                         let imagelink;
                         if (provider === providerEnum.Marvel) {
                             try {
-                                imagelink = JSON.parse(res[0].cover).path + "/detail." + JSON.parse(res[0].cover).extension;
+                                imagelink = JSON.parse(res[0].cover).path + "/detail." + JSON.parse(res[0].cover)["extension"];
                             } catch (e) {
                                 imagelink = "null";
                             }
@@ -494,7 +492,7 @@ export default function MiniDrawer({
                                 }
                                 if (cdata["data"]["total"] > 0) {
                                     cdata = cdata["data"]["results"][0];
-                                    TheBook = new Book(cdata["id"], realname, cdata["thumbnail"].path + "/detail." + cdata["thumbnail"].extension, cdata["description"], cdata["creators"], cdata["characters"], cdata["urls"], null, 0, 0, 1, 0, 0, 0, path, cdata["issueNumber"], cdata["format"], cdata["pageCount"], cdata["series"], cdata["prices"], cdata["dates"], cdata["collectedIssues"], cdata["collections"], cdata["variants"], 0, provider.toString());
+                                    TheBook = new Book(cdata["id"], realname, cdata["thumbnail"].path + "/detail." + cdata["thumbnail"]["extension"], cdata["description"], cdata["creators"], cdata["characters"], cdata["urls"], null, 0, 0, 1, 0, 0, 0, path, cdata["issueNumber"], cdata["format"], cdata["pageCount"], cdata["series"], cdata["prices"], cdata["dates"], cdata["collectedIssues"], cdata["collections"], cdata["variants"], 0, provider.toString());
                                 } else {
                                     TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
                                 }
@@ -648,7 +646,7 @@ export default function MiniDrawer({
                     if (!resaa) return;
                     const parsedResa = JSON.parse(resaa);
                     for (let i = 0; i < parsedResa.length; i++) {
-                        const provider = ((parsedResa[i].ID_Series.includes("_1")) ? (providerEnum.Marvel) : ((parsedResa[i].ID_Series.includes("_2")) ? (providerEnum.Anilist) : (parsedResa[i].ID_Series.includes("_3")) ? (providerEnum.OL) : ((parsedResa[i].ID_Series.includes("_4")) ? (providerEnum.GBooks) : (providerEnum.MANUAL))));
+                        const provider = ((parsedResa[i]["ID_Series"].includes("_1")) ? (providerEnum.Marvel) : ((parsedResa[i]["ID_Series"].includes("_2")) ? (providerEnum.Anilist) : (parsedResa[i]["ID_Series"].includes("_3")) ? (providerEnum.OL) : ((parsedResa[i]["ID_Series"].includes("_4")) ? (providerEnum.GBooks) : (providerEnum.MANUAL))));
                         setSearchOptions((prev) => [
                             ...prev,
                             {
@@ -857,7 +855,7 @@ export default function MiniDrawer({
                                             let imagelink;
                                             if (value.provider === providerEnum.Marvel) {
                                                 try {
-                                                    imagelink = JSON.parse(TheBook.cover).path + "/detail." + JSON.parse(TheBook.cover).extension;
+                                                    imagelink = JSON.parse(TheBook.cover).path + "/detail." + JSON.parse(TheBook.cover)["extension"];
                                                 } catch (e) {
                                                     imagelink = "null";
                                                 }
@@ -1050,7 +1048,6 @@ export default function MiniDrawer({
                     <ListItem key={t('download') + Math.random()} disablePadding sx={{display: 'block'}}>
                         <ListItemButton
                             onClick={() => {
-                                // TODO breadcrumb logic
                                 openLibrary(CosmicComicsTemp + "/downloads", 2);
                                 if (openExplorer && openExplorer.open)
                                     openExplorer.explorer = [];
@@ -1133,7 +1130,7 @@ export default function MiniDrawer({
                                 if (openExplorer && openExplorer.open)
                                     openExplorer.explorer = [];
                                 await AllBooks("PATH IS NULL OR PATH = '' OR PATH = 'null'").then((res) => {
-                                    if (!res || res === null) return;
+                                    if (!res) return;
                                     if (openExplorer === null) return;
                                     const parsedRes = tryToParse(res);
                                     const OSseries = openExplorer.explorer;

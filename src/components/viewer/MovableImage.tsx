@@ -6,8 +6,8 @@ interface MovableImageProps {
     alt: string;
     id: string;
     origin: number[];
-    width: number;
-    height: number;
+    width: number | string;
+    height: number | string;
     rotation: number;
     disableMove: boolean;
 }

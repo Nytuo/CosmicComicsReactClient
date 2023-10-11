@@ -33,6 +33,8 @@ import {useEffectOnce} from '@/utils/UseEffectOnce.tsx';
 import SubMenu from './SubMenu.tsx';
 import BookSettingsDialog from './dialogs/BookSettingsDialog.tsx';
 import Magnifier from './Magnifier.tsx';
+import {IUserSettings} from "@/interfaces/IUserSettings.ts";
+import {GetTheName} from "@/utils/utils.ts";
 
 const drawerWidth = 240;
 
@@ -99,7 +101,6 @@ export default function PersistentDrawerLeft() {
     const [bookLoaded, setBookLoaded] = React.useState(false);
     const CosmicComicsTemp = localStorage.getItem("CosmicComicsTemp") || "";
     let CosmicComicsTempI = localStorage.getItem("CosmicComicsTempI") || "";
-    const CosmicComicsData = localStorage.getItem("CosmicComicsData") || "";
     const [isFullscreen, setIsFullscreen] = React.useState(false);
     const [rotation, setRotation] = React.useState(0);
     const [zoomLevel, setZoomLevel] = React.useState(1);
@@ -107,7 +108,7 @@ export default function PersistentDrawerLeft() {
     const [baseHeight, setBaseHeight] = React.useState<number | string>(window.innerHeight - 100);
     const [baseWidth, setBaseWidth] = React.useState<number | string>("auto");
     const [actionbarON, setActionbarON] = React.useState(true);
-    const [sidebarON, setSidebarON] = React.useState(false);
+    const [sidebarON,] = React.useState(false);
     const [origins, setOrigins] = React.useState<any[][]>([[0, 0]]);
     const [originsKept, setOriginsKept] = React.useState<any[][]>([[0, 0]]);
     const [DoublePageMode, setDoublePageMode] = React.useState(false);
@@ -170,15 +171,14 @@ export default function PersistentDrawerLeft() {
             await fetch(PDP + "/view/readImage", options).then((response) => {
                 response.blob().then((blob) => {
                     const urlCreator = window.URL || window.webkitURL;
-                    const imageUrl = urlCreator.createObjectURL(blob);
-                    preloadedImages[index] = imageUrl;
+                    preloadedImages[index] = urlCreator.createObjectURL(blob);
                 });
             });
         }));
     }
 
     //Getting the Background Color by the dominant color of image
-    async function GettheBGColor(page) {
+    async function GettheBGColor(page: string) {
         return fetch(PDP + "/img/getColor/" + page + "/" + connected).then(function (response) {
             return response.text();
         }).then(function (data) {
@@ -191,21 +191,21 @@ export default function PersistentDrawerLeft() {
         //return colorThief.getColor(img);
     }
 
-    const [userSettings, setUserSettings] = React.useState({
+    const [userSettings, setUserSettings] = React.useState<IUserSettings>({
         "Double_Page_Mode": false,
         "Blank_page_At_Begginning": false,
         "No_Double_Page_For_Horizontal": false,
         "Manga_Mode": false,
         "webToonMode": false,
         "Automatic_Background_Color": false,
-        "SlideShow_Time": 1,
+        "SlideShow_Time": 0,
         "SlideShow": false,
         "NoBar": false,
         "SideBar": false,
-        "Page_Counter": true,
+        "Page_Counter": false,
         "Vertical_Reader_Mode": false,
-        "Background_color": "rgb(0,0,0)",
-        "Scroll_bar_visible": true,
+        "Background_color": "rgba(0,0,0,0)",
+        "Scroll_bar_visible": false,
     });
 
     async function getUserConfig() {
@@ -231,6 +231,7 @@ export default function PersistentDrawerLeft() {
 
     async function getBookID() {
         await getFromDB("Books", "ID_book FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'").then((res) => {
+            if (!res) return;
             bookID = JSON.parse(res)[0]["ID_book"];
         });
     }
@@ -251,8 +252,7 @@ export default function PersistentDrawerLeft() {
         await preloadImage(listofImg);
         console.log(filepage);
         if (filepage !== 0) {
-            const lastpage = filepage;
-            Reader(listofImg, lastpage);
+            Reader(listofImg, filepage);
         } else {
             let lastpage = 0;
             try {
@@ -303,9 +303,9 @@ export default function PersistentDrawerLeft() {
     //Loading the BookMark
     async function LoadBMI(pagec = 0) {
         try {
-            await getFromDB("Bookmarks", "* FROM Bookmarks WHERE BOOK_ID='" + bookID + "' AND page=" + pagec + ";").then((res) => {
-                res = JSON.parse(res);
-                console.log(res);
+            await getFromDB("Bookmarks", "* FROM Bookmarks WHERE BOOK_ID='" + bookID + "' AND page=" + pagec + ";").then((resu) => {
+                if (!resu) return;
+                const res = JSON.parse(resu);
                 if (res.length !== 0) {
                     setBookmarked(true);
                 } else {
@@ -318,14 +318,14 @@ export default function PersistentDrawerLeft() {
     }
 
     //Loading image to render
-    async function Reader(listOfImg, page) {
+    async function Reader(listOfImg: any[], page: number) {
         const images: any[] = [];
         console.log(preloadedImages);
         window.scrollTo(0, 0);
         images.push(preloadedImages[page]);
         images.push(preloadedImages[page - 1]);
-        if (DoublePageMode === true && BlankFirstPage === false && DPMNoH === false) {
-            if (mangaMode === true) {
+        if (DoublePageMode && !BlankFirstPage && !DPMNoH) {
+            if (mangaMode) {
                 setImageOne(images[1]);
                 setImageTwo(images[0]);
                 setCurrentPage(page + 1);
@@ -334,7 +334,7 @@ export default function PersistentDrawerLeft() {
                 setImageTwo(images[1]);
                 setCurrentPage(page + 1);
             }
-        } else if (DoublePageMode === true && BlankFirstPage === true && DPMNoH === false) {
+        } else if (DoublePageMode && BlankFirstPage && !DPMNoH) {
             if (page === 0 || page === -1) {
                 if (page === 2) {
                     setImageOne(images[1]);
@@ -344,7 +344,7 @@ export default function PersistentDrawerLeft() {
                     setImageTwo(null);
                 }
             } else {
-                if (mangaMode === true) {
+                if (mangaMode) {
                     setImageOne(images[1]);
                     setImageTwo(images[0]);
                     setCurrentPage(page + 1);
@@ -354,7 +354,7 @@ export default function PersistentDrawerLeft() {
                     setCurrentPage(page + 1);
                 }
             }
-        } else if (DoublePageMode === true && BlankFirstPage === false && DPMNoH === true) {
+        } else if (DoublePageMode && !BlankFirstPage && DPMNoH) {
             const imgn0 = new Image();
             imgn0.src = images[0];
             const imgn1 = new Image();
@@ -368,7 +368,7 @@ export default function PersistentDrawerLeft() {
                 setImageTwo(images[1]);
                 setCurrentPage(page);
             } else {
-                if (mangaMode === true) {
+                if (mangaMode) {
                     setImageOne(images[1]);
                     setImageTwo(images[0]);
                     setCurrentPage(page + 1);
@@ -378,7 +378,7 @@ export default function PersistentDrawerLeft() {
                     setCurrentPage(page + 1);
                 }
             }
-        } else if (DoublePageMode === true && BlankFirstPage === true && DPMNoH === true) {
+        } else if (DoublePageMode && BlankFirstPage && DPMNoH) {
             const imgn0 = new Image();
             imgn0.src = images[0];
             const imgn1 = new Image();
@@ -401,7 +401,7 @@ export default function PersistentDrawerLeft() {
                         setImageTwo(null);
                     }
                 } else {
-                    if (mangaMode === true) {
+                    if (mangaMode) {
                         setImageOne(images[1]);
                         setImageTwo(images[0]);
                         setCurrentPage(page + 1);
@@ -433,47 +433,16 @@ export default function PersistentDrawerLeft() {
         LoadBMI(page);
     }
 
-    function hasNumbers(t) {
-        const regex = /\d/g;
-        return regex.test(t);
-    }
-
     let scrollindex_next = 1;
     const [VIV_On, setVIV_On] = React.useState(false);
     const [VIV_Count, setVIV_Count] = React.useState(0);
-
-    //getting the ID of the book
-    function GetTheName(CommonName = "") {
-        CommonName = decodeURIComponent(CommonName);
-        CommonName = CommonName.replaceAll("-", " ");
-        CommonName = CommonName.replaceAll(")", " ");
-        CommonName = CommonName.replaceAll("(", " ");
-        CommonName = CommonName.replaceAll("[", " ");
-        CommonName = CommonName.replaceAll("]", " ");
-        /* remove the extension using regex */
-        CommonName = CommonName.replace(/\.[^/.]+$/, "");
-        const s = CommonName.split(" ");
-        let finalName = "";
-        s.forEach((el) => {
-            if (el !== "") {
-                if (hasNumbers(el)) {
-                    finalName += el;
-                } else if (isNaN(parseInt(el))) {
-                    finalName += el[0];
-                } else {
-                    finalName += el;
-                }
-            }
-        });
-        return finalName;
-    }
 
     const shortname = GetTheName(localStorage.getItem("currentBook")?.split(".")[0]);
 
     //Going to the next page
     function NextPage(override = false) {
-        if (mangaMode === true) {
-            if (override === false) {
+        if (mangaMode) {
+            if (!override) {
                 PreviousPage(true);
                 return false;
             }
@@ -596,13 +565,13 @@ export default function PersistentDrawerLeft() {
 
     //Going to the previous page
     function PreviousPage(override = false) {
-        if (mangaMode === true) {
-            if (override === false) {
+        if (mangaMode) {
+            if (!override) {
                 NextPage(true);
                 return false;
             }
         }
-        if (VIV_On === true) {
+        if (VIV_On) {
             if (scrollindex_next === 2 || scrollindex_next === 3) {
                 const imgViewer = document.getElementById("imgViewer_" + (currentPage));
                 if (imgViewer === null) return;
@@ -624,7 +593,7 @@ export default function PersistentDrawerLeft() {
             }
         } else {
             window.scrollTo(0, 0);
-            if (DoublePageMode === true && BlankFirstPage === false && DPMNoH === false) {
+            if (DoublePageMode && !BlankFirstPage && !DPMNoH) {
                 if (currentPage > 2) {
                     setCurrentPage(currentPage - 3);
                     Reader(listofImgState, currentPage - 3);
@@ -635,9 +604,7 @@ export default function PersistentDrawerLeft() {
                     }
                 }
             } else if (
-                DoublePageMode === true &&
-                BlankFirstPage === false &&
-                DPMNoH === true
+                DoublePageMode && !BlankFirstPage && DPMNoH
             ) {
                 if (currentPage > 2) {
                     setCurrentPage(currentPage - 3);
@@ -649,9 +616,7 @@ export default function PersistentDrawerLeft() {
                     }
                 }
             } else if (
-                DoublePageMode === true &&
-                BlankFirstPage === true &&
-                DPMNoH === false
+                DoublePageMode && BlankFirstPage && !DPMNoH
             ) {
                 if (currentPage !== 0 && currentPage - 3 !== -1) {
                     setCurrentPage(currentPage - 3);
@@ -661,9 +626,7 @@ export default function PersistentDrawerLeft() {
                     Reader(listofImgState, currentPage - 2);
                 }
             } else if (
-                DoublePageMode === true &&
-                BlankFirstPage === true &&
-                DPMNoH === true
+                DoublePageMode && BlankFirstPage && DPMNoH
             ) {
                 if (currentPage !== 0 && currentPage - 3 !== -1) {
                     setCurrentPage(currentPage - 2);
@@ -682,7 +645,7 @@ export default function PersistentDrawerLeft() {
     }
 
     React.useLayoutEffect(() => {
-        function keyListener(e) {
+        function keyListener(e: { ctrlKey: any; shiftKey: any; key: string; }) {
             if (!e.ctrlKey && !e.shiftKey && e.key === "ArrowLeft") {
                 PreviousPage();
             } else if (!e.ctrlKey && !e.shiftKey && e.key === "ArrowRight") {
@@ -717,7 +680,7 @@ export default function PersistentDrawerLeft() {
 
         document.addEventListener("keyup", keyListener);
         //make a zoom with the mouse wheel
-        const zoom = (e) => {
+        const zoom = (e: { shiftKey: any; deltaY: number; }) => {
             if (e.shiftKey) {
                 if (e.deltaY < 0) {
                     setZoomLevel(zoomLevel + 20);
@@ -735,7 +698,9 @@ export default function PersistentDrawerLeft() {
     });
     useEffectOnce(() => {
         const LaunchViewer = async () => {
-            fetch(PDP + "/view/isDir/" + encodeURIComponent(localStorage.getItem("currentBook"))).then((res) => {
+            const curBook = localStorage.getItem("currentBook");
+            if (curBook === null) return;
+            fetch(PDP + "/view/isDir/" + encodeURIComponent(curBook)).then((res) => {
                 return res.json();
             }).then((res) => {
                 isADirectory = res;
@@ -788,7 +753,7 @@ export default function PersistentDrawerLeft() {
                                                         ) {
                                                             Logger.info("path.txt is not equal to path, Unzipping");
                                                             // if it's not the same we need to extract it
-                                                            fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then((response) => {
+                                                            fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then(() => {
                                                                 prepareReader();
                                                             });
                                                         } else {
@@ -802,7 +767,7 @@ export default function PersistentDrawerLeft() {
                                                 Logger.info("path.txt doesn't exist, Unzipping");
                                                 fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then((response) => {
                                                     return response.text();
-                                                }).then((data) => {
+                                                }).then(() => {
                                                     Logger.info("Unziped");
                                                     prepareReader();
                                                 });
@@ -836,7 +801,7 @@ export default function PersistentDrawerLeft() {
         setOpenBookSettings(false);
     };
 
-    function isMouseAtTheTop(e) {
+    function isMouseAtTheTop(e: { clientY: number; }) {
         if (e.clientY < 50) {
             setActionbarON(true);
         }
@@ -873,7 +838,7 @@ export default function PersistentDrawerLeft() {
     React.useEffect(() => {
         const observer = new IntersectionObserver(
             function (entries) {
-                if (entries[0].isIntersecting === true)
+                if (entries[0].isIntersecting)
                     setCurrentPage(parseInt(entries[0].target.id.split("div_imgViewer_")[1]));
                 try {
                     const idImg = document.getElementById("id_img_" + (currentPage - 1));
@@ -1070,10 +1035,13 @@ export default function PersistentDrawerLeft() {
                                             setCurrentPage(i);
                                             if (!VIV_On)
                                                 Reader(listofImg, i);
-                                            else
-                                                document.getElementById("imgViewer_" + i).scrollIntoView({
+                                            else {
+                                                const imgViewer = document.getElementById("imgViewer_" + i);
+                                                if (imgViewer === null) return;
+                                               imgViewer.scrollIntoView({
                                                     block: "center"
                                                 });
+                                            }
                                         }}
                                     >
                                         <img
@@ -1132,13 +1100,13 @@ export default function PersistentDrawerLeft() {
                                                       rotation={rotation} alt="Logo"/> : null
                                 }
                             </Magnifier> : <>{imageOne !== null ?
-                                <MovableImage id={"imgViewer_0"} src={imageOne} origin={origins[0]}
+                                <MovableImage id={"imgViewer_0"} src={imageOne} origin={origins[0]} disableMove={false}
                                               width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
                                               height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
                                               rotation={rotation} alt="Logo"/> : null}
                                 {
                                     imageTwo !== null ?
-                                        <MovableImage id={"imgViewer_1"} src={imageTwo} origin={origins[1]}
+                                        <MovableImage id={"imgViewer_1"} src={imageTwo} origin={origins[1]} disableMove={false}
                                                       width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
                                                       height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
                                                       rotation={rotation} alt="Logo"/> : null
@@ -1222,8 +1190,8 @@ export default function PersistentDrawerLeft() {
                                 color="inherit"
                                 onClick={
                                     () => {
-                                        let max;
-                                        if (DoublePageMode === true) {
+                                        let max: number;
+                                        if (DoublePageMode) {
                                             max = totalPages - 1;
                                         } else {
                                             max = totalPages;
@@ -1346,7 +1314,7 @@ export default function PersistentDrawerLeft() {
     function fixHeight() {
         const navbar = document.getElementById("navbar");
         if (navbar === null) return;
-        if (VIV_On === true) {
+        if (VIV_On) {
             for (let i = 0; i < VIV_Count; i++) {
                 setBaseHeight(window.innerHeight - navbar.offsetHeight - 15);
                 setZoomLevel(0);
@@ -1378,15 +1346,15 @@ export default function PersistentDrawerLeft() {
         setBaseHeight("auto");
         setZoomLevel(0);
         setOrigins([[0, 0], [0, 0]]);
-        if (DoublePageMode === true) {
+        if (DoublePageMode) {
             setBaseWidth((window.innerWidth - 5) / 2);
         }
-        if (sidebarON === true) {
+        if (sidebarON) {
             setBaseWidth(window.innerWidth - 205);
         }
-        if (VIV_On === true) {
+        if (VIV_On) {
             for (let i = 0; i < VIV_Count; i++) {
-                if (sidebarON === true) {
+                if (sidebarON) {
                     setBaseWidth(window.innerWidth - 205);
                 } else {
                     setBaseWidth(window.innerWidth - 5);

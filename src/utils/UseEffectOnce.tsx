@@ -30,5 +30,5 @@ export const useEffectOnce = (effect: () => void | (() => void)) => {
                 destroyFunc.current();
             }
         };
-    }, [effect]);
+    }, []);
 };

@@ -11,28 +11,26 @@ import {setCookie} from '@/utils/Common.ts';
  * @param {React.Dispatch<React.SetStateAction<IProfile | undefined>>} props.setSelectedProfile - The state setter for the selected profile.
  * @returns {JSX.Element} The login card component.
  */
-export function LoginCard({profile, key, setOpenLogin, setSelectedProfile}: {
+export function LoginCard({profile, keyX, setOpenLogin, setSelectedProfile}: {
     profile: IProfile,
-    key: number,
+    keyX: number,
     setOpenLogin: React.Dispatch<React.SetStateAction<boolean>>,
     setSelectedProfile: React.Dispatch<React.SetStateAction<IProfile | undefined>>;
 }): JSX.Element {
     return (
-        <>
-            <div onClick={
-                () => {
-                    if (profile.passcode) {
-                        setSelectedProfile(profile);
-                        setOpenLogin(true);
-                    } else {
-                        setCookie('selectedProfile', profile.name, 2, document);
-                        window.location.href = "/collectionner";
-                    }
+        <div onClick={
+            () => {
+                if (profile.passcode) {
+                    setSelectedProfile(profile);
+                    setOpenLogin(true);
+                } else {
+                    setCookie('selectedProfile', profile.name, 2, document);
+                    window.location.href = "/collectionner";
                 }
-            } key={key} className="login_elements">
-                <img src={profile.image} className="profile_image" alt={profile.name}/>
-                <h3>{profile.name}</h3>
-            </div>
-        </>
+            }
+        } id={String(keyX)} className="login_elements">
+            <img src={profile.image} className="profile_image" alt={profile.name}/>
+            <h3>{profile.name}</h3>
+        </div>
     );
 }

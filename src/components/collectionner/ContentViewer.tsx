@@ -79,90 +79,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
     };
     const APINOTFOUND = /[a-zA-Z]/g.test(TheBook.ID_book);
 
-    const fetchCharacters = async () => {
-        if (type === "volume") {
-            if (TheBook.characters !== "null") {
-                const NameToFetchList: string[] = [];
-                if (provider === providerEnum.Marvel) {
-                    tryToParse(TheBook.characters)["items"].forEach((el: any) => {
-                        NameToFetchList.push("'" + el.name + "'");
-                    });
-                } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                    tryToParse(TheBook.characters).forEach((el: any) => {
-                        NameToFetchList.push("'" + el.name + "'");
-                    });
-                }
-                const NameToFetch = NameToFetchList.join(",");
-                await getFromDB("Characters", "* FROM Characters WHERE name IN (" + NameToFetch + ")").then((clres) => {
-                    if (!clres) return;
-                    const parsedClres = tryToParse(clres);
-                    setCharacters(parsedClres);
-                });
-            }
-        } else {
-            const NameToFetchList: string[] = [];
-            if (provider === providerEnum.Marvel) {
-                tryToParse(TheBook.characters)["items"].forEach((el: any) => {
-                    NameToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
-                });
-            } else if (provider === providerEnum.Anilist) {
-                tryToParse(TheBook.characters).forEach((el: any) => {
-                    NameToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
-                });
-            } else if (provider === providerEnum.OL) {
-                ToasterHandler("OpenLibrary " + t("cannotFetchCharacters"), "error");
-            } else if (provider === providerEnum.GBooks) {
-                ToasterHandler("Google Books " + t("cannotFetchCharacters"), "error");
-            }
-            const NameToFetch = NameToFetchList.join(",");
-            await getFromDB("Characters", "* FROM Characters WHERE name IN (" + NameToFetch + ")").then((clres) => {
-                if (!clres) return;
-                const parsedClres = tryToParse(clres);
-                setCharacters(parsedClres);
-            });
-        }
-    };
 
-    const fetchCreators = async () => {
-        if (TheBook.creators !== "null" && TheBook.creators !== null && TheBook.creators !== undefined && TheBook.creators !== "") {
-            const StaffToFetchList: string[] = [];
-            if (provider === providerEnum.Marvel) {
-                tryToParse(TheBook.creators)["items"].forEach((el: { name: string; }) => {
-                    StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
-                });
-            } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL) {
-                tryToParse(TheBook.creators).forEach((el: { name: string; }) => {
-                    StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
-                });
-            } else if (provider === providerEnum.GBooks) {
-                tryToParse(TheBook.creators).forEach((el: string) => {
-                    StaffToFetchList.push("'" + el.replaceAll("'", "''") + "'");
-                });
-            }
-            const StaffToFetch = StaffToFetchList.join(",");
-            await getFromDB("Creators", "* FROM Creators WHERE name IN (" + StaffToFetch + ")").then((clres) => {
-                if (!clres) return;
-                const parsedClres = tryToParse(clres);
-                setStaff(parsedClres);
-            });
-        }
-    };
-    const fetchRelations = async () => {
-        await getFromDB("relations", "* FROM relations WHERE series = '" + TheBook.ID_book + "'").then((clres) => {
-            if (!clres) return;
-            const parsedClres = tryToParse(clres);
-            parsedClres.sort(function (a: any, b: any) {
-                if (a.name < b.name) {
-                    return -1;
-                }
-                if (a.name > b.name) {
-                    return 1;
-                }
-                return 0;
-            });
-            setRelations(parsedClres);
-        });
-    };
     const [readStatSeries, setReadStatSeries] = useState("0 / 0 volumes read");
 
     const [openExplorer, setOpenExplorer] = useState<{
@@ -180,6 +97,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
      * @param {*} date The date of the element
      * @param {providerEnum} provider The provider of the element
      */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     function loadView(FolderRes: string, libraryPath: string, date: any = "", provider: providerEnum = providerEnum.MANUAL) {
         FolderRes = FolderRes.replaceAll("\\", "/");
         FolderRes = FolderRes.replaceAll("//", "/");
@@ -210,7 +128,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                 }
                                 if (cdata["data"]["total"] > 0) {
                                     cdata = cdata["data"]["results"][0];
-                                    TheBook = new Book(cdata["id"], realname, cdata["thumbnail"].path + "/detail." + cdata["thumbnail"].extension, cdata["description"], cdata["creators"], cdata["characters"], cdata["urls"], null, 0, 0, 1, 0, 0, 0, path, cdata["issueNumber"], cdata["format"], cdata["pageCount"], cdata["series"], cdata["prices"], cdata["dates"], cdata["collectedIssues"], cdata["collections"], cdata["variants"], 0, provider.toString());
+                                    TheBook = new Book(cdata["id"], realname, cdata["thumbnail"].path + "/detail." + cdata["thumbnail"]["extension"], cdata["description"], cdata["creators"], cdata["characters"], cdata["urls"], null, 0, 0, 1, 0, 0, 0, path, cdata["issueNumber"], cdata["format"], cdata["pageCount"], cdata["series"], cdata["prices"], cdata["dates"], cdata["collectedIssues"], cdata["collections"], cdata["variants"], 0, provider.toString());
                                 } else {
                                     TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
                                 }
@@ -287,6 +205,90 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
 
     const {t} = useTranslation();
     useLayoutEffect(() => {
+        const fetchCharacters = async () => {
+            if (type === "volume") {
+                if (TheBook.characters !== "null") {
+                    const NameToFetchList: string[] = [];
+                    if (provider === providerEnum.Marvel) {
+                        tryToParse(TheBook.characters)["items"].forEach((el: any) => {
+                            NameToFetchList.push("'" + el.name + "'");
+                        });
+                    } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+                        tryToParse(TheBook.characters).forEach((el: any) => {
+                            NameToFetchList.push("'" + el.name + "'");
+                        });
+                    }
+                    const NameToFetch = NameToFetchList.join(",");
+                    await getFromDB("Characters", "* FROM Characters WHERE name IN (" + NameToFetch + ")").then((clres) => {
+                        if (!clres) return;
+                        const parsedClres = tryToParse(clres);
+                        setCharacters(parsedClres);
+                    });
+                }
+            } else {
+                const NameToFetchList: string[] = [];
+                if (provider === providerEnum.Marvel) {
+                    tryToParse(TheBook.characters)["items"].forEach((el: any) => {
+                        NameToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
+                    });
+                } else if (provider === providerEnum.Anilist) {
+                    tryToParse(TheBook.characters).forEach((el: any) => {
+                        NameToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
+                    });
+                } else if (provider === providerEnum.OL) {
+                    ToasterHandler("OpenLibrary " + t("cannotFetchCharacters"), "error");
+                } else if (provider === providerEnum.GBooks) {
+                    ToasterHandler("Google Books " + t("cannotFetchCharacters"), "error");
+                }
+                const NameToFetch = NameToFetchList.join(",");
+                await getFromDB("Characters", "* FROM Characters WHERE name IN (" + NameToFetch + ")").then((clres) => {
+                    if (!clres) return;
+                    const parsedClres = tryToParse(clres);
+                    setCharacters(parsedClres);
+                });
+            }
+        };
+
+        const fetchCreators = async () => {
+            if (TheBook.creators !== "null" && TheBook.creators !== null && TheBook.creators !== undefined && TheBook.creators !== "") {
+                const StaffToFetchList: string[] = [];
+                if (provider === providerEnum.Marvel) {
+                    tryToParse(TheBook.creators)["items"].forEach((el: { name: string; }) => {
+                        StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
+                    });
+                } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL) {
+                    tryToParse(TheBook.creators).forEach((el: { name: string; }) => {
+                        StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
+                    });
+                } else if (provider === providerEnum.GBooks) {
+                    tryToParse(TheBook.creators).forEach((el: string) => {
+                        StaffToFetchList.push("'" + el.replaceAll("'", "''") + "'");
+                    });
+                }
+                const StaffToFetch = StaffToFetchList.join(",");
+                await getFromDB("Creators", "* FROM Creators WHERE name IN (" + StaffToFetch + ")").then((clres) => {
+                    if (!clres) return;
+                    const parsedClres = tryToParse(clres);
+                    setStaff(parsedClres);
+                });
+            }
+        };
+        const fetchRelations = async () => {
+            await getFromDB("relations", "* FROM relations WHERE series = '" + TheBook.ID_book + "'").then((clres) => {
+                if (!clres) return;
+                const parsedClres = tryToParse(clres);
+                parsedClres.sort(function (a: any, b: any) {
+                    if (a.name < b.name) {
+                        return -1;
+                    }
+                    if (a.name > b.name) {
+                        return 1;
+                    }
+                    return 0;
+                });
+                setRelations(parsedClres);
+            });
+        };
         fetchCharacters();
         fetchCreators();
         fetchRelations();
@@ -330,7 +332,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
 
         };
         handleAsyncBG();
-    }, [TheBook.BG_cover, TheBook.PATH, TheBook.URLCover, TheBook.start_date, fetchCharacters, fetchCreators, fetchRelations, loadView, provider, type]);
+    }, [TheBook, loadView, provider, t, type]);
 
     function LeftArrow() {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -706,7 +708,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                                                 "token": currentProfile.getToken,
                                                                                 "table": "Series",
                                                                                 "column": "favorite",
-                                                                                "whereEl": bookList[i].ID_Series,
+                                                                                "whereEl": bookList[i]["ID_Series"],
                                                                                 "value": false,
                                                                                 "where": "ID_Series"
                                                                             }, null, 2)
@@ -733,7 +735,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                                                 "token": currentProfile.getToken,
                                                                                 "table": "Series",
                                                                                 "column": "favorite",
-                                                                                "whereEl": bookList[i].ID_Series,
+                                                                                "whereEl": bookList[i]["ID_Series"],
                                                                                 "value": true,
                                                                                 "where": "ID_Series"
                                                                             }, null, 2)
@@ -871,7 +873,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                     variant="caption"
                                                     component="div"
                                                     color="text.secondary"
-                                                >{`${Math.round(TheBook.score)}`}</Typography>
+                                                >{`${Math.round(TheBook.score as number)}`}</Typography>
                                             </Box>
                                         </Box> : <></> : <></> : <></>
                         }

@@ -14,6 +14,7 @@ import RematchSkeleton from '../RematchSkeleton.tsx';
  * @param openModal - A boolean value to indicate whether the dialog is open or not.
  * @param provider - An object containing information about the provider.
  * @param type - A string value to indicate the type of rematch ("book" or "serie").
+ * @param oldID - The old ID of the book or serie.
  * @returns A React component.
  */
 export default function RematchDialog({onClose, openModal, provider, type, oldID}: {

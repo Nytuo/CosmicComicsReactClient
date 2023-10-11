@@ -166,6 +166,8 @@ export default function BookSettingsDialog({
             for (let i = 0; state.length > i; i++) {
                 const itemKey = Object.keys(state[i])[0];
                 if (itemKey === usersetting) {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     state[i] = {[itemKey]: userSettings[usersetting]};
                 }
             }

@@ -83,7 +83,7 @@ export default function Login() {
                     (profiles.length === 0) ? <h1>{t("noProfile")}</h1> : <>
                         {profiles.map((profile, index) => {
                         return (
-                            <LoginCard profile={profile} key={index} setOpenLogin={setOpenLogin}
+                            <LoginCard profile={profile} key={index} keyX={index} setOpenLogin={setOpenLogin}
                                        setSelectedProfile={setSelectedProfile}/>
                         );
                     })}</>
