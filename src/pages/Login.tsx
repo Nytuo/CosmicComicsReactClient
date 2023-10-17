@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {useEffect, useLayoutEffect, useState} from "react";
 import LoginDialog from "@/components/login/dialogs/LoginDialog.tsx";
 import CreateAccountDialog from "@/components/login/dialogs/CreateAccountDialog.tsx";

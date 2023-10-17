@@ -1,6 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {IBook} from "@/interfaces/IBook.ts";
 import ContentViewer from "./ContentViewer.tsx";
 import {useEffect} from "react";
+import {ISeriesOfBook} from "@/interfaces/ISeriesOfBook.ts";
 
 /**
  * Renders a component that displays the details of a book.
@@ -9,7 +11,7 @@ import {useEffect} from "react";
  * @returns A JSX element that displays the details of the book.
  */
 function Details({stateDetails, handleAddBreadcrumbs}: {
-    stateDetails: { open: boolean; book: IBook; provider: any; };
+    stateDetails: { open: boolean; book: ISeriesOfBook | IBook; provider: any; };
     handleAddBreadcrumbs: any;
 }) {
     useEffect(() => {
@@ -17,9 +19,9 @@ function Details({stateDetails, handleAddBreadcrumbs}: {
         });
     }, []);
     return (<>
-        {stateDetails && stateDetails.open ?
+        {stateDetails ? stateDetails.open ?
             <ContentViewer type={"volume"} provider={parseInt(stateDetails.book.API_ID)} TheBook={stateDetails.book}
-                           handleAddBreadcrumbs={handleAddBreadcrumbs}/> : <></>}
+                           handleAddBreadcrumbs={handleAddBreadcrumbs}/> : <></>:  <></>}
     </>);
 }
 

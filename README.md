@@ -1,3 +1,7 @@
+<!--suppress ALL -->
+
+
+
 <h1 align="center">
   <a href="https://github.com/Nytuo/CosmicComics">
     <img src="https://nytuo.fr/images/LogoStretch_cc.png" alt="Logo" width="auto" height="100">

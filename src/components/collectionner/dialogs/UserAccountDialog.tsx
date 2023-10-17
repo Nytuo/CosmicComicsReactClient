@@ -10,6 +10,7 @@ import {useTranslation} from 'react-i18next';
 import {Badge, Stack} from '@mui/material';
 import {currentProfile, PDP} from '@/utils/Common.ts';
 import VerticalStepper from '../../common/VerticalStepper.tsx';
+import {ToasterHandler} from "@/components/common/ToasterHandler.tsx";
 
 /**
  * A dialog component for creating or editing user accounts.
@@ -137,6 +138,7 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
 
                                 <Button variant="contained" color='error' id="delaccount" onClick={
                                     () => {
+                                        // noinspection JSIgnoredPromiseFromCall
                                         currentProfile.DeleteAccount();
                                     }
                                 }>
@@ -183,7 +185,7 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
                                                 if (index === 0) return;
                                                 if (index === selectedImage) {
                                                     return (
-                                                        <Badge color="success" badgeContent=" " variant='dot'><img
+                                                        <Badge color="success" key={index} badgeContent=" " variant='dot'><img
                                                             src={"Images/account_default/" + index + ".jpg"}
                                                             id='newImage'
                                                             style={{width: "60px", height: "60px", marginLeft: "5px"}}
@@ -196,6 +198,7 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
                                                                  setSelectedImage(index);
                                                              }
                                                              }
+                                                             key={index}
                                                              style={{width: "60px", height: "60px", marginLeft: "5px"}}
                                                              alt={t('accountProfilePicture')}/>
                                                     );
@@ -216,7 +219,9 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
                                                          return;
                                                      }
 
-                                                     currentProfile.createAccount(newImage.value, newusername.value, newpassword.src);
+                                                     currentProfile.createAccount(newImage.value, newusername.value, newpassword.src).then(() => {
+                                                         ToasterHandler(t("accountCreated"), "success");
+                                                     });
                                                  }, 500);
                                              }}
                             />
@@ -227,7 +232,9 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
                     {
                         forWhat === "edit" ? <Button onClick={
                             () => {
-                                currentProfile.modifyAccount(username, password, PDP + "/Images/account_default/" + selectedImage + ".jpg");
+                                currentProfile.modifyAccount(username, password, PDP + "/Images/account_default/" + selectedImage + ".jpg").then(() => {
+                                    ToasterHandler(t("accountModified"), "success");
+                                });
                             }
                         }>{t("applyChanges")}</Button> : <></>
                     }

@@ -1,9 +1,8 @@
-import {currentProfile, PDP} from "@/utils/Common.ts";
+import {currentProfile, InsertIntoTarget, PDP} from "@/utils/Common.ts";
 import {
     changeRating,
     downloadBook,
     getFromDB,
-    InsertIntoDB,
     updateBookStatusForAll,
     updateBookStatusForOne
 } from "@/utils/Fetchers.ts";
@@ -28,7 +27,7 @@ import {
 import {Avatar, Box, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography} from "@mui/material";
 import Rating from "@mui/material/Rating/Rating";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-import {useContext, useLayoutEffect, useState} from "react";
+import { useContext, useLayoutEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {ToasterHandler} from "../common/ToasterHandler.tsx";
 import DatabaseEditorDialog from "./dialogs/DatabaseEditorDialog.tsx";
@@ -39,25 +38,20 @@ import MoreInfoDialog from "./dialogs/MoreInfoDialog.tsx";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import {ScrollMenu, VisibilityContext} from "react-horizontal-scrolling-menu";
-import {Anilist} from "@/API/Anilist.ts";
-import {GoogleBooks} from "@/API/GoogleBooks.ts";
-import {Marvel} from "@/API/Marvel.ts";
-import {OpenLibrary} from "@/API/OpenLibrary.ts";
 import ContainerExplorer from "./ContainerExplorer.tsx";
 import RematchDialog from "./dialogs/RematchDialog.tsx";
-import {ISeriesOfBook} from "@/interfaces/ISeriesOfBook.ts";
-
 
 //providerEnum to type
 type TProvider = 0 | 1 | 2 | 3 | 4;
 
 function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleChangeToDetails}: {
-    provider: TProvider;
-    TheBook: ISeriesOfBook;
+    provider: number;
+    TheBook: any;
     type: 'series' | 'volume';
     handleAddBreadcrumbs: any;
     handleChangeToDetails?: (open: boolean, book: IBook, provider: any) => void;
 }) {
+    provider = provider as TProvider;
     const [rating, setRating] = useState<number | null>((TheBook.note === null ? null : parseInt(TheBook.note)));
     const [characters, setCharacters] = useState<any[]>([]);
     const [staff, setStaff] = useState<any[]>([]);
@@ -95,10 +89,10 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
      * @param {string} FolderRes The folder path
      * @param {string} libraryPath The library path
      * @param {*} date The date of the element
-     * @param {providerEnum} provider The provider of the element
+     * @param {number} provider The provider of the element
      */
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    function loadView(FolderRes: string, libraryPath: string, date: any = "", provider: providerEnum = providerEnum.MANUAL) {
+    function loadView(FolderRes: string, libraryPath: string, date: any = "", provider: number = providerEnum.MANUAL) {
         FolderRes = FolderRes.replaceAll("\\", "/");
         FolderRes = FolderRes.replaceAll("//", "/");
         FolderRes = FolderRes.replaceAll("/", "ù");
@@ -106,97 +100,17 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
             return response.text();
         }).then(async (data) => {
             data = JSON.parse(data);
-            const OSBook = openExplorer.explorer;
-            for (let index = 0; index < data.length; index++) {
-                const path = data[index];
+            let OSBook = openExplorer.explorer;
+            for (const element of data) {
+                const path = element;
                 const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "");
                 const realnameREG = /[^\\/]+(?=\.\w+$)|[^\\/]+$/.exec(name);
                 if (realnameREG === null) continue;
                 const realname = realnameREG[0];
                 const readBookNB = await getFromDB("Books", "COUNT(*) FROM Books WHERE READ = 1 AND PATH = '" + path + "'");
                 setReadStatSeries(readBookNB ? JSON.parse(readBookNB)[0]["COUNT(*)"] + " / " + data.length + " volumes read" : "0 / 0 volumes read");
-                // TODO : REFACTOR DUP CODE
-                await getFromDB("Books", "* FROM Books WHERE PATH = '" + path + "'").then(async (resa) => {
-                    if (!resa) return;
-                    const bookList = JSON.parse(resa);
-                    let TheBook;
-                    if (bookList.length === 0) {
-                        if (provider === providerEnum.Marvel) {
-                            await new Marvel().InsertBook(realname, date, path).then(async (cdata: any) => {
-                                if (cdata === undefined) {
-                                    throw new Error("no data");
-                                }
-                                if (cdata["data"]["total"] > 0) {
-                                    cdata = cdata["data"]["results"][0];
-                                    TheBook = new Book(cdata["id"], realname, cdata["thumbnail"].path + "/detail." + cdata["thumbnail"]["extension"], cdata["description"], cdata["creators"], cdata["characters"], cdata["urls"], null, 0, 0, 1, 0, 0, 0, path, cdata["issueNumber"], cdata["format"], cdata["pageCount"], cdata["series"], cdata["prices"], cdata["dates"], cdata["collectedIssues"], cdata["collections"], cdata["variants"], 0, provider.toString());
-                                } else {
-                                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
-                                }
-                            });
-                        } else if (provider === providerEnum.Anilist) {
-                            await new Anilist().InsertBook(realname, path);
-                            TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
-                        } else if (provider === providerEnum.MANUAL) {
-                            console.log("manual");
-                            InsertIntoDB("Books", "", `(${Math.floor(Math.random() * 100000)},'${null}','${realname}',null,${0},${0},${1},${0},${0},${0},'${path}','${null}','${null}','${null}','${null}',${null},'${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}',false)`);
-                            TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
-                        } else if (provider === providerEnum.OL) {
-                            await new OpenLibrary().InsertBook(realname, path).then(async (cdata: any) => {
-                                console.log(cdata);
-                                if (cdata === undefined) {
-                                    throw new Error("no data");
-                                }
-                                if (Object.prototype.hasOwnProperty.call(cdata, "num_found")) {
-                                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
-                                } else {
-                                    const cdataD = cdata["details"];
-                                    TheBook = new Book(cdata["bib_key"], realname, cdata["thumbnail_url"], cdataD["description"], cdataD["authors"], null, cdataD["info_url"], null, 0, 0, 1, 0, 0, 0, path, "null", cdataD["physical_format"], cdataD["number_of_pages"], null, null, cdata["publish_date"], null, null, null, 0, provider.toString());
-                                }
-
-                            });
-                        } else if (provider === providerEnum.GBooks) {
-                            await new GoogleBooks().InsertBook(realname, path).then(async (cdata: any) => {
-                                console.log(cdata);
-                                if (cdata === undefined) {
-                                    throw new Error("no data");
-                                }
-                                if (cdata["totalItems"] > 0) {
-                                    cdata = cdata["items"][0];
-                                    let cover;
-                                    if (cdata["volumeInfo"]["imageLinks"] !== undefined) {
-
-                                        cover = cdata["volumeInfo"]["imageLinks"];
-                                        if (cover["large"] !== undefined) {
-                                            cover = cover["large"];
-                                        } else if (cover["thumbnail"] !== undefined) {
-                                            cover = cover["thumbnail"];
-                                        } else {
-                                            cover = null;
-                                        }
-                                    } else {
-                                        cover = null;
-                                    }
-                                    let price;
-                                    if (cdata["saleInfo"]["retailPrice"] !== undefined) {
-                                        price = cdata["saleInfo"]["retailPrice"]["amount"];
-                                    } else {
-                                        price = null;
-                                    }
-                                    TheBook = new Book(cdata["id"], realname, cover, cdata["volumeInfo"]["description"], cdata["volumeInfo"]["authors"], null, cdata["volumeInfo"]["infoLink"], null, 0, 0, 1, 0, 0, 0, path, "null", cdata["volumeInfo"]["printType"], cdata["volumeInfo"]["pageCount"], null, price, cdata["volumeInfo"]["publishedDate"], null, null, null, 0, provider.toString());
-
-                                } else {
-                                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
-                                }
-
-                            });
-                        }
-                    } else {
-                        const bookFromDB = bookList[0];
-                        TheBook = new Book(bookFromDB["ID_book"], bookFromDB["NOM"], bookFromDB["URLCover"], bookFromDB["description"], bookFromDB["creators"], bookFromDB["characters"], bookFromDB["URLs"], bookFromDB["note"], bookFromDB["read"], bookFromDB["reading"], bookFromDB["unread"], bookFromDB["favorite"], bookFromDB["last_page"], bookFromDB["folder"], bookFromDB["PATH"], bookFromDB["issueNumber"], bookFromDB["format"], bookFromDB["pageCount"], bookFromDB["series"], bookFromDB["prices"], bookFromDB["dates"], bookFromDB["collectedIssues"], bookFromDB["collections"], bookFromDB["variants"], bookFromDB["lock"], provider.toString());
-                    }
-                    if (TheBook !== undefined)
-                        OSBook.push(TheBook);
-
+                OSBook = await getFromDB("Books", "* FROM Books WHERE PATH = '" + path + "'").then(resa => {
+                    return InsertIntoTarget(resa, realname, date, path, OSBook, provider)
                 });
             }
             setOpenExplorer({open: true, explorer: OSBook, provider: provider, booksNumber: 0, type: "books"});
@@ -289,8 +203,11 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                 setRelations(parsedClres);
             });
         };
+        // noinspection JSIgnoredPromiseFromCall
         fetchCharacters();
+        // noinspection JSIgnoredPromiseFromCall
         fetchCreators();
+        // noinspection JSIgnoredPromiseFromCall
         fetchRelations();
         if (type == "series") {
             let libraryPath = TheBook.PATH.replaceAll("\\", "/");
@@ -331,6 +248,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
             });
 
         };
+        // noinspection JSIgnoredPromiseFromCall
         handleAsyncBG();
     }, [TheBook, loadView, provider, t, type]);
 
@@ -367,6 +285,13 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
     const handleOpenRematchDialog = () => {
         setOpenRematchDialog(true);
     };
+    function onClickHandleOpenMoreInfo(el: any ) {
+        if (provider === providerEnum.Marvel) {
+            handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"], tryToParse(el.url)[0].url);
+        } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
+            handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
+        }
+    }
     return (<>
         <DatabaseEditorDialog openModal={openDatabaseEditorDialog} onClose={handleCloseDatabaseEditorDialog}
                               TheBook={TheBook} type={type === "volume" ? "book" : "series"}/>
@@ -581,9 +506,9 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                 let continueSeriesReading = "";
                                                 const bookList = tryToParse(resa);
                                                 console.log(bookList);
-                                                for (let i = 0; i < bookList.length; i++) {
-                                                    if (bookList[i].PATH.toLowerCase().includes(resolveTitle(TheBook.raw_title).toLowerCase().replaceAll('"', ''))) {
-                                                        continueSeriesReading = bookList[i].PATH;
+                                                for (const element of bookList) {
+                                                    if (element.PATH.toLowerCase().includes(resolveTitle(TheBook.raw_title).toLowerCase().replaceAll('"', ''))) {
+                                                        continueSeriesReading = element.PATH;
                                                         break;
                                                     }
                                                 }
@@ -649,8 +574,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                             await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
                                                                 if (!resa) return;
                                                                 const bookList = tryToParse(resa);
-                                                                for (let i = 0; i < bookList.length; i++) {
-                                                                    if (bookList[i].ID_book === TheBook.ID_book) {
+                                                                for (const element of bookList) {
+                                                                    if (element.ID_book === TheBook.ID_book) {
                                                                         const options = {
                                                                             method: "POST", headers: {
                                                                                 "Content-Type": "application/json"
@@ -658,7 +583,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                                                 "token": currentProfile.getToken,
                                                                                 "table": "Books",
                                                                                 "column": "favorite",
-                                                                                "whereEl": bookList[i].ID_book,
+                                                                                "whereEl": element.ID_book,
                                                                                 "value": false,
                                                                                 "where": "ID_book"
                                                                             }, null, 2)
@@ -673,8 +598,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                             await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
                                                                 if (!resa) return;
                                                                 const bookList = tryToParse(resa);
-                                                                for (let i = 0; i < bookList.length; i++) {
-                                                                    if (bookList[i].ID_book === TheBook.ID_book) {
+                                                                for (const element of bookList) {
+                                                                    if (element.ID_book === TheBook.ID_book) {
                                                                         const options = {
                                                                             method: "POST", headers: {
                                                                                 "Content-Type": "application/json"
@@ -682,7 +607,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                                                 "token": currentProfile.getToken,
                                                                                 "table": "Books",
                                                                                 "column": "favorite",
-                                                                                "whereEl": bookList[i].ID_book,
+                                                                                "whereEl": element.ID_book,
                                                                                 "value": true,
                                                                                 "where": "ID_book"
                                                                             }, null, 2)
@@ -692,59 +617,57 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                                 }
                                                             });
                                                         }
+                                                    } else if (TheBook.favorite === 1) {
+                                                        TheBook.favorite = 0;
+                                                        ToasterHandler(t("remove_fav"), "success");
+                                                        await getFromDB("Series", "* FROM Series WHERE favorite=1").then(async (resa) => {
+                                                            if (!resa) return;
+                                                            const bookList = tryToParse(resa);
+                                                            for (const element of bookList) {
+                                                                if (TheBook.raw_title === element.title) {
+                                                                    const options = {
+                                                                        method: "POST", headers: {
+                                                                            "Content-Type": "application/json"
+                                                                        }, body: JSON.stringify({
+                                                                            "token": currentProfile.getToken,
+                                                                            "table": "Series",
+                                                                            "column": "favorite",
+                                                                            "whereEl": element["ID_Series"],
+                                                                            "value": false,
+                                                                            "where": "ID_Series"
+                                                                        }, null, 2)
+                                                                    };
+                                                                    await fetch(PDP + "/DB/update", options);
+                                                                }
+                                                            }
+                                                        });
                                                     } else {
-                                                        if (TheBook.favorite === 1) {
-                                                            TheBook.favorite = 0;
-                                                            ToasterHandler(t("remove_fav"), "success");
-                                                            await getFromDB("Series", "* FROM Series WHERE favorite=1").then(async (resa) => {
-                                                                if (!resa) return;
-                                                                const bookList = tryToParse(resa);
-                                                                for (let i = 0; i < bookList.length; i++) {
-                                                                    if (TheBook.raw_title === bookList[i].title) {
-                                                                        const options = {
-                                                                            method: "POST", headers: {
-                                                                                "Content-Type": "application/json"
-                                                                            }, body: JSON.stringify({
-                                                                                "token": currentProfile.getToken,
-                                                                                "table": "Series",
-                                                                                "column": "favorite",
-                                                                                "whereEl": bookList[i]["ID_Series"],
-                                                                                "value": false,
-                                                                                "where": "ID_Series"
-                                                                            }, null, 2)
-                                                                        };
-                                                                        fetch(PDP + "/DB/update", options);
-                                                                    }
+                                                        TheBook.favorite = 1;
+                                                        ToasterHandler(t("add_fav"), "success");
+                                                        await getFromDB("Series", "* FROM Series WHERE favorite=0").then(async (resa) => {
+                                                            if (!resa) return;
+                                                            const bookList = tryToParse(resa);
+                                                            for (const element of bookList) {
+                                                                console.log(TheBook.raw_title);
+                                                                console.log(element.title);
+                                                                if (TheBook.raw_title === element.title) {
+                                                                    console.log("found");
+                                                                    const options = {
+                                                                        method: "POST", headers: {
+                                                                            "Content-Type": "application/json"
+                                                                        }, body: JSON.stringify({
+                                                                            "token": currentProfile.getToken,
+                                                                            "table": "Series",
+                                                                            "column": "favorite",
+                                                                            "whereEl": element["ID_Series"],
+                                                                            "value": true,
+                                                                            "where": "ID_Series"
+                                                                        }, null, 2)
+                                                                    };
+                                                                    await fetch(PDP + "/DB/update", options);
                                                                 }
-                                                            });
-                                                        } else {
-                                                            TheBook.favorite = 1;
-                                                            ToasterHandler(t("add_fav"), "success");
-                                                            await getFromDB("Series", "* FROM Series WHERE favorite=0").then(async (resa) => {
-                                                                if (!resa) return;
-                                                                const bookList = tryToParse(resa);
-                                                                for (let i = 0; i < bookList.length; i++) {
-                                                                    console.log(TheBook.raw_title);
-                                                                    console.log(bookList[i].title);
-                                                                    if (TheBook.raw_title === bookList[i].title) {
-                                                                        console.log("found");
-                                                                        const options = {
-                                                                            method: "POST", headers: {
-                                                                                "Content-Type": "application/json"
-                                                                            }, body: JSON.stringify({
-                                                                                "token": currentProfile.getToken,
-                                                                                "table": "Series",
-                                                                                "column": "favorite",
-                                                                                "whereEl": bookList[i]["ID_Series"],
-                                                                                "value": true,
-                                                                                "where": "ID_Series"
-                                                                            }, null, 2)
-                                                                        };
-                                                                        fetch(PDP + "/DB/update", options);
-                                                                    }
-                                                                }
-                                                            });
-                                                        }
+                                                            }
+                                                        });
                                                     }
                                                 }
                                             }
@@ -759,6 +682,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
 
                                 <IconButton id="DLBOOK" onClick={
                                     () => {
+                                        // noinspection JSIgnoredPromiseFromCall
                                         downloadBook(TheBook.PATH);
                                     }
                                 }> <Download/></IconButton>
@@ -770,23 +694,17 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                     if (type === "volume") {
                                                         if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL) {
                                                             ToasterHandler(t("providerCannotRematch"), "error");
+                                                        } else if (TheBook.lock !== 1) {
+                                                            await new API().refreshMeta(TheBook.ID_book, provider, "book");
                                                         } else {
-                                                            if (TheBook.lock !== 1) {
-                                                                await new API().refreshMeta(TheBook.ID_book, provider, "book");
-                                                            } else {
-                                                                ToasterHandler(t("bookLocked"), "error");
-                                                            }
+                                                            ToasterHandler(t("bookLocked"), "error");
                                                         }
+                                                    } else if (provider === providerEnum.MANUAL) {
+                                                        ToasterHandler(t("providerCannotRematch"), "error");
+                                                    } else if (TheBook.lock !== 1) {
+                                                        await new API().refreshMeta(TheBook.ID_book, provider, "series");
                                                     } else {
-                                                        if (provider === providerEnum.MANUAL) {
-                                                            ToasterHandler(t("providerCannotRematch"), "error");
-                                                        } else {
-                                                            if (TheBook.lock !== 1) {
-                                                                await new API().refreshMeta(TheBook.ID_book, provider, "series");
-                                                            } else {
-                                                                ToasterHandler(t("seriesLocked"), "error");
-                                                            }
-                                                        }
+                                                        ToasterHandler(t("seriesLocked"), "error");
                                                     }
 
                                                 }
@@ -856,7 +774,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                 provider !== providerEnum.Marvel ?
                                     (TheBook.score != null && TheBook.score !== "null" && TheBook.score !== 0) ?
                                         <Box sx={{position: 'relative', display: 'inline-flex'}}>
-                                            <CircularProgress variant="determinate" value={TheBook.score}/>
+                                            <CircularProgress variant="determinate" value={parseInt(TheBook.score.toString())}/>
                                             <Box
                                                 sx={{
                                                     top: 0,
@@ -892,7 +810,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                         </div>
                         <div id="chapters">
                             {
-                                type === "volume" ? TheBook.issueNumber === ("null" || "") ? "" : t("Numberofthisvolumewithintheseries") + ": " + TheBook.issueNumber : ((provider === providerEnum.Marvel) ? (t("NumberComics")) : (t("NumberChapter"))) + ": " + TheBook.issueNumber
+                                type === "volume" ? (TheBook.issueNumber === "null" || TheBook.issueNumber === "") ? "" : t("Numberofthisvolumewithintheseries") + ": " + TheBook.issueNumber : ((provider === providerEnum.Marvel) ? (t("NumberComics")) : (t("NumberChapter"))) + ": " + TheBook.issueNumber
                             }
                         </div>
                         <div id="id">
@@ -1000,13 +918,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                             cursor: "pointer",
                                                         }}
                                                         onClick={
-                                                            () => {
-                                                                if (provider === providerEnum.Marvel) {
-                                                                    handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"], tryToParse(el.url)[0].url);
-                                                                } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                                                                    handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
-                                                                }
-                                                            }
+                                                            ()=>onClickHandleOpenMoreInfo(el)
                                                         }
                                             >
                                                 {
@@ -1023,6 +935,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                                 textAlign={"center"}>{el.name}</Typography></Box> : ""
                                                 }
                                             </div>;
+
+
                                         })
                                     }
                                 </ScrollMenu>
@@ -1047,13 +961,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                             cursor: "pointer",
                                                         }}
                                                         onClick={
-                                                            () => {
-                                                                if (provider === providerEnum.Marvel) {
-                                                                    handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"], tryToParse(el.url)[0].url);
-                                                                } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
-                                                                    handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
-                                                                }
-                                                            }
+                                                            ()=>onClickHandleOpenMoreInfo(el)
                                                         }
                                             >
                                                 {
@@ -1098,7 +1006,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                     }
                                                 }
                                             }
-                                                         book={new Book(el.ID_book, el.name, ((provider === providerEnum.Marvel) ? (tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]) : (el.image)), "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, provider)}
+                                                         book={new Book(el.ID_book, el.name, ((provider === providerEnum.Marvel) ? (tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]) : (el.image)), "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, provider.toString())}
                                                          provider={provider}
                                             />;
                                         })}

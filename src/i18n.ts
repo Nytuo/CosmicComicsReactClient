@@ -3,7 +3,8 @@ import Backend from "i18next-http-backend";
 import {initReactI18next} from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
-const previousLanguage = localStorage.getItem("language") || "en";
+const previousLanguage = localStorage.getItem("language") ?? "en";
+// noinspection JSIgnoredPromiseFromCall
 i18n.use(Backend).use(LanguageDetector).use(initReactI18next).init({
     fallbackLng: previousLanguage,
     debug: false,
@@ -19,4 +20,3 @@ const translateString = (key: string) => {
     return i18n.t(key);
 };
 export {translateString};
-export default i18n;

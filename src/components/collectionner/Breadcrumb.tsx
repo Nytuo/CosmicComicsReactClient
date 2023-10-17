@@ -6,7 +6,6 @@ import {t} from "i18next";
 
 function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     event.preventDefault();
-    console.info('You clicked the breadcrumb ' + event.target);
 }
 
 export default function CollapsedBreadcrumbs({breadcrumbs}: {

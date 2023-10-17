@@ -6,10 +6,6 @@ import {currentProfile, PDP} from "@/utils/Common.ts";
  * Marvel class for interacting with the Marvel API.
  */
 class Marvel {
-    constructor() {
-
-    }
-
     /**
      * Search for comics by name and date.
      * @param name - The name of the comic to search for.
@@ -55,7 +51,7 @@ class Marvel {
      * @param path - The path of the book to insert.
      * @returns A Promise that resolves to the insert result.
      */
-    async InsertBook(name = "", date = "", path: string) {
+    async InsertBook(name: string, date: any, path: string) {
         return fetch(PDP + "/insert/marvel/book/", {
             method: "GET",
             headers: {
@@ -81,7 +77,7 @@ class Marvel {
      * @param name - The name of the series to insert.
      * @param path - The path of the series to insert.
      */
-    InsertSeries(name = "", path: string) {
+    InsertSeries(name:string, path: string) {
         fetch(PDP + '/api/marvel/', {
             method: 'POST',
             headers: {

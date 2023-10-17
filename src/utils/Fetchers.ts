@@ -111,6 +111,7 @@ function updateBookStatusForAll(setTo: "unread" | "read" | "reading", title: str
             W2 = "read";
             break;
     }
+    // noinspection JSIgnoredPromiseFromCall
     fetch(PDP + "/DB/update/OneForAll", {
         method: "POST",
         headers: {
@@ -135,8 +136,8 @@ function updateBookStatusForAll(setTo: "unread" | "read" | "reading", title: str
 function updateBookStatusForOne(setTo: "unread" | "read" | "reading", ID: string) {
     const asso: { [key: string]: any; } = {};
     const allPosibleValues = ["unread", "reading", "read"];
-    for (let i = 0; i < allPosibleValues.length; i++) {
-        asso[allPosibleValues[i]] = false;
+    for (const element of allPosibleValues) {
+        asso[element] = false;
     }
     asso[setTo] = true;
     const columns = [];
@@ -158,6 +159,7 @@ function updateBookStatusForOne(setTo: "unread" | "read" | "reading", ID: string
             "where": "ID_book"
         }, null, 2)
     };
+    // noinspection JSIgnoredPromiseFromCall
     fetch(PDP + "/DB/update", options);
 }
 
@@ -231,6 +233,7 @@ function changeRating(table: string, where: string, value: number) {
                 "where": "ID_book"
             }, null, 2)
         };
+        // noinspection JSIgnoredPromiseFromCall
         fetch(PDP + "/DB/update", options);
     } else if (table === "Series") {
         Logger.debug(table + " " + value + " from Series");
@@ -246,6 +249,7 @@ function changeRating(table: string, where: string, value: number) {
                 "value": value
             }, null, 2)
         };
+        // noinspection JSIgnoredPromiseFromCall
         fetch(PDP + "/DB/update", options);
     }
 }
@@ -262,8 +266,8 @@ function modifyConfigJson(tomod: string | number, mod: any) {
     }).then(function (data) {
         const config = JSON.parse(data);
         const keys = Object.keys(config);
-        for (let i = 0; i < keys.length; i++) {
-            if (keys[i] === tomod) {
+        for (const element of keys) {
+            if (element === tomod) {
                 config[tomod] = mod;
                 break;
             }
@@ -271,6 +275,7 @@ function modifyConfigJson(tomod: string | number, mod: any) {
         const option = {
             method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(config, null, 2)
         };
+        // noinspection JSIgnoredPromiseFromCall
         fetch(PDP + '/config/writeConfig/' + currentProfile.getToken, option);
     }).catch(function (error) {
         Logger.error(error);
@@ -298,7 +303,7 @@ async function deleteLib(elElement: any): Promise<void> {
  * @param filters The optional filters
  * @return {Promise<null|any>} The books
  */
-async function AllBooks(filters = ""): Promise<null | any> {
+async function AllBooks(filters = ""): Promise<any> {
     Logger.info("fetching books from DB with filters: " + filters);
     let request;
     if (filters === "") {
@@ -319,8 +324,8 @@ async function makeFavorite(book: IBook) {
         await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
             if (!resa) return;
             const bookList = JSON.parse(resa);
-            for (let i = 0; i < bookList.length; i++) {
-                if (bookList[i].ID_book === book.ID_book) {
+            for (const element of bookList) {
+                if (element.ID_book === book.ID_book) {
                     const options = {
                         method: "POST", headers: {
                             "Content-Type": "application/json"
@@ -328,7 +333,7 @@ async function makeFavorite(book: IBook) {
                             "token": currentProfile.getToken,
                             "table": "Books",
                             "column": "favorite",
-                            "whereEl": bookList[i].ID_book,
+                            "whereEl": element.ID_book,
                             "value": false,
                             "where": "ID_book"
                         }, null, 2)
@@ -343,8 +348,8 @@ async function makeFavorite(book: IBook) {
         await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
             if (!resa) return;
             const bookList = JSON.parse(resa);
-            for (let i = 0; i < bookList.length; i++) {
-                if (bookList[i].ID_book === book.ID_book) {
+            for (const element of bookList) {
+                if (element.ID_book === book.ID_book) {
                     const options = {
                         method: "POST", headers: {
                             "Content-Type": "application/json"
@@ -352,7 +357,7 @@ async function makeFavorite(book: IBook) {
                             "token": currentProfile.getToken,
                             "table": "Books",
                             "column": "favorite",
-                            "whereEl": bookList[i].ID_book,
+                            "whereEl": element.ID_book,
                             "value": true,
                             "where": "ID_book"
                         }, null, 2)

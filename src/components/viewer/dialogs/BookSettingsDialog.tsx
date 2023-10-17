@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import * as React from 'react';
 import {useEffect} from 'react';
 import Dialog from '@mui/material/Dialog';
@@ -395,6 +396,7 @@ export default function BookSettingsDialog({
                                                 "false",
                                                 shortname
                                             ).then(() => {
+                                                // noinspection JSIgnoredPromiseFromCall
                                                 ModifyDB(
                                                     "Books",
                                                     "read",
@@ -424,6 +426,7 @@ export default function BookSettingsDialog({
                                                         "false",
                                                         shortname
                                                     ).then(() => {
+                                                        // noinspection JSIgnoredPromiseFromCall
                                                         ModifyDB(
                                                             "Books",
                                                             "unread",
@@ -451,6 +454,7 @@ export default function BookSettingsDialog({
                                                         "false",
                                                         shortname
                                                     ).then(() => {
+                                                        // noinspection JSIgnoredPromiseFromCall
                                                         ModifyDB(
                                                             "Books",
                                                             "unread",
@@ -473,6 +477,7 @@ export default function BookSettingsDialog({
                                                     if (res) {
                                                         ToasterHandler(t("remove_fav"), "success");
                                                         setIsFavorite(false);
+                                                        // noinspection JSIgnoredPromiseFromCall
                                                         ModifyDB(
                                                             "Books",
                                                             "favorite",
@@ -482,6 +487,7 @@ export default function BookSettingsDialog({
                                                     } else {
                                                         ToasterHandler(t("add_fav"), "success");
                                                         setIsFavorite(true);
+                                                        // noinspection JSIgnoredPromiseFromCall
                                                         ModifyDB(
                                                             "Books",
                                                             "favorite",

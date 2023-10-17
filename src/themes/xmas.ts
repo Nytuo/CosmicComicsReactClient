@@ -1,3 +1,5 @@
+// noinspection HttpUrlsUsage
+
 import {ThemeOptions} from '@mui/material/styles';
 
 export const XMasTheme: ThemeOptions = {

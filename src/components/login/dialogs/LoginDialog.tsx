@@ -8,6 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import IProfile from "../../../interfaces/IProfile.ts";
+// noinspection ES6PreferShortImport // Important, do not remove, Webstorm will try to shorten the import and it will break the app.
 import {PDP, setCookie} from "../../../utils/Common.ts";
 import {ToasterHandler} from "../../common/ToasterHandler.tsx";
 import {useTranslation} from 'react-i18next';
@@ -97,6 +98,7 @@ export default function LoginDialog({onClose, openModal, title, text, okBtn, can
                         variant="standard"
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
+                                // noinspection JSIgnoredPromiseFromCall
                                 handleConnect();
                             }
                         }}

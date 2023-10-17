@@ -19,11 +19,11 @@ class API {
             await getFromDB("Series", "ID_Series,PATH FROM Series").then(async (res) => {
                 if (!res) return;
                 const parsedRes = JSON.parse(res) as Array<any>;
-                for (let index = 0; index < parsedRes.length; index++) {
-                    const el = parsedRes[index]["PATH"];
-                    for (let i = 0; i < parsedData.length; i++) {
-                        if (el === parsedData[i]) {
-                            await this.refreshMeta(parsedRes[index]["ID_Series"], elElement["API_ID"], "Series");
+                for (const element of parsedRes) {
+                    const el = element["PATH"];
+                    for (const item of parsedData) {
+                        if (el === item) {
+                            await this.refreshMeta(element["ID_Series"], elElement["API_ID"], "Series");
                             break;
                         }
                     }

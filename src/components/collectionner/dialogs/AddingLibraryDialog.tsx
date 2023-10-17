@@ -1,3 +1,5 @@
+// noinspection AllyJsxHardcodedStringInspection
+
 import * as React from 'react';
 import {useEffect} from 'react';
 import Button from '@mui/material/Button';
@@ -115,8 +117,10 @@ export default function AddingLibraryDialog({onClose, openModal, type = "add", o
                         ]}
                                          onFinish={() => {
                                              if (type === "add") {
+                                                 // noinspection JSIgnoredPromiseFromCall
                                                  addLibrary({'form': [name, location, provider]});
                                              } else {
+                                                 // noinspection JSIgnoredPromiseFromCall
                                                  updateLibrary({'form': [name, location, provider]}, old["ID_LIBRARY"]);
                                              }
                                              Logger.debug("Adding library: " + name + " " + location + " " + provider);

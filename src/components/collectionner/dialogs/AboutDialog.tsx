@@ -1,3 +1,5 @@
+// noinspection HtmlUnknownTarget
+
 import * as React from 'react';
 import {useEffect} from 'react';
 import Button from '@mui/material/Button';

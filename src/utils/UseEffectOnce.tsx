@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {useEffect, useRef, useState} from "react";
 
 export const useEffectOnce = (effect: () => void | (() => void)) => {

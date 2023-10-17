@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import TextField from '@mui/material/TextField';
 import {useEffect, useLayoutEffect} from "react";
 import {IBook} from '@/interfaces/IBook.ts';
@@ -24,21 +25,29 @@ export default function DatabaseEditorSkeleton({TheBook, type, triggerSend, trac
         if (TheBook) {
             console.log(TheBook);
             document.querySelectorAll("#commonEdit>div>div>input").forEach((e: any) => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 e.value = TheBook[e.id.replaceAll("edit_", "")];
             });
             if (type === 'series') {
                 document.querySelectorAll("#seriesEdit>div>div>input").forEach((e: any) => {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     e.value = TheBook[e.id.replaceAll("edit_", "")];
                 });
             } else if (type === 'book') {
                 document.querySelectorAll("#bookEdit>div>div>input").forEach((e: any) => {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     console.log(e.id.replaceAll("edit_", ""), TheBook[e.id.replaceAll("edit_", "")]);
 
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     e.value = TheBook[e.id.replaceAll("edit_", "")];
                 });
             }
         }
-    }, []);
+    },[]);
 
     const handleSend = async () => {
         const values = [];
@@ -109,6 +118,7 @@ export default function DatabaseEditorSkeleton({TheBook, type, triggerSend, trac
 
     useEffect(() => {
         if (triggerSend) {
+            // noinspection JSIgnoredPromiseFromCall
             handleSend();
         }
     }, [triggerSend]);

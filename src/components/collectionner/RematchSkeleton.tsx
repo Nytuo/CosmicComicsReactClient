@@ -53,6 +53,7 @@ export default function RematchSkeleton({provider, type, oldID}: {
                                                 setRematchResult((prev) => [...prev, {
                                                     book: TheBook.book, onclick:
                                                         () => {
+                                                            // noinspection JSIgnoredPromiseFromCall
                                                             new API().rematch(cdataI.id + "_" + provider, provider, "book", oldID, false);
                                                         }
                                                 }]);
@@ -74,6 +75,7 @@ export default function RematchSkeleton({provider, type, oldID}: {
                                                 setRematchResult((prev) => [...prev, {
                                                     book: TheBook.book,
                                                     onclick: () => {
+                                                        // noinspection JSIgnoredPromiseFromCall
                                                         new API().rematch(cdataI.seed[0].split("/")[2] + "_" + provider, provider, "book", oldID, false);
                                                     }
                                                 }]);
@@ -106,6 +108,7 @@ export default function RematchSkeleton({provider, type, oldID}: {
                                                 const TheBook = new Book(parsedDataI["id"], parsedDataI["title"], cover, "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, '0');
                                                 setRematchResult((prev) => [...prev, {
                                                     book: TheBook.book, onclick: () => {
+                                                        // noinspection JSIgnoredPromiseFromCall
                                                         new API().rematch(parsedDataI.id + "_" + provider, provider, "book", oldID, false);
                                                     }
                                                 }]);
@@ -125,6 +128,7 @@ export default function RematchSkeleton({provider, type, oldID}: {
                                                 setRematchResult((prev) => [...prev, {
                                                     book: TheBook.book, onclick:
                                                         () => {
+                                                            // noinspection JSIgnoredPromiseFromCall
                                                             new API().rematch(cdataI.id + "_" + provider, provider, "Series", oldID, true);
                                                         }
                                                 }]);
@@ -135,12 +139,13 @@ export default function RematchSkeleton({provider, type, oldID}: {
                                     new Anilist().GET_SEARCH(search.value).then((el: any) => {
                                         if (el != null) {
                                             el = el.base;
-                                            for (let o = 0; o < el.length; o++) {
-                                                const TheBook = new Book(el[o].id, el[o].title["english"] + " / " + el[o].title["romaji"] + " / " + el[o].title["native"], el[o]["coverImage"]["large"], "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, '0');
+                                            for (const element of el) {
+                                                const TheBook = new Book(element.id, element.title["english"] + " / " + element.title["romaji"] + " / " + element.title["native"], element["coverImage"]["large"], "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, '0');
                                                 setRematchResult((prev) => [...prev, {
                                                     book: TheBook.book,
                                                     onclick: () => {
-                                                        new API().rematch(el[o].id + "_" + provider, provider, "Series", oldID, true);
+                                                        // noinspection JSIgnoredPromiseFromCall
+                                                        new API().rematch(element.id + "_" + provider, provider, "Series", oldID, true);
                                                     }
                                                 }]);
                                             }

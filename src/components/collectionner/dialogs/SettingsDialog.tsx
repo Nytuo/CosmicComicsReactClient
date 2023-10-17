@@ -15,8 +15,8 @@ export default function SettingsDialog({onClose, openModal}: {
 }) {
     const {t} = useTranslation();
     const [open, setOpen] = React.useState(openModal);
-    const [language, setLanguage] = React.useState<any>(localStorage.getItem("language") || "en");
-    const [theme, setTheme] = React.useState<any>(localStorage.getItem("theme") || "darkTheme");
+    const [language, setLanguage] = React.useState<any>(localStorage.getItem("language") ?? "en");
+    const [theme, setTheme] = React.useState<any>(localStorage.getItem("theme") ?? "darkTheme");
 
     // This is used to update the state of the dialog when the parent component changes the value of openModal.
     useEffect(() => {

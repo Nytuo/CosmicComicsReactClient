@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import CollectionnerDrawer from '@/components/collectionner/Drawer.tsx';
 import {checkLogin, PDP} from '@/utils/Common.ts';
 import React, {useEffect, useLayoutEffect} from 'react';
@@ -36,6 +37,7 @@ function Collectionner() {
             });
 
         };
+        // noinspection JSIgnoredPromiseFromCall
         fetchLocation();
 
     }, []);

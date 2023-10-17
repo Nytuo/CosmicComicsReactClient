@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {IBook} from "@/interfaces/IBook.ts";
 import ContentViewer from "./ContentViewer.tsx";
 import {useEffect} from "react";
@@ -19,9 +20,11 @@ function Series({stateSeries, handleAddBreadcrumbs, handleChangeToDetails, handl
 }) {
     useEffect(() => {
         if (stateSeries && stateSeries.series)
-        handleAddBreadcrumbs(stateSeries.series.NOM, () => {
-            handleChangeToSeries(true, stateSeries.series, stateSeries.provider);
-        });
+        { // @ts-ignore
+            handleAddBreadcrumbs(stateSeries.series.NOM, () => {
+                        handleChangeToSeries(true, stateSeries.series, stateSeries.provider);
+                    });
+        }
     }, []);
     return (<>
         {stateSeries && stateSeries.open ?

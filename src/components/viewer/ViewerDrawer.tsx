@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+// noinspection AllyJsxHardcodedStringInspection
+
 import * as React from 'react';
 import {styled, useTheme} from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -99,8 +102,8 @@ export default function PersistentDrawerLeft() {
     const [imageTwo, setImageTwo] = React.useState<string | null>(null);
     const [currentPage, setCurrentPage] = React.useState<number>(0);
     const [bookLoaded, setBookLoaded] = React.useState(false);
-    const CosmicComicsTemp = localStorage.getItem("CosmicComicsTemp") || "";
-    let CosmicComicsTempI = localStorage.getItem("CosmicComicsTempI") || "";
+    const CosmicComicsTemp = localStorage.getItem("CosmicComicsTemp") ?? "";
+    let CosmicComicsTempI = localStorage.getItem("CosmicComicsTempI") ?? "";
     const [isFullscreen, setIsFullscreen] = React.useState(false);
     const [rotation, setRotation] = React.useState(0);
     const [zoomLevel, setZoomLevel] = React.useState(1);
@@ -187,8 +190,6 @@ export default function PersistentDrawerLeft() {
         }).catch(function (error) {
             console.log(error);
         });
-        //var img = document.getElementById("imgViewer_0");
-        //return colorThief.getColor(img);
     }
 
     const [userSettings, setUserSettings] = React.useState<IUserSettings>({
@@ -252,6 +253,7 @@ export default function PersistentDrawerLeft() {
         await preloadImage(listofImg);
         console.log(filepage);
         if (filepage !== 0) {
+            // noinspection ES6MissingAwait
             Reader(listofImg, filepage);
         } else {
             let lastpage = 0;
@@ -264,6 +266,7 @@ export default function PersistentDrawerLeft() {
                         lastpage = JSON.parse(res)[0]["last_page"];
                         setCurrentPage(lastpage);
                     }
+                    // noinspection ES6MissingAwait
                     Reader(listofImg, lastpage);
                 });
             } catch (error) {
@@ -295,6 +298,7 @@ export default function PersistentDrawerLeft() {
                 }
             );
         };
+        // noinspection JSIgnoredPromiseFromCall
         LaunchViewer();
     }, []);
 
@@ -335,15 +339,7 @@ export default function PersistentDrawerLeft() {
                 setCurrentPage(page + 1);
             }
         } else if (DoublePageMode && BlankFirstPage && !DPMNoH) {
-            if (page === 0 || page === -1) {
-                if (page === 2) {
-                    setImageOne(images[1]);
-                    setImageTwo(null);
-                } else {
-                    setImageOne(images[0]);
-                    setImageTwo(null);
-                }
-            } else {
+            if (!(page === 0 || page === -1)) {
                 if (mangaMode) {
                     setImageOne(images[1]);
                     setImageTwo(images[0]);
@@ -353,6 +349,9 @@ export default function PersistentDrawerLeft() {
                     setImageTwo(images[1]);
                     setCurrentPage(page + 1);
                 }
+            } else {
+                setImageOne(images[0]);
+                setImageTwo(null);
             }
         } else if (DoublePageMode && !BlankFirstPage && DPMNoH) {
             const imgn0 = new Image();
@@ -367,16 +366,14 @@ export default function PersistentDrawerLeft() {
                 setImageOne(null);
                 setImageTwo(images[1]);
                 setCurrentPage(page);
+            } else if (mangaMode) {
+                setImageOne(images[1]);
+                setImageTwo(images[0]);
+                setCurrentPage(page + 1);
             } else {
-                if (mangaMode) {
-                    setImageOne(images[1]);
-                    setImageTwo(images[0]);
-                    setCurrentPage(page + 1);
-                } else {
-                    setImageOne(images[0]);
-                    setImageTwo(images[1]);
-                    setCurrentPage(page + 1);
-                }
+                setImageOne(images[0]);
+                setImageTwo(images[1]);
+                setCurrentPage(page + 1);
             }
         } else if (DoublePageMode && BlankFirstPage && DPMNoH) {
             const imgn0 = new Image();
@@ -391,26 +388,17 @@ export default function PersistentDrawerLeft() {
                 setImageOne(null);
                 setImageTwo(images[1]);
                 setCurrentPage(page);
+            } else if (page === 0 || page === -1) {
+                setImageOne(images[0]);
+                setImageTwo(null);
+            } else if (mangaMode) {
+                setImageOne(images[1]);
+                setImageTwo(images[0]);
+                setCurrentPage(page + 1);
             } else {
-                if (page === 0 || page === -1) {
-                    if (page === 2) {
-                        setImageOne(images[1]);
-                        setImageTwo(null);
-                    } else {
-                        setImageOne(images[0]);
-                        setImageTwo(null);
-                    }
-                } else {
-                    if (mangaMode) {
-                        setImageOne(images[1]);
-                        setImageTwo(images[0]);
-                        setCurrentPage(page + 1);
-                    } else {
-                        setImageOne(images[0]);
-                        setImageTwo(images[1]);
-                        setCurrentPage(page + 1);
-                    }
-                }
+                setImageOne(images[0]);
+                setImageTwo(images[1]);
+                setCurrentPage(page + 1);
             }
         } else {
             setImageOne(images[0]);
@@ -430,6 +418,7 @@ export default function PersistentDrawerLeft() {
             ,
             50
         );
+        // noinspection ES6MissingAwait
         LoadBMI(page);
     }
 
@@ -456,6 +445,7 @@ export default function PersistentDrawerLeft() {
             ) {
                 if (scrollindex_next > 2) {
                     if (!VIV_On) {
+                        // noinspection JSIgnoredPromiseFromCall
                         Reader(listofImgState, currentPage + 1);
                         setCurrentPage(currentPage + 1);
                     } else {
@@ -511,6 +501,7 @@ export default function PersistentDrawerLeft() {
                         "false",
                         shortname
                     ).then(() => {
+                        // noinspection JSIgnoredPromiseFromCall
                         ModifyDB(
                             "Books",
                             "read",
@@ -525,6 +516,7 @@ export default function PersistentDrawerLeft() {
                     currentPage.toString(),
                     shortname
                 ).then(() => {
+                    // noinspection JSIgnoredPromiseFromCall
                     Reader(listofImgState, currentPage + 1);
                 });
             }
@@ -596,63 +588,66 @@ export default function PersistentDrawerLeft() {
             if (DoublePageMode && !BlankFirstPage && !DPMNoH) {
                 if (currentPage > 2) {
                     setCurrentPage(currentPage - 3);
+                    // noinspection JSIgnoredPromiseFromCall
                     Reader(listofImgState, currentPage - 3);
-                } else {
-                    if (currentPage - 1 !== -1) {
-                        setCurrentPage(currentPage - 1);
-                        Reader(listofImgState, currentPage - 1);
-                    }
+                } else if (currentPage - 1 !== -1) {
+                    setCurrentPage(currentPage - 1);
+                    // noinspection JSIgnoredPromiseFromCall
+                    Reader(listofImgState, currentPage - 1);
                 }
             } else if (
                 DoublePageMode && !BlankFirstPage && DPMNoH
             ) {
                 if (currentPage > 2) {
                     setCurrentPage(currentPage - 3);
+                    // noinspection JSIgnoredPromiseFromCall
                     Reader(listofImgState, currentPage - 3);
-                } else {
-                    if (currentPage - 2 !== -1) {
-                        setCurrentPage(currentPage - 2);
-                        Reader(listofImgState, currentPage - 2);
-                    }
+                } else if (currentPage - 2 !== -1) {
+                    setCurrentPage(currentPage - 2);
+                    // noinspection JSIgnoredPromiseFromCall
+                    Reader(listofImgState, currentPage - 2);
                 }
             } else if (
                 DoublePageMode && BlankFirstPage && !DPMNoH
             ) {
                 if (currentPage !== 0 && currentPage - 3 !== -1) {
                     setCurrentPage(currentPage - 3);
+                    // noinspection JSIgnoredPromiseFromCall
                     Reader(listofImgState, currentPage - 3);
                 } else if (currentPage - 3 === -1) {
                     setCurrentPage(currentPage - 2);
+                    // noinspection JSIgnoredPromiseFromCall
                     Reader(listofImgState, currentPage - 2);
                 }
             } else if (
                 DoublePageMode && BlankFirstPage && DPMNoH
             ) {
-                if (currentPage !== 0 && currentPage - 3 !== -1) {
-                    setCurrentPage(currentPage - 2);
-                    Reader(listofImgState, currentPage - 2);
-                } else if (currentPage - 3 === -1) {
-                    setCurrentPage(currentPage - 2);
-                    Reader(listofImgState, currentPage - 2);
-                }
-            } else {
-                if (currentPage !== 0) {
-                    setCurrentPage(currentPage - 1);
-                    Reader(listofImgState, currentPage - 1);
-                }
+                setCurrentPage(currentPage - 2);
+                // noinspection JSIgnoredPromiseFromCall
+                Reader(listofImgState, currentPage - 2);
+            } else if (currentPage !== 0) {
+                setCurrentPage(currentPage - 1);
+                // noinspection JSIgnoredPromiseFromCall
+                Reader(listofImgState, currentPage - 1);
             }
         }
     }
 
     React.useLayoutEffect(() => {
-        function keyListener(e: { ctrlKey: any; shiftKey: any; key: string; }) {
+        function keyListener(e: {
+            ctrlKey: any;
+            shiftKey: any;
+            key: string;
+        }) {
             if (!e.ctrlKey && !e.shiftKey && e.key === "ArrowLeft") {
                 PreviousPage();
             } else if (!e.ctrlKey && !e.shiftKey && e.key === "ArrowRight") {
                 NextPage();
             } else if (e.key === "Escape") {
+                // noinspection JSIgnoredPromiseFromCall
                 document.exitFullscreen();
             } else if (e.key === "f") {
+                // noinspection JSIgnoredPromiseFromCall
                 document.documentElement.requestFullscreen();
             } else if (!e.ctrlKey && !e.shiftKey && e.key === "ArrowUp") {
                 PreviousPage();
@@ -660,15 +655,19 @@ export default function PersistentDrawerLeft() {
                 NextPage();
             } else if (!e.ctrlKey && e.shiftKey && e.key === "ArrowUp") {
                 setCurrentPage(0);
+                // noinspection JSIgnoredPromiseFromCall
                 Reader(listofImgState, 0);
             } else if (!e.ctrlKey && e.shiftKey && e.key === "ArrowDown") {
                 setCurrentPage(listofImgState.length - 1);
+                // noinspection JSIgnoredPromiseFromCall
                 Reader(listofImgState, listofImgState.length - 1);
             } else if (!e.ctrlKey && e.shiftKey && e.key === "ArrowLeft") {
                 setCurrentPage(0);
+                // noinspection JSIgnoredPromiseFromCall
                 Reader(listofImgState, 0);
             } else if (!e.ctrlKey && e.shiftKey && e.key === "ArrowRight") {
                 setCurrentPage(listofImgState.length - 1);
+                // noinspection JSIgnoredPromiseFromCall
                 Reader(listofImgState, listofImgState.length - 1);
             } else if (e.ctrlKey && !e.shiftKey && e.key === "ArrowLeft") {
                 setRotation(rotation - 90);
@@ -680,7 +679,10 @@ export default function PersistentDrawerLeft() {
 
         document.addEventListener("keyup", keyListener);
         //make a zoom with the mouse wheel
-        const zoom = (e: { shiftKey: any; deltaY: number; }) => {
+        const zoom = (e: {
+            shiftKey: any;
+            deltaY: number;
+        }) => {
             if (e.shiftKey) {
                 if (e.deltaY < 0) {
                     setZoomLevel(zoomLevel + 20);
@@ -728,53 +730,52 @@ export default function PersistentDrawerLeft() {
                                 Logger.info("CCI doesn't exist");
                                 //Unzip if the folder doesn't exist
                                 fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then((response) => {
-                                    Logger.info("Unzip for " + path + " : " + response);
+                                    Logger.info("Unzip for " + path + " : " + response.status);
                                     prepareReader();
                                 });
+                            } else if (isDir) {
+                                Logger.info("Trying to load images from CCI cache");
+                                //If the path is a folder then it contains images
+                                ToasterHandler(t("loading_cache"), "info");
+                                // noinspection ES6MissingAwait
+                                prepareReader();
                             } else {
-                                if (isDir) {
-                                    Logger.info("Trying to load images from CCI cache");
-                                    //If the path is a folder then it contains images
-                                    ToasterHandler(t("loading_cache"), "info");
-                                    prepareReader();
-                                } else {
-                                    Logger.info("CCI is a file");
-                                    //Else we need to extract it
-                                    //We test if the path in the path.txt exists
-                                    fetch(PDP + "/view/exist/" + ((CosmicComicsTempI + "/path.txt").replaceAll("/", "ù").replaceAll("\\", "ù"))).then((response) => {
-                                        response.json().then((existCCIP) => {
-                                            Logger.info("path.txt exist? : " + existCCIP);
-                                            if (existCCIP) {
-                                                fetch(PDP + "/view/readFile/" + ((CosmicComicsTempI + "path.txt").replaceAll("/", "ù").replaceAll("\\", "ù"))).then((response) => {
-                                                    response.json().then((readCCTIP) => {
-                                                        if (
-                                                            readCCTIP !== decodeURIComponent(path).replaceAll("%C3%B9", "/") ||
-                                                            path.includes(".pdf")
-                                                        ) {
-                                                            Logger.info("path.txt is not equal to path, Unzipping");
-                                                            // if it's not the same we need to extract it
-                                                            fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then(() => {
-                                                                prepareReader();
-                                                            });
-                                                        } else {
-                                                            Logger.info("path.txt is equal to path, reading");
+                                Logger.info("CCI is a file");
+                                //Else we need to extract it
+                                //We test if the path in the path.txt exists
+                                fetch(PDP + "/view/exist/" + ((CosmicComicsTempI + "/path.txt").replaceAll("/", "ù").replaceAll("\\", "ù"))).then((response) => {
+                                    response.json().then((existCCIP) => {
+                                        Logger.info("path.txt exist? : " + existCCIP);
+                                        if (existCCIP) {
+                                            fetch(PDP + "/view/readFile/" + ((CosmicComicsTempI + "path.txt").replaceAll("/", "ù").replaceAll("\\", "ù"))).then((response) => {
+                                                response.json().then((readCCTIP) => {
+                                                    if (
+                                                        readCCTIP !== decodeURIComponent(path).replaceAll("%C3%B9", "/") ||
+                                                        path.includes(".pdf")
+                                                    ) {
+                                                        Logger.info("path.txt is not equal to path, Unzipping");
+                                                        // if it's not the same we need to extract it
+                                                        fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then(() => {
                                                             prepareReader();
-                                                        }
-                                                    });
+                                                        });
+                                                    } else {
+                                                        Logger.info("path.txt is equal to path, reading");
+                                                        prepareReader();
+                                                    }
                                                 });
-                                            } else {
-                                                // if don't have a path.txt we extract
-                                                Logger.info("path.txt doesn't exist, Unzipping");
-                                                fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then((response) => {
-                                                    return response.text();
-                                                }).then(() => {
-                                                    Logger.info("Unziped");
-                                                    prepareReader();
-                                                });
-                                            }
-                                        });
+                                            });
+                                        } else {
+                                            // if don't have a path.txt we extract
+                                            Logger.info("path.txt doesn't exist, Unzipping");
+                                            fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then((response) => {
+                                                return response.text();
+                                            }).then(() => {
+                                                Logger.info("Unziped");
+                                                prepareReader();
+                                            });
+                                        }
                                     });
-                                }
+                                });
                             }
                         });
                     }).catch((error) => {
@@ -784,6 +785,7 @@ export default function PersistentDrawerLeft() {
             });
         };
         if (!bookLoaded && CosmicComicsTemp !== "" && CosmicComicsTempI !== "") {
+            // noinspection JSIgnoredPromiseFromCall
             LaunchViewer();
         }
     });
@@ -801,7 +803,9 @@ export default function PersistentDrawerLeft() {
         setOpenBookSettings(false);
     };
 
-    function isMouseAtTheTop(e: { clientY: number; }) {
+    function isMouseAtTheTop(e: {
+        clientY: number;
+    }) {
         if (e.clientY < 50) {
             setActionbarON(true);
         }
@@ -953,9 +957,11 @@ export default function PersistentDrawerLeft() {
                                     onClick={
                                         () => {
                                             if (document.fullscreenElement) {
+                                                // noinspection JSIgnoredPromiseFromCall
                                                 document.exitFullscreen();
                                                 setIsFullscreen(false);
                                             } else {
+                                                // noinspection JSIgnoredPromiseFromCall
                                                 document.documentElement.requestFullscreen();
                                                 setIsFullscreen(true);
                                             }
@@ -1034,11 +1040,12 @@ export default function PersistentDrawerLeft() {
                                         onClick={() => {
                                             setCurrentPage(i);
                                             if (!VIV_On)
+                                                // noinspection JSIgnoredPromiseFromCall
                                                 Reader(listofImg, i);
                                             else {
                                                 const imgViewer = document.getElementById("imgViewer_" + i);
                                                 if (imgViewer === null) return;
-                                               imgViewer.scrollIntoView({
+                                                imgViewer.scrollIntoView({
                                                     block: "center"
                                                 });
                                             }
@@ -1065,8 +1072,8 @@ export default function PersistentDrawerLeft() {
                         VIV_On ? <>
                                 {
                                     preloadedImages.map((el: string, i: number) => {
-                                            return <div id={"div_imgViewer_" + i}>
-                                                <img key={i} id={"imgViewer_" + i} src={el} alt={i + 1 + "th page"}
+                                            return <div id={"div_imgViewer_" + i} key={i}>
+                                                <img id={"imgViewer_" + i} src={el} alt={i + 1 + "th page"}
                                                      width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
                                                      height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
                                                      style={
@@ -1106,7 +1113,8 @@ export default function PersistentDrawerLeft() {
                                               rotation={rotation} alt="Logo"/> : null}
                                 {
                                     imageTwo !== null ?
-                                        <MovableImage id={"imgViewer_1"} src={imageTwo} origin={origins[1]} disableMove={false}
+                                        <MovableImage id={"imgViewer_1"} src={imageTwo} origin={origins[1]}
+                                                      disableMove={false}
                                                       width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
                                                       height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
                                                       rotation={rotation} alt="Logo"/> : null
@@ -1146,10 +1154,11 @@ export default function PersistentDrawerLeft() {
                                 onClick={
                                     () => {
                                         setCurrentPage(0);
-                                        if (VIV_On || webToonMode)
+                                        if (VIV_On || webToonMode) {
                                             window.scrollTo(0, 0);
-                                        else
+                                        } else {// noinspection JSIgnoredPromiseFromCall
                                             Reader(listofImgState, 0);
+                                        }
                                     }
                                 }
                                 color="inherit"
@@ -1212,6 +1221,7 @@ export default function PersistentDrawerLeft() {
                                                 if (VIV_On || webToonMode)
                                                     window.scrollTo(0, document.body.scrollHeight);
                                                 else
+                                                    // noinspection JSIgnoredPromiseFromCall
                                                     Reader(listofImgState, max);
 
                                             });

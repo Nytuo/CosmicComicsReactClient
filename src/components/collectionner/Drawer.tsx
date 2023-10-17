@@ -1,3 +1,5 @@
+// noinspection HtmlUnknownTarget
+
 import * as React from 'react';
 import {alpha, CSSObject, styled, Theme, useTheme} from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -32,7 +34,7 @@ import {useTranslation} from 'react-i18next';
 import {AllBooks, deleteLib, DetectFolderInLibrary, getFromDB, InsertIntoDB, logout} from '@/utils/Fetchers.ts';
 import {buildTitleFromProvider, providerEnum, tryToParse} from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
-import {cardModeEX, currentProfile, PDP} from '@/utils/Common.ts';
+import {cardModeEX, currentProfile, InsertIntoTarget, PDP} from '@/utils/Common.ts';
 import UserAccountDialog from './dialogs/UserAccountDialog.tsx';
 import {IBook} from '@/interfaces/IBook.ts';
 import Book from '@/utils/Book.ts';
@@ -44,11 +46,10 @@ import ContainerExplorer from './ContainerExplorer.tsx';
 import {ToasterHandler} from '../common/ToasterHandler.tsx';
 import UploadDialog from './dialogs/UploadDialog.tsx';
 import NavigationDialog from './dialogs/NavigationDialog.tsx';
-import {OpenLibrary} from '@/API/OpenLibrary.ts';
-import {GoogleBooks} from '@/API/GoogleBooks.ts';
 import APISelectorDialog from './dialogs/APISelectorDialog.tsx';
 import AddingLibraryDialog from './dialogs/AddingLibraryDialog.tsx';
 import {API} from '@/API/API.ts';
+import {ISeriesOfBook} from "@/interfaces/ISeriesOfBook.ts";
 
 //#region Styles
 const drawerWidth = 240;
@@ -182,14 +183,14 @@ export default function MiniDrawer({
     const [old, setOld] = React.useState<any>(null);
     const [dialogFor, setDialogFor] = React.useState<'edit' | 'create'>('edit');
     const [openDetails, setOpenDetails] = React.useState<{ open: boolean, book: IBook, provider: any; } | null>(null);
-    const [openSeries, setOpenSeries] = React.useState<{ open: boolean, series: IBook[], provider: any; }>({
+    const [openSeries, setOpenSeries] = React.useState<{ open: boolean, series: ISeriesOfBook[], provider: any; }>({
         open: false,
         series: [],
         provider: null
     });
     const [openExplorer, setOpenExplorer] = React.useState<{
         open: boolean,
-        explorer: IBook[],
+        explorer: IBook[] | ISeriesOfBook[],
         provider: any,
         booksNumber: number;
         type: "series" | "books";
@@ -284,7 +285,7 @@ export default function MiniDrawer({
         setOpenDetails({open: open, book: book, provider: provider});
     };
 
-    const handleOpenSeries = (open: boolean, series: IBook[], provider: any) => {
+    const handleOpenSeries = (open: boolean, series: ISeriesOfBook[], provider: any) => {
         setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
         setOpenDetails(null);
         setOpenSeries({open: open, series: series, provider: provider});
@@ -296,7 +297,7 @@ export default function MiniDrawer({
         setOpenDetails({open: true, book: book, provider: provider});
     };
 
-    const handleChangeToSeries = (_open: boolean, series: IBook[], provider: any) => {
+    const handleChangeToSeries = (_open: boolean, series: ISeriesOfBook[], provider: any) => {
         setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
         setOpenDetails(null);
         setOpenSeries({open: true, series: series, provider: provider});
@@ -331,16 +332,16 @@ export default function MiniDrawer({
 
         await getFromDB("Series", "PATH FROM Series").then(async (res) => {
             if (!res) return;
-            for (let index = 0; index < FolderRes.length; index++) {
-                const path = FolderRes[index];
+            for (const element of FolderRes) {
+                const path = element;
                 const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "").replace("/", "");
                 console.log(name);
                 let found = false;
                 const titlesList = [];
                 const returnedPath = JSON.parse(res);
                 let foundPATH = "";
-                for (let i = 0; i < returnedPath.length; i++) {
-                    titlesList.push(returnedPath[i].PATH);
+                for (const element of returnedPath) {
+                    titlesList.push(element.PATH);
                 }
                 titlesList.forEach((el) => {
                     console.log(el);
@@ -360,7 +361,6 @@ export default function MiniDrawer({
                         const randID = Math.floor(Math.random() * 1000000);
                         await InsertIntoDB("Series", "(ID_Series,title,note,statut,start_date,end_date,description,Score,genres,cover,BG,CHARACTERS,TRENDING,STAFF,SOURCE,volumes,chapters,favorite,PATH,lock)", "('" + randID + "U_0" + "','" + JSON.stringify(name.replaceAll("'", "''")) + "',null,null,null,null,null,'0',null,null,null,null,null,null,null,null,null,0,'" + path + "',false)");
                     }
-                    //TODO implement API HERE
                 } else {
                     await getFromDB("Series", "* FROM Series where PATH = '" + foundPATH + "'").then((resa) => {
                         if (!resa) return;
@@ -371,13 +371,6 @@ export default function MiniDrawer({
                         if (provider === providerEnum.Marvel) {
                             node = JSON.parse(res[0].title);
                         } else if (provider == providerEnum.Anilist) {
-                            // if (JSON.parse(res[0].title)["english"] !== undefined && JSON.parse(res[0].title)["english"] !== null) {
-                            //     node = JSON.parse(res[0].title)["english"];
-                            // } else if (JSON.parse(res[0].title)["romaji"] !== undefined && JSON.parse(res[0].title)["romaji"] !== null) {
-                            //     node = JSON.parse(res[0].title)["romaji"];
-                            // } else {
-                            //     node = JSON.parse(res[0].title);
-                            // }
                             node = (JSON.parse(res[0].title)["english"] + " / " + JSON.parse(res[0].title)["romaji"] + " / " + JSON.parse(res[0].title)["native"]);
                         } else if (provider == providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                             node = res[0].title;
@@ -397,10 +390,11 @@ export default function MiniDrawer({
                         listOfImages.push(imagelink);
                         //Setting Card Div
                         if (openExplorer === null) return;
-                        const OSseries = openExplorer.explorer;
+                        const OSseries = openExplorer.explorer as ISeriesOfBook[];
                         console.log("[RAW] Series from DB : ", res[0]);
                         console.log("provider", provider);
                         OSseries.push({
+                            SOURCE: res[0]["SOURCE"], Score: res[0]["Score"], chapters: res[0]["chapters"], cover: imagelink.toString(), pageCount: 0,
                             API_ID: provider.toString(),
                             unread: 0,
                             read: 0,
@@ -434,7 +428,7 @@ export default function MiniDrawer({
                             volumes: res[0]["volumes"],
                             lock: res[0]["lock"],
                             note: res[0]["note"],
-                            BG_cover: res[0]["BG"],
+                            BG_cover: res[0]["BG"]
                         });
                         setOpenExplorer({
                             open: true,
@@ -466,100 +460,22 @@ export default function MiniDrawer({
      * @param {string} FolderRes The folder path
      * @param {string} libraryPath The library path
      * @param {*} date The date of the element
-     * @param {providerEnum} provider The provider of the element
+     * @param {number} provider The provider of the element
      */
-    function loadView(FolderRes: string, libraryPath: string, date = "", provider = providerEnum.MANUAL) {
+    function loadView(FolderRes: string, libraryPath: string, date: any = "", provider: number = providerEnum.MANUAL) {
         fetch(PDP + "/getListOfFilesAndFolders/" + FolderRes).then((response) => {
             return response.text();
         }).then(async (data) => {
             data = JSON.parse(data);
-            const OSBook = openExplorer.explorer;
-            for (let index = 0; index < data.length; index++) {
-                const path = data[index];
+            let OSBook = openExplorer.explorer;
+            for (const element of data) {
+                const path = element;
                 const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "");
                 const realnameREG = /[^\\/]+(?=\.\w+$)|[^\\/]+$/.exec(name);
                 if (realnameREG === null) continue;
                 const realname = realnameREG[0];
-                await getFromDB("Books", "* FROM Books WHERE PATH = '" + path + "'").then(async (resa) => {
-                    if (!resa) return;
-                    const bookList = JSON.parse(resa);
-                    let TheBook;
-                    if (bookList.length === 0) {
-                        if (provider === providerEnum.Marvel) {
-                            await new Marvel().InsertBook(realname, date, path).then(async (cdata: any) => {
-                                if (cdata === undefined) {
-                                    throw new Error("no data");
-                                }
-                                if (cdata["data"]["total"] > 0) {
-                                    cdata = cdata["data"]["results"][0];
-                                    TheBook = new Book(cdata["id"], realname, cdata["thumbnail"].path + "/detail." + cdata["thumbnail"]["extension"], cdata["description"], cdata["creators"], cdata["characters"], cdata["urls"], null, 0, 0, 1, 0, 0, 0, path, cdata["issueNumber"], cdata["format"], cdata["pageCount"], cdata["series"], cdata["prices"], cdata["dates"], cdata["collectedIssues"], cdata["collections"], cdata["variants"], 0, provider.toString());
-                                } else {
-                                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
-                                }
-                            });
-                        } else if (provider === providerEnum.Anilist) {
-                            await new Anilist().InsertBook(realname, path);
-                            TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
-                        } else if (provider === providerEnum.MANUAL) {
-                            console.log("manual");
-                            InsertIntoDB("Books", "", `(${Math.floor(Math.random() * 100000)},'${null}','${realname}',null,${0},${0},${1},${0},${0},${0},'${path}','${null}','${null}','${null}','${null}',${null},'${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}',false)`);
-                            TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
-                        } else if (provider === providerEnum.OL) {
-                            await new OpenLibrary().InsertBook(realname, path).then(async (cdata: any) => {
-                                console.log(cdata);
-                                if (cdata === undefined) {
-                                    throw new Error("no data");
-                                }
-                                if (Object.prototype.hasOwnProperty.call(cdata, "num_found")) {
-                                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
-                                } else {
-                                    const cdataD = cdata["details"];
-                                    TheBook = new Book(cdata["bib_key"], realname, cdata["thumbnail_url"], cdataD["description"], cdataD["authors"], null, cdataD["info_url"], null, 0, 0, 1, 0, 0, 0, path, "null", cdataD["physical_format"], cdataD["number_of_pages"], null, null, cdata["publish_date"], null, null, null, 0, provider.toString());
-                                }
-
-                            });
-                        } else if (provider === providerEnum.GBooks) {
-                            await new GoogleBooks().InsertBook(realname, path).then(async (cdata: any) => {
-                                console.log(cdata);
-                                if (cdata === undefined) {
-                                    throw new Error("no data");
-                                }
-                                if (cdata["totalItems"] > 0) {
-                                    cdata = cdata["items"][0];
-                                    let cover;
-                                    if (cdata["volumeInfo"]["imageLinks"] !== undefined) {
-
-                                        cover = cdata["volumeInfo"]["imageLinks"];
-                                        if (cover["large"] !== undefined) {
-                                            cover = cover["large"];
-                                        } else if (cover["thumbnail"] !== undefined) {
-                                            cover = cover["thumbnail"];
-                                        } else {
-                                            cover = null;
-                                        }
-                                    } else {
-                                        cover = null;
-                                    }
-                                    let price;
-                                    if (cdata["saleInfo"]["retailPrice"] !== undefined) {
-                                        price = cdata["saleInfo"]["retailPrice"]["amount"];
-                                    } else {
-                                        price = null;
-                                    }
-                                    TheBook = new Book(cdata["id"], realname, cover, cdata["volumeInfo"]["description"], cdata["volumeInfo"]["authors"], null, cdata["volumeInfo"]["infoLink"], null, 0, 0, 1, 0, 0, 0, path, "null", cdata["volumeInfo"]["printType"], cdata["volumeInfo"]["pageCount"], null, price, cdata["volumeInfo"]["publishedDate"], null, null, null, 0, provider.toString());
-
-                                } else {
-                                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
-                                }
-
-                            });
-                        }
-                    } else {
-                        const bookFromDB = bookList[0];
-                        TheBook = new Book(bookFromDB["ID_book"], bookFromDB["NOM"], bookFromDB["URLCover"], bookFromDB["description"], bookFromDB["creators"], bookFromDB["characters"], bookFromDB["URLs"], bookFromDB["note"], bookFromDB["read"], bookFromDB["reading"], bookFromDB["unread"], bookFromDB["favorite"], bookFromDB["last_page"], bookFromDB["folder"], bookFromDB["PATH"], bookFromDB["issueNumber"], bookFromDB["format"], bookFromDB["pageCount"], bookFromDB["series"], bookFromDB["prices"], bookFromDB["dates"], bookFromDB["collectedIssues"], bookFromDB["collections"], bookFromDB["variants"], bookFromDB["lock"], provider.toString());
-                    }
-                    if (TheBook !== undefined)
-                        OSBook.push(TheBook);
+                OSBook = await getFromDB("Books", "* FROM Books WHERE PATH = '" + path + "'").then((resa) => {
+                    return InsertIntoTarget(resa, realname, date, path, OSBook, provider);
                 });
             }
             setOpenExplorer({open: true, explorer: OSBook, provider: provider, booksNumber: 0, type: "books"});
@@ -569,9 +485,9 @@ export default function MiniDrawer({
     /**
      * Open the library
      * @param {string} folder The path to the library
-     * @param {*} provider The provider of the library (default to MANUAL)
+     * @param {number} provider The provider of the library (default to MANUAL)
      */
-    function openLibrary(folder: string, provider = 0) {
+    function openLibrary(folder: string, provider: number = 0) {
         setTimeout(() => {
             const result = folder.toString();
             if (result) {
@@ -587,6 +503,7 @@ export default function MiniDrawer({
                         loadView(result, result, "", provider);
                         console.log("OpenLibrary_FUN=>", result);
                     } else {
+                        // noinspection JSIgnoredPromiseFromCall
                         loadContent(provider, dataParsed, result);
                     }
                 });
@@ -607,6 +524,7 @@ export default function MiniDrawer({
                 setLibraries(JSON.parse(res));
             });
         };
+        // noinspection JSIgnoredPromiseFromCall
         fetchLibraries();
     }, []);
     React.useEffect(() => {
@@ -617,7 +535,6 @@ export default function MiniDrawer({
         }
     }, [openExplorer]);
     React.useEffect(() => {
-        let active = true;
 
         if (!searchLoading) {
             return undefined;
@@ -628,34 +545,34 @@ export default function MiniDrawer({
                 if (!resa) return;
                 console.log(resa);
                 const parsedRes = JSON.parse(resa);
-                for (let i = 0; i < parsedRes.length; i++) {
-                    const provider = ((parsedRes[i].series.includes("marvel")) ? (providerEnum.Marvel) : ((parsedRes[i].series.includes("Anilist")) ? (providerEnum.Anilist) : ((parsedRes[i].series.includes("OL")) ? (providerEnum.OL) : ((parsedRes[i].URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
+                for (const element of parsedRes) {
+                    const provider = ((element.series.includes("marvel")) ? (providerEnum.Marvel) : ((element.series.includes("Anilist")) ? (providerEnum.Anilist) : ((element.series.includes("OL")) ? (providerEnum.OL) : ((element.URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
                     setSearchOptions((prev) => [
                         ...prev,
                         {
-                            title: parsedRes[i].NOM,
-                            path: parsedRes[i].PATH,
+                            title: element.NOM,
+                            path: element.PATH,
                             provider: provider,
                             type: "book",
-                            series: parsedRes[i].series,
-                            rawTitle: parsedRes[i].NOM
+                            series: element.series,
+                            rawTitle: element.NOM
                         },
                     ]);
                 }
                 await getFromDB("Series", "ID_Series,title,cover,PATH FROM Series").then(async (resaa) => {
                     if (!resaa) return;
                     const parsedResa = JSON.parse(resaa);
-                    for (let i = 0; i < parsedResa.length; i++) {
-                        const provider = ((parsedResa[i]["ID_Series"].includes("_1")) ? (providerEnum.Marvel) : ((parsedResa[i]["ID_Series"].includes("_2")) ? (providerEnum.Anilist) : (parsedResa[i]["ID_Series"].includes("_3")) ? (providerEnum.OL) : ((parsedResa[i]["ID_Series"].includes("_4")) ? (providerEnum.GBooks) : (providerEnum.MANUAL))));
+                    for (const element of parsedResa) {
+                        const provider = ((element["ID_Series"].includes("_1")) ? (providerEnum.Marvel) : ((element["ID_Series"].includes("_2")) ? (providerEnum.Anilist) : (element["ID_Series"].includes("_3")) ? (providerEnum.OL) : ((element["ID_Series"].includes("_4")) ? (providerEnum.GBooks) : (providerEnum.MANUAL))));
                         setSearchOptions((prev) => [
                             ...prev,
                             {
-                                title: buildTitleFromProvider(parsedResa[i].title, provider),
-                                path: parsedResa[i].PATH,
+                                title: buildTitleFromProvider(element.title, provider),
+                                path: element.PATH,
                                 provider: provider,
                                 type: "series",
-                                series: parsedResa[i].title,
-                                rawTitle: parsedResa[i].title
+                                series: element.title,
+                                rawTitle: element.title
                             },
                         ]);
                     }
@@ -665,7 +582,7 @@ export default function MiniDrawer({
         })();
 
         return () => {
-            active = false;
+            setSearchOptions([]);
         };
     }, [searchLoading]);
 
@@ -702,6 +619,7 @@ export default function MiniDrawer({
                 setDialogFor("create");
             }}>{t("Createanewuser")}</MenuItem>
             <MenuItem onClick={() => {
+                // noinspection JSIgnoredPromiseFromCall
                 logout();
             }}>{t("logout")}</MenuItem>
         </Menu>
@@ -757,6 +675,26 @@ export default function MiniDrawer({
         type: string;
         series?: string;
         rawTitle: string;
+    }
+
+    function AllBookOpener(res: string | void) {
+        if (!res) return;
+        if (openExplorer === null) return;
+        const parsedRes = tryToParse(res);
+        const OSseries = openExplorer.explorer as IBook[];
+        for (const element of parsedRes) {
+            const res = element;
+            console.log(res);
+            const book = new Book(res["ID_book"], res["NOM"], res["URLCover"], res["description"], res["creators"], res["characters"], res["URLs"], res["note"], res["read"], res["reading"], res["unread"], res["favorite"], res["last_page"], res["folder"], res["PATH"], res["issueNumber"], res["format"], res["pageCount"], res["series"], res["prices"], res["dates"], res["collectedIssues"], res["collections"], res["variants"], res["lock"], '0');
+            OSseries.push(book.book as IBook);
+        }
+        setOpenExplorer({
+            open: true,
+            explorer: OSseries,
+            provider: 0,
+            booksNumber: parsedRes.length,
+            type: "books"
+        });
     }
 
     return (
@@ -862,7 +800,8 @@ export default function MiniDrawer({
                                             } else {
                                                 imagelink = TheBook.cover;
                                             }
-                                            const parsedBook = {
+                                            const parsedBook: ISeriesOfBook = {
+                                                SOURCE: TheBook.SOURCE, Score: TheBook.Score, chapters: TheBook["chapters"], cover: imagelink.toString(), pageCount: 0, raw_title: value.rawTitle,
                                                 API_ID: value.provider.toString(),
                                                 unread: 0,
                                                 read: 0,
@@ -895,9 +834,11 @@ export default function MiniDrawer({
                                                 volumes: TheBook["volumes"],
                                                 lock: TheBook["lock"],
                                                 note: TheBook["note"],
-                                                BG_cover: TheBook["BG"],
+                                                BG_cover: TheBook["BG"]
                                             };
-                                            handleOpenSeries(true, parsedBook, value.provider);
+                                            const seriesOfBook: ISeriesOfBook[] = [];
+                                            seriesOfBook.push(parsedBook);
+                                            handleOpenSeries(true, seriesOfBook, value.provider);
                                         });
                                     } else {
                                         ToasterHandler(t("empty_notSupported"), "error");
@@ -946,6 +887,7 @@ export default function MiniDrawer({
             {
                 libraries.map((el: any, index: number) => {
                     return <Menu
+                        key={index}
                         anchorEl={anchorAPI}
                         anchorOrigin={{
                             vertical: 'top',
@@ -1080,25 +1022,7 @@ export default function MiniDrawer({
                                 setOpenSeries({open: false, series: [], provider: null});
                                 if (openExplorer && openExplorer.open)
                                     openExplorer.explorer = [];
-                                await AllBooks().then((res) => {
-                                    if (!res) return;
-                                    if (openExplorer === null) return;
-                                    const parsedRes = tryToParse(res);
-                                    const OSseries = openExplorer.explorer;
-                                    for (let i = 0; i < parsedRes.length; i++) {
-                                        const res = parsedRes[i];
-                                        console.log(res);
-                                        const book = new Book(res["ID_book"], res["NOM"], res["URLCover"], res["description"], res["creators"], res["characters"], res["URLs"], res["note"], res["read"], res["reading"], res["unread"], res["favorite"], res["last_page"], res["folder"], res["PATH"], res["issueNumber"], res["format"], res["pageCount"], res["series"], res["prices"], res["dates"], res["collectedIssues"], res["collections"], res["variants"], res["lock"], '0');
-                                        OSseries.push(book.book);
-                                    }
-                                    setOpenExplorer({
-                                        open: true,
-                                        explorer: OSseries,
-                                        provider: 0,
-                                        booksNumber: parsedRes.length,
-                                        type: "books"
-                                    });
-                                });
+                                await AllBooks().then(AllBookOpener);
                                 setIsLoading(false);
                                 handleRemoveBreadcrumbsTo(1);
 
@@ -1129,25 +1053,8 @@ export default function MiniDrawer({
                                 setOpenSeries({open: false, series: [], provider: null});
                                 if (openExplorer && openExplorer.open)
                                     openExplorer.explorer = [];
-                                await AllBooks("PATH IS NULL OR PATH = '' OR PATH = 'null'").then((res) => {
-                                    if (!res) return;
-                                    if (openExplorer === null) return;
-                                    const parsedRes = tryToParse(res);
-                                    const OSseries = openExplorer.explorer;
-                                    for (let i = 0; i < parsedRes.length; i++) {
-                                        const res = parsedRes[i];
-                                        console.log(res);
-                                        const book = new Book(res["ID_book"], res["NOM"], res["URLCover"], res["description"], res["creators"], res["characters"], res["URLs"], res["note"], res["read"], res["reading"], res["unread"], res["favorite"], res["last_page"], res["folder"], res["PATH"], res["issueNumber"], res["format"], res["pageCount"], res["series"], res["prices"], res["dates"], res["collectedIssues"], res["collections"], res["variants"], res["lock"], '0');
-                                        OSseries.push(book.book);
-                                    }
-                                    setOpenExplorer({
-                                        open: true,
-                                        explorer: OSseries,
-                                        provider: 0,
-                                        booksNumber: parsedRes.length,
-                                        type: "books"
-                                    });
-                                });
+                                await AllBooks("PATH IS NULL OR PATH = '' OR PATH = 'null'").then(AllBookOpener);
+
                                 setIsLoading(false);
                                 handleRemoveBreadcrumbsTo(1);
 
@@ -1179,7 +1086,6 @@ export default function MiniDrawer({
                                 <ListItemButton
                                     onClick={() => {
                                         setIsLoading(true);
-                                        //TODO Breadcrumb logic
                                         setOpenDetails(null);
                                         setOpenSeries({open: false, series: [], provider: null});
                                         if (openExplorer && openExplorer.open)

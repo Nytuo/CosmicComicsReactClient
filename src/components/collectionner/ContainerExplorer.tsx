@@ -10,10 +10,10 @@ function ContainerExplorer({stateExplorer, handleOpenDetails, type}: {
     return (<>
         <div className="cards-list" id="ContainerExplorer">
 
-            {stateExplorer && stateExplorer.open ? stateExplorer.explorer.map((book: IBook, index: number) => {
+            {stateExplorer ? stateExplorer.open ? stateExplorer.explorer.map((book: IBook, index: number) => {
                 return <Card type={type} provider={stateExplorer.provider} key={index} book={book}
                              handleOpenDetails={handleOpenDetails}/>;
-            }) : <></>}
+            }) : <></> : <></>}
         </div>
     </>);
 }

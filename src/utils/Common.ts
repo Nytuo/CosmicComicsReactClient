@@ -1,5 +1,14 @@
+// noinspection HttpUrlsUsage
+
 import Profile from "./Profile";
-import {_01toBool, SearchInJSON} from "./utils";
+import {_01toBool, providerEnum, SearchInJSON} from "./utils";
+import {IBook} from "@/interfaces/IBook.ts";
+import {Marvel} from "@/API/Marvel.ts";
+import Book from "@/utils/Book.ts";
+import {Anilist} from "@/API/Anilist.ts";
+import {InsertIntoDB} from "@/utils/Fetchers.ts";
+import {OpenLibrary} from "@/API/OpenLibrary.ts";
+import {GoogleBooks} from "@/API/GoogleBooks.ts";
 
 let domain = localStorage.getItem("hostname");
 let port = localStorage.getItem("port");
@@ -41,7 +50,7 @@ function getCookie(cName: string, document: any) {
     const cArr = cDecoded.split('; ');
     let res: string = "";
     cArr.forEach(val => {
-        if (val.indexOf(name) === 0) res = val.substring(name.length);
+        if (val.startsWith(name)) res = val.substring(name.length);
     });
     return res;
 }
@@ -116,4 +125,90 @@ function checkLogin() {
     }
 }
 
-export {PDP, currentProfile, getCookie, setCookie, checkLogin, cardMode as cardModeEX, setTheme, changeDomainAndAddr};
+async function InsertIntoTarget(resa: string|void, realname: string,date: any,path: string,OSBook: IBook[],provider: number, ): Promise<IBook[]> {
+    if (!resa) return OSBook;
+    const bookList = JSON.parse(resa);
+    let TheBook;
+    if (bookList.length === 0) {
+        if (provider === providerEnum.Marvel) {
+            await new Marvel().InsertBook(realname, date, path).then(async (cdata: any) => {
+                if (cdata === undefined) {
+                    throw new Error("no data");
+                }
+                if (cdata["data"]["total"] > 0) {
+                    cdata = cdata["data"]["results"][0];
+                    TheBook = new Book(cdata["id"], realname, cdata["thumbnail"].path + "/detail." + cdata["thumbnail"]["extension"], cdata["description"], cdata["creators"], cdata["characters"], cdata["urls"], null, 0, 0, 1, 0, 0, 0, path, cdata["issueNumber"], cdata["format"], cdata["pageCount"], cdata["series"], cdata["prices"], cdata["dates"], cdata["collectedIssues"], cdata["collections"], cdata["variants"], 0, provider.toString());
+                } else {
+                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
+                }
+            });
+        } else if (provider === providerEnum.Anilist) {
+            await new Anilist().InsertBook(realname, path);
+            TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
+        } else if (provider === providerEnum.MANUAL) {
+            console.log("manual");
+            // noinspection ES6MissingAwait
+            InsertIntoDB("Books", "", `(${Math.floor(Math.random() * 100000)},'${null}','${realname}',null,${0},${0},${1},${0},${0},${0},'${path}','${null}','${null}','${null}','${null}',${null},'${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}','${null}',false)`);
+            TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
+        } else if (provider === providerEnum.OL) {
+            await new OpenLibrary().InsertBook(realname, path).then(async (cdata: any) => {
+                console.log(cdata);
+                if (cdata === undefined) {
+                    throw new Error("no data");
+                }
+                if (Object.prototype.hasOwnProperty.call(cdata, "num_found")) {
+                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
+                } else {
+                    const cdataD = cdata["details"];
+                    TheBook = new Book(cdata["bib_key"], realname, cdata["thumbnail_url"], cdataD["description"], cdataD["authors"], null, cdataD["info_url"], null, 0, 0, 1, 0, 0, 0, path, "null", cdataD["physical_format"], cdataD["number_of_pages"], null, null, cdata["publish_date"], null, null, null, 0, provider.toString());
+                }
+
+            });
+        } else if (provider === providerEnum.GBooks) {
+            await new GoogleBooks().InsertBook(realname, path).then(async (cdata: any) => {
+                console.log(cdata);
+                if (cdata === undefined) {
+                    throw new Error("no data");
+                }
+                if (cdata["totalItems"] > 0) {
+                    cdata = cdata["items"][0];
+                    let cover;
+                    if (cdata["volumeInfo"]["imageLinks"] !== undefined) {
+
+                        cover = cdata["volumeInfo"]["imageLinks"];
+                        if (cover["large"] !== undefined) {
+                            cover = cover["large"];
+                        } else if (cover["thumbnail"] !== undefined) {
+                            cover = cover["thumbnail"];
+                        } else {
+                            cover = null;
+                        }
+                    } else {
+                        cover = null;
+                    }
+                    let price;
+                    if (cdata["saleInfo"]["retailPrice"] !== undefined) {
+                        price = cdata["saleInfo"]["retailPrice"]["amount"];
+                    } else {
+                        price = null;
+                    }
+                    TheBook = new Book(cdata["id"], realname, cover, cdata["volumeInfo"]["description"], cdata["volumeInfo"]["authors"], null, cdata["volumeInfo"]["infoLink"], null, 0, 0, 1, 0, 0, 0, path, "null", cdata["volumeInfo"]["printType"], cdata["volumeInfo"]["pageCount"], null, price, cdata["volumeInfo"]["publishedDate"], null, null, null, 0, provider.toString());
+
+                } else {
+                    TheBook = new Book("null", realname, null, "null", null, null, null, null, 0, 0, 1, 0, 0, 0, path, "null", null, 0, null, null, null, null, null, null, 0, provider.toString());
+                }
+
+            });
+        }
+    } else {
+        const bookFromDB = bookList[0];
+        TheBook = new Book(bookFromDB["ID_book"], bookFromDB["NOM"], bookFromDB["URLCover"], bookFromDB["description"], bookFromDB["creators"], bookFromDB["characters"], bookFromDB["URLs"], bookFromDB["note"], bookFromDB["read"], bookFromDB["reading"], bookFromDB["unread"], bookFromDB["favorite"], bookFromDB["last_page"], bookFromDB["folder"], bookFromDB["PATH"], bookFromDB["issueNumber"], bookFromDB["format"], bookFromDB["pageCount"], bookFromDB["series"], bookFromDB["prices"], bookFromDB["dates"], bookFromDB["collectedIssues"], bookFromDB["collections"], bookFromDB["variants"], bookFromDB["lock"], provider.toString());
+    }
+    if (TheBook !== undefined) {
+        OSBook.push(TheBook);
+    }
+    return OSBook;
+
+}
+
+export {PDP, currentProfile, getCookie, setCookie, checkLogin, cardMode as cardModeEX, setTheme, changeDomainAndAddr, InsertIntoTarget};

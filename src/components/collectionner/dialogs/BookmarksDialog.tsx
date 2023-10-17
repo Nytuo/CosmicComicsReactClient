@@ -64,6 +64,7 @@ export default function BookmarksDialog({onClose, openModal}: {
     };
 
     React.useLayoutEffect(() => {
+        // noinspection JSIgnoredPromiseFromCall
         listBM();
     }, []);
 

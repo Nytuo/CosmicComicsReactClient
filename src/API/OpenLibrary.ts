@@ -11,7 +11,7 @@ class OpenLibrary {
      * @param path The path of the book.
      * @returns A Promise that resolves to the response data from the API.
      */
-    async InsertBook(name = "", path: string) {
+    async InsertBook(name :string, path: string) {
         return fetch(PDP + "/insert/ol/book/", {
             method: "GET",
             headers: {

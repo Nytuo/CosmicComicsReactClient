@@ -1,3 +1,5 @@
+// noinspection AllyJsxHardcodedStringInspection
+
 import * as React from 'react';
 import {useEffect} from 'react';
 import Button from '@mui/material/Button';
@@ -36,7 +38,9 @@ export default function APISelectorDialog({onClose, openModal}: {
         if (!sended) {
             ToasterHandler("Operation aborted", "info");
             if (TheBook !== null)
-                TrueDeleteFromDB("Books", TheBook.ID_book);
+                { // noinspection JSIgnoredPromiseFromCall
+                    TrueDeleteFromDB("Books", TheBook.ID_book);
+                }
         } else {
             ToasterHandler("Making changes on the database...", "info");
         }

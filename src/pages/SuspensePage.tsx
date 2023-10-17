@@ -1,3 +1,5 @@
+// noinspection HtmlUnknownTarget
+
 import {CircularProgress, Grid} from "@mui/material";
 import {useLayoutEffect} from "react";
 

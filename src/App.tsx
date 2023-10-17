@@ -44,7 +44,7 @@ function App() {
             greenTheme
         }
     ), [OLED, blueTheme, darkTheme, sithTheme, redTheme, xmasTheme, lightTheme, jediTheme, halloween, greenTheme]);
-    const [themeState, setThemeState] = React.useState(themes[theme || "darkTheme"]);
+    const [themeState, setThemeState] = React.useState(themes[theme ?? "darkTheme"]);
     useLayoutEffect(() => {
         const handleLocalStorageChange = () => {
             const theme = localStorage.getItem("theme");

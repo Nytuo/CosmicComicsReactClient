@@ -11,7 +11,7 @@ class GoogleBooks {
      * @param {string} path The path of the book.
      * @returns A Promise that resolves to the book data.
      */
-    async InsertBook(name: string = "", path: string) {
+    async InsertBook(name: string, path: string) {
         return fetch(PDP + "/insert/googlebooks/book/", {
             method: "GET",
             headers: {

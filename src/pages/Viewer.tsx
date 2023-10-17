@@ -32,6 +32,7 @@ function Viewer() {
             });
 
         };
+        // noinspection JSIgnoredPromiseFromCall
         fetchLocation();
 
     }, []);
