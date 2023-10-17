@@ -219,7 +219,7 @@ export default function UserAccountDialog({forWhat, onClose, openModal}: {
                                                          return;
                                                      }
 
-                                                     currentProfile.createAccount(newImage.value, newusername.value, newpassword.src).then(() => {
+                                                     currentProfile.createAccount(newusername.value, newpassword.value,newImage.src).then(() => {
                                                          ToasterHandler(t("accountCreated"), "success");
                                                      });
                                                  }, 500);

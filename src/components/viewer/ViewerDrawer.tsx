@@ -715,7 +715,7 @@ export default function PersistentDrawerLeft() {
             const path = localStorage.getItem("currentBook");
             if (path === null) return;
             Logger.info("CosmicComicsTempI : " + CosmicComicsTempI);
-            await fetch(PDP + "/view/isDir/" + window.encodeURIComponent(CosmicComicsTempI)).then((response) => {
+            await fetch(PDP + "/view/isDir/" + window.encodeURIComponent(path)).then((response) => {
                 response.json().then(async (isDir) => {
                     //If the path is a directory then it contains images, we use it right away
                     Logger.info("isDir CCTI: " + isDir);

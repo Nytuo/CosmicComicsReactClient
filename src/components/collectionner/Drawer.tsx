@@ -540,50 +540,47 @@ export default function MiniDrawer({
             return undefined;
         }
 
-        (async () => {
-            await getFromDB("Books", "NOM,PATH,URLCover,series,URLs FROM Books").then(async (resa) => {
-                if (!resa) return;
-                console.log(resa);
-                const parsedRes = JSON.parse(resa);
-                for (const element of parsedRes) {
-                    const provider = ((element.series.includes("marvel")) ? (providerEnum.Marvel) : ((element.series.includes("Anilist")) ? (providerEnum.Anilist) : ((element.series.includes("OL")) ? (providerEnum.OL) : ((element.URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
-                    setSearchOptions((prev) => [
-                        ...prev,
-                        {
-                            title: element.NOM,
-                            path: element.PATH,
-                            provider: provider,
-                            type: "book",
-                            series: element.series,
-                            rawTitle: element.NOM
-                        },
-                    ]);
-                }
-                await getFromDB("Series", "ID_Series,title,cover,PATH FROM Series").then(async (resaa) => {
-                    if (!resaa) return;
-                    const parsedResa = JSON.parse(resaa);
-                    for (const element of parsedResa) {
-                        const provider = ((element["ID_Series"].includes("_1")) ? (providerEnum.Marvel) : ((element["ID_Series"].includes("_2")) ? (providerEnum.Anilist) : (element["ID_Series"].includes("_3")) ? (providerEnum.OL) : ((element["ID_Series"].includes("_4")) ? (providerEnum.GBooks) : (providerEnum.MANUAL))));
+        if (searchOptions.length === 0) {
+            (async () => {
+                await getFromDB("Books", "NOM,PATH,URLCover,series,URLs FROM Books").then(async (resa) => {
+                    if (!resa) return;
+                    console.log(resa);
+                    const parsedRes = JSON.parse(resa);
+                    for (const element of parsedRes) {
+                        const provider = ((element.series.includes("marvel")) ? (providerEnum.Marvel) : ((element.series.includes("Anilist")) ? (providerEnum.Anilist) : ((element.series.includes("OL")) ? (providerEnum.OL) : ((element.URLs.includes("google")) ? (providerEnum.GBooks) : (providerEnum.MANUAL)))));
                         setSearchOptions((prev) => [
                             ...prev,
                             {
-                                title: buildTitleFromProvider(element.title, provider),
+                                title: element.NOM,
                                 path: element.PATH,
                                 provider: provider,
-                                type: "series",
-                                series: element.title,
-                                rawTitle: element.title
+                                type: "book",
+                                series: element.series,
+                                rawTitle: element.NOM
                             },
                         ]);
                     }
+                    await getFromDB("Series", "ID_Series,title,cover,PATH FROM Series").then(async (resaa) => {
+                        if (!resaa) return;
+                        const parsedResa = JSON.parse(resaa);
+                        for (const element of parsedResa) {
+                            const provider = ((element["ID_Series"].includes("_1")) ? (providerEnum.Marvel) : ((element["ID_Series"].includes("_2")) ? (providerEnum.Anilist) : (element["ID_Series"].includes("_3")) ? (providerEnum.OL) : ((element["ID_Series"].includes("_4")) ? (providerEnum.GBooks) : (providerEnum.MANUAL))));
+                            setSearchOptions((prev) => [
+                                ...prev,
+                                {
+                                    title: buildTitleFromProvider(element.title, provider),
+                                    path: element.PATH,
+                                    provider: provider,
+                                    type: "series",
+                                    series: element.title,
+                                    rawTitle: element.title
+                                },
+                            ]);
+                        }
+                    });
                 });
-            });
-
-        })();
-
-        return () => {
-            setSearchOptions([]);
-        };
+            })();
+        }
     }, [searchLoading]);
 
     React.useEffect(() => {

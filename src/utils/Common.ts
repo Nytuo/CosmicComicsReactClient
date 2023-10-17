@@ -37,7 +37,7 @@ const PDP: string = protocol + domain + (port ? ":" + port : "");
 /**
  * The current profile in use by the user
  */
-const currentProfile = new Profile(getCookie("selectedProfile", document));
+const currentProfile = new Profile(getCookie("selectedProfile", document), PDP);
 
 /**
  * Get the browser cookies
@@ -125,7 +125,7 @@ function checkLogin() {
     }
 }
 
-async function InsertIntoTarget(resa: string|void, realname: string,date: any,path: string,OSBook: IBook[],provider: number, ): Promise<IBook[]> {
+async function InsertIntoTarget(resa: string | void, realname: string, date: any, path: string, OSBook: IBook[], provider: number,): Promise<IBook[]> {
     if (!resa) return OSBook;
     const bookList = JSON.parse(resa);
     let TheBook;
@@ -211,4 +211,14 @@ async function InsertIntoTarget(resa: string|void, realname: string,date: any,pa
 
 }
 
-export {PDP, currentProfile, getCookie, setCookie, checkLogin, cardMode as cardModeEX, setTheme, changeDomainAndAddr, InsertIntoTarget};
+export {
+    PDP,
+    currentProfile,
+    getCookie,
+    setCookie,
+    checkLogin,
+    cardMode as cardModeEX,
+    setTheme,
+    changeDomainAndAddr,
+    InsertIntoTarget
+};

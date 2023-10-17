@@ -9,7 +9,7 @@ export default class Profile {
     private _name: string;
     private readonly _pp: string;
 
-    constructor(token: string) {
+    constructor(token: string, PDP: string) {
         this._token = token;
         this._name = t("unknown");
         this._pp = PDP + "/profile/getPP/" + this._token;
@@ -23,6 +23,7 @@ export default class Profile {
     get getName() {
         return this._name;
     }
+
     get getPP() {
         return this._pp;
     }
@@ -45,6 +46,7 @@ export default class Profile {
             });
         });
         if (!accountsNames.includes(username.toLowerCase())) {
+            console.log(username, password, pp);
             const option = {
                 method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
                     "token": this._token,
@@ -53,6 +55,7 @@ export default class Profile {
                     "pp": pp
                 }, null, 2)
             };
+            console.log(option);
             fetch(PDP + "/createUser", option).then(() => {
                 ToasterHandler("Account created !", "success");
             });

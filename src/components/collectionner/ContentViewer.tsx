@@ -250,7 +250,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
         };
         // noinspection JSIgnoredPromiseFromCall
         handleAsyncBG();
-    }, [TheBook, loadView, provider, t, type]);
+    }, [TheBook, provider, t, type]);
 
     function LeftArrow() {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
