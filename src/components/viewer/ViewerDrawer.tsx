@@ -233,7 +233,8 @@ export default function PersistentDrawerLeft() {
     async function getBookID() {
         await getFromDB("Books", "ID_book FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'").then((res) => {
             if (!res) return;
-            bookID = JSON.parse(res)[0]["ID_book"];
+            if (JSON.parse(res).length === 0) bookID = "NaID_" + Math.random() * 100500;
+            else bookID = JSON.parse(res)[0]["ID_book"];
         });
     }
 
@@ -298,8 +299,11 @@ export default function PersistentDrawerLeft() {
                 }
             );
         };
-        // noinspection JSIgnoredPromiseFromCall
-        LaunchViewer();
+
+        if (listofImg.length === 0) {
+            // noinspection JSIgnoredPromiseFromCall
+            LaunchViewer();
+        }
     }, []);
 
     const [bookmarked, setBookmarked] = React.useState(false);
@@ -722,6 +726,7 @@ export default function PersistentDrawerLeft() {
                     if (isDir) {
                         Logger.info("CCI is a directory");
                         CosmicComicsTempI = path + "/";
+                        localStorage.setItem("CosmicComicsTempI", path + "/");
                     }
                     await fetch(PDP + "/view/exist/" + window.encodeURIComponent(CosmicComicsTempI)).then((response) => {
                         response.json().then(async (existCCI) => {
@@ -729,14 +734,45 @@ export default function PersistentDrawerLeft() {
                             if (!existCCI) {
                                 Logger.info("CCI doesn't exist");
                                 //Unzip if the folder doesn't exist
-                                fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then((response) => {
+                                fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then(async (response) => {
                                     Logger.info("Unzip for " + path + " : " + response.status);
+                                    await fetch(PDP + "/viewer/view", {
+                                        "method": "GET",
+                                        "headers": {
+                                            "Content-Type": "application/json",
+                                            "path": localStorage.getItem("currentBook") !== null ? localStorage.getItem("currentBook") : "",
+                                        }
+                                    }).then((response) => {
+                                        return response.json();
+                                    }).then((dataLOI: any) => {
+                                        listofImg = dataLOI === false ? [] : dataLOI;
+                                        setListofImgState(dataLOI);
+                                        setTotalPages(listofImg.length - 1);
+                                    }).catch((error) => {
+                                        console.log(error);
+                                    });
                                     prepareReader();
                                 });
                             } else if (isDir) {
                                 Logger.info("Trying to load images from CCI cache");
                                 //If the path is a folder then it contains images
                                 ToasterHandler(t("loading_cache"), "info");
+                                // @ts-ignore
+                                await fetch(PDP + "/viewer/view",{
+                                    "method": "GET",
+                                    "headers": {
+                                        "Content-Type": "application/json",
+                                        "path": localStorage.getItem("currentBook") !== null ? localStorage.getItem("currentBook") : "",
+                                    }
+                                }).then((response) => {
+                                   return response.json();
+                                }).then((dataLOI:any) => {
+                                    listofImg = dataLOI === false ? [] : dataLOI;
+                                    setListofImgState(dataLOI);
+                                    setTotalPages(listofImg.length - 1);
+                                }).catch((error) => {
+                                    console.log(error);
+                                });
                                 // noinspection ES6MissingAwait
                                 prepareReader();
                             } else {
@@ -748,18 +784,48 @@ export default function PersistentDrawerLeft() {
                                         Logger.info("path.txt exist? : " + existCCIP);
                                         if (existCCIP) {
                                             fetch(PDP + "/view/readFile/" + ((CosmicComicsTempI + "path.txt").replaceAll("/", "ù").replaceAll("\\", "ù"))).then((response) => {
-                                                response.json().then((readCCTIP) => {
+                                                response.json().then(async (readCCTIP) => {
                                                     if (
                                                         readCCTIP !== decodeURIComponent(path).replaceAll("%C3%B9", "/") ||
                                                         path.includes(".pdf")
                                                     ) {
                                                         Logger.info("path.txt is not equal to path, Unzipping");
                                                         // if it's not the same we need to extract it
-                                                        fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then(() => {
+                                                        fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then(async () => {
+                                                            await fetch(PDP + "/viewer/view", {
+                                                                "method": "GET",
+                                                                "headers": {
+                                                                    "Content-Type": "application/json",
+                                                                    "path": localStorage.getItem("currentBook") !== null ? localStorage.getItem("currentBook") : "",
+                                                                }
+                                                            }).then((response) => {
+                                                                return response.json();
+                                                            }).then((dataLOI: any) => {
+                                                                listofImg = dataLOI === false ? [] : dataLOI;
+                                                                setListofImgState(dataLOI);
+                                                                setTotalPages(listofImg.length - 1);
+                                                            }).catch((error) => {
+                                                                console.log(error);
+                                                            });
                                                             prepareReader();
                                                         });
                                                     } else {
                                                         Logger.info("path.txt is equal to path, reading");
+                                                        await fetch(PDP + "/viewer/view", {
+                                                            "method": "GET",
+                                                            "headers": {
+                                                                "Content-Type": "application/json",
+                                                                "path": localStorage.getItem("currentBook") !== null ? localStorage.getItem("currentBook") : "",
+                                                            }
+                                                        }).then((response) => {
+                                                            return response.json();
+                                                        }).then((dataLOI: any) => {
+                                                            listofImg = dataLOI === false ? [] : dataLOI;
+                                                            setListofImgState(dataLOI);
+                                                            setTotalPages(listofImg.length - 1);
+                                                        }).catch((error) => {
+                                                            console.log(error);
+                                                        });
                                                         prepareReader();
                                                     }
                                                 });
@@ -769,8 +835,23 @@ export default function PersistentDrawerLeft() {
                                             Logger.info("path.txt doesn't exist, Unzipping");
                                             fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then((response) => {
                                                 return response.text();
-                                            }).then(() => {
+                                            }).then(async () => {
                                                 Logger.info("Unziped");
+                                                await fetch(PDP + "/viewer/view", {
+                                                    "method": "GET",
+                                                    "headers": {
+                                                        "Content-Type": "application/json",
+                                                        "path": localStorage.getItem("currentBook") !== null ? localStorage.getItem("currentBook") : "",
+                                                    }
+                                                }).then((response) => {
+                                                    return response.json();
+                                                }).then((dataLOI: any) => {
+                                                    listofImg = dataLOI === false ? [] : dataLOI;
+                                                    setListofImgState(dataLOI);
+                                                    setTotalPages(listofImg.length - 1);
+                                                }).catch((error) => {
+                                                    console.log(error);
+                                                });
                                                 prepareReader();
                                             });
                                         }

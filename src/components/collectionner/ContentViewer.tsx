@@ -27,7 +27,7 @@ import {
 import {Avatar, Box, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography} from "@mui/material";
 import Rating from "@mui/material/Rating/Rating";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-import { useContext, useLayoutEffect, useState} from "react";
+import {useContext, useLayoutEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {ToasterHandler} from "../common/ToasterHandler.tsx";
 import DatabaseEditorDialog from "./dialogs/DatabaseEditorDialog.tsx";
@@ -221,10 +221,28 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
         }
         const handleAsyncBG = async () => {
             let options;
-            if (TheBook.BG_cover != null && TheBook.BG_cover !== "null") {
+            if (provider !== providerEnum.Marvel) {
+                if (TheBook.BG_cover != null && TheBook.BG_cover !== "null") {
+                    options = {
+                        method: "GET", headers: {
+                            "Content-Type": "application/json", "img": TheBook.BG_cover
+                        }
+                    };
+                } else if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
+                    options = {
+                        method: "GET", headers: {
+                            "Content-Type": "application/json", "img": TheBook.URLCover
+                        }
+                    };
+                } else {
+                    return "#000000";
+                }
+            } else if (TheBook.BG_cover === null || TheBook.BG_cover === "null") {
+                return "#000000";
+            } else if (TheBook.BG_cover && (TheBook.BG_cover["path"] != null && TheBook.BG_cover["path"] !== "null")) {
                 options = {
                     method: "GET", headers: {
-                        "Content-Type": "application/json", "img": TheBook.BG_cover
+                        "Content-Type": "application/json", "img": TheBook.BG_cover["path"]
                     }
                 };
             } else if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
@@ -236,6 +254,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
             } else {
                 return "#000000";
             }
+
+
             await fetch(PDP + "/img/getPalette/" + currentProfile.getToken, options).then(function (response) {
                 return response.json();
             }).then(function (data) {
@@ -285,13 +305,15 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
     const handleOpenRematchDialog = () => {
         setOpenRematchDialog(true);
     };
-    function onClickHandleOpenMoreInfo(el: any ) {
+
+    function onClickHandleOpenMoreInfo(el: any) {
         if (provider === providerEnum.Marvel) {
             handleOpenMoreInfo(el.name, el.description, tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"], tryToParse(el.url)[0].url);
         } else if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
             handleOpenMoreInfo(el.name, el.description, el.image.replaceAll('"', ""), el.url);
         }
     }
+
     return (<>
         <DatabaseEditorDialog openModal={openDatabaseEditorDialog} onClose={handleCloseDatabaseEditorDialog}
                               TheBook={TheBook} type={type === "volume" ? "book" : "series"}/>
@@ -354,10 +376,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                             <h1><a target='_blank'>{TheBook.NOM}</a></h1> :
                                             <h1><a target='_blank'>{TheBook.NOM}</a></h1>) :
                                 (provider === providerEnum.Marvel) ?
-                                    <h1><a target='_blank'
-                                           href={((TheBook.URLs == "null") ? ("#") : (tryToParse(TheBook.URLs)[0].url))}>{TheBook.NOM}<i
-                                        style={{fontSize: '18px', top: '-10px', position: 'relative'}}
-                                        className='material-icons'>open_in_new</i></a></h1> :
+                                    <h1>{TheBook.NOM}</h1> :
                                     (provider === providerEnum.Anilist) ?
                                         <h1><a target='_blank'
                                                href={(TheBook.URLs == "null") ? ("#") : tryToParse(TheBook.URLs)}>{TheBook.NOM}<OpenInNew/></a>
@@ -446,8 +465,6 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                                 } icon={<QuestionMark/>
                                                                 }/> : <></>
                                         )
-
-
                                 }
                                 {
                                     TheBook.favorite === 1 ?
@@ -774,7 +791,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                 provider !== providerEnum.Marvel ?
                                     (TheBook.score != null && TheBook.score !== "null" && TheBook.score !== 0) ?
                                         <Box sx={{position: 'relative', display: 'inline-flex'}}>
-                                            <CircularProgress variant="determinate" value={parseInt(TheBook.score.toString())}/>
+                                            <CircularProgress variant="determinate"
+                                                              value={parseInt(TheBook.score.toString())}/>
                                             <Box
                                                 sx={{
                                                     top: 0,
@@ -802,7 +820,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                 (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ? t("Genres") + ": " : ""
                             }
                             {
-                                TheBook.genres !== undefined ?
+                                TheBook.genres !== undefined && TheBook.genres !== null ?
                                     tryToParse(TheBook.genres).map((el: any, index: number) => {
                                         return (index !== tryToParse(TheBook.genres).length - 1) ? el + " / " : el;
                                     }) : ""
@@ -818,7 +836,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                 (TheBook.characters !== "null" && providerEnum.Marvel) ?
                                     t("thisisa") + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + t("Thisispartofthe") + " '" + tryToParse(TheBook.series).name + "' " + t("series") : (provider === providerEnum.Anilist) ?
                                     t("Thisispartofthe") + " '" + TheBook.series.split("_")[2].replaceAll("$", " ") + "' " + t("series") : (provider === providerEnum.Marvel) ?
-                                        t("Thisispartofthe") + " '" + tryToParse(TheBook.series).name + "' " + t("series") : (provider === providerEnum.MANUAL) ?
+                                        t("Thisispartofthe") + " '" + ((tryToParse(TheBook.series) !== null) ? tryToParse(TheBook.series).name : t("Unknown")) + "' " + t("series") : (provider === providerEnum.MANUAL) ?
                                             t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : (provider === providerEnum.OL) ?
                                                 t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : (provider === providerEnum.GBooks) ? t("this is a") + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : "" : provider === providerEnum.Marvel ? t("ThisseriesIDfromMarvel") + parseInt(TheBook.ID_book) : ""
                             }
@@ -900,13 +918,13 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             </div>
                         }
                         {
-                            ((provider === providerEnum.Marvel) ? (tryToParse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
+                            ((provider === providerEnum.Marvel) ? (((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"])["available"]) : 0)) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
                             <div>
                                 <h1>{t("characters")}</h1>
                                 {t("Numberofcharacters")}
                                 {
                                     type === "volume" ?
-                                        ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.characters)["available"]) : ((TheBook.characters !== "null") ? (tryToParse(TheBook.characters).length) : (0))) : ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.characters)["available"]) : (tryToParse(TheBook.characters).length))
+                                        ((provider === providerEnum.Marvel) ? ((TheBook.characters !== "null") ? tryToParse(TheBook.characters)["available"] : 0) : ((TheBook.characters !== "null") ? (tryToParse(TheBook.characters).length) : (0))) : ((provider === providerEnum.Marvel) ? ((TheBook.characters !== "null") ? tryToParse(TheBook.characters)["available"] : 0) : (tryToParse(TheBook.characters).length))
                                 }
                                 <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
                                     {
@@ -918,7 +936,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                             cursor: "pointer",
                                                         }}
                                                         onClick={
-                                                            ()=>onClickHandleOpenMoreInfo(el)
+                                                            () => onClickHandleOpenMoreInfo(el)
                                                         }
                                             >
                                                 {
@@ -943,12 +961,12 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             </div>
                         }
                         {
-                            ((provider === providerEnum.Marvel) ? (tryToParse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
+                            ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null") ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
                             <div>
                                 <h1>{t('Staff')}</h1>
                                 {t("Numberofpeople")}
                                 {
-                                    ((provider === providerEnum.Marvel) ? (tryToParse(TheBook["creators"])["available"]) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0")))
+                                    ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null") ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0")))
 
                                 }
                                 <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
@@ -961,7 +979,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                             cursor: "pointer",
                                                         }}
                                                         onClick={
-                                                            ()=>onClickHandleOpenMoreInfo(el)
+                                                            () => onClickHandleOpenMoreInfo(el)
                                                         }
                                             >
                                                 {
