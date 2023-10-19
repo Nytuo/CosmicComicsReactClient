@@ -1,6 +1,7 @@
 import {ToasterHandler} from "@/components/common/ToasterHandler.tsx";
 import logger from "@/logger.ts";
 import {currentProfile, PDP} from "@/utils/Common.ts";
+import Logger from "@/logger.ts";
 
 /**
  * Represents a class that interacts with the Anilist API to search and add manga to the database.
@@ -53,8 +54,8 @@ class Anilist {
      * @param {string} name The name of the manga
      * @param {string} path The path to the manga
      */
-    POST_SEARCH(name: string, path: string) {
-        fetch(PDP + "/api/anilist", {
+    async POST_SEARCH(name: string, path: string) {
+        return fetch(PDP + "/api/anilist", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -63,9 +64,9 @@ class Anilist {
                 "path": path
             }
         }).then(() => {
-            ToasterHandler("Manga added to the database", "success");
+            Logger.info("Manga added to the database");
         }).catch(() => {
-            ToasterHandler("Manga not added to the database", "error");
+            Logger.error("Error while adding manga to the database: "+name);
         });
     }
 }

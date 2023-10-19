@@ -320,16 +320,16 @@ export default function MiniDrawer({
     /**
      *
      * @param provider The provider of the library
-     * @param FolderRes The folder result
+     * @param _FolderRes The folder result
      * @param libraryPath The path to the library
      */
-    async function loadContent(provider: number, FolderRes: string, libraryPath: string) {
+    async function loadContent(provider: number, _FolderRes: string, libraryPath: string) {
         let n = 0;
         const listOfImages = [];
-        FolderRes = JSON.parse(FolderRes);
+        let FolderRes = JSON.parse(_FolderRes);
         const divlist = document.createElement("div");
         divlist.className = "list-group";
-
+        let isOneOfThemIsNotFounded = false;
         await getFromDB("Series", "PATH FROM Series").then(async (res) => {
             if (!res) return;
             for (const element of FolderRes) {
@@ -351,12 +351,16 @@ export default function MiniDrawer({
                     }
                 });
                 if (!found) {
+                    if (!isOneOfThemIsNotFounded) {
+                        isOneOfThemIsNotFounded = true;
+                        ToasterHandler(t("please_wait_series_load"), "info");
+                    }
                     if (provider === providerEnum.Anilist) {
                         console.log("provider Anilist");
-                        new Anilist().POST_SEARCH(name, path);
+                        await new Anilist().POST_SEARCH(name, path);
                     } else if (provider === providerEnum.Marvel) {
                         console.log("Provider: Marvel Comics");
-                        new Marvel().InsertSeries(name, path);
+                        await new Marvel().InsertSeries(name, path);
                     } else if (provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) {
                         const randID = Math.floor(Math.random() * 1000000);
                         await InsertIntoDB("Series", "(ID_Series,title,note,statut,start_date,end_date,description,Score,genres,cover,BG,CHARACTERS,TRENDING,STAFF,SOURCE,volumes,chapters,favorite,PATH,lock)", "('" + randID + "U_0" + "','" + JSON.stringify(name.replaceAll("'", "''")) + "',null,null,null,null,null,'0',null,null,null,null,null,null,null,null,null,0,'" + path + "',false)");
@@ -394,7 +398,11 @@ export default function MiniDrawer({
                         console.log("[RAW] Series from DB : ", res[0]);
                         console.log("provider", provider);
                         OSseries.push({
-                            SOURCE: res[0]["SOURCE"], Score: res[0]["Score"], chapters: res[0]["chapters"], cover: imagelink.toString(), pageCount: 0,
+                            SOURCE: res[0]["SOURCE"],
+                            Score: res[0]["Score"],
+                            chapters: res[0]["chapters"],
+                            cover: imagelink.toString(),
+                            pageCount: 0,
                             API_ID: provider.toString(),
                             unread: 0,
                             read: 0,
@@ -438,19 +446,20 @@ export default function MiniDrawer({
                             type: "series"
                         });
                         n++;
-
-
                     });
                 }
             }
         });
-        if (!cardMode) if (n === 0) {
+        if (!cardMode && n === 0 && !isOneOfThemIsNotFounded) {
             ToasterHandler(t("empty_notSupported"), "error");
             setOpenDetails(null);
             setOpenSeries({open: false, series: [], provider: null});
             setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
             setIsLoading(false);
             handleRemoveBreadcrumbsTo(1);
+        }
+        if (isOneOfThemIsNotFounded) {
+            loadContent(provider, _FolderRes, libraryPath);
         }
     }
 
@@ -798,7 +807,12 @@ export default function MiniDrawer({
                                                 imagelink = TheBook.cover;
                                             }
                                             const parsedBook: ISeriesOfBook = {
-                                                SOURCE: TheBook.SOURCE, Score: TheBook.Score, chapters: TheBook["chapters"], cover: imagelink.toString(), pageCount: 0, raw_title: value.rawTitle,
+                                                SOURCE: TheBook.SOURCE,
+                                                Score: TheBook.Score,
+                                                chapters: TheBook["chapters"],
+                                                cover: imagelink.toString(),
+                                                pageCount: 0,
+                                                raw_title: value.rawTitle,
                                                 API_ID: value.provider.toString(),
                                                 unread: 0,
                                                 read: 0,

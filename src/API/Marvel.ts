@@ -1,4 +1,3 @@
-import {ToasterHandler} from "@/components/common/ToasterHandler.tsx";
 import logger from "@/logger.ts";
 import {currentProfile, PDP} from "@/utils/Common.ts";
 
@@ -77,8 +76,8 @@ class Marvel {
      * @param name - The name of the series to insert.
      * @param path - The path of the series to insert.
      */
-    InsertSeries(name:string, path: string) {
-        fetch(PDP + '/api/marvel/', {
+    async InsertSeries(name: string, path: string) {
+        return fetch(PDP + '/api/marvel', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -88,10 +87,9 @@ class Marvel {
                 "name": name,
                 "path": path,
             })
-        }).then(function (response) {
-            ToasterHandler("Marvel API : " + response.status, "success");
+        }).then(function () {
+            logger.info("Series added to Marvel");
         }).catch(function (error) {
-            ToasterHandler("Marvel API : An error occured", "error");
             logger.error(error);
         });
     }

@@ -920,13 +920,13 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             </div>
                         }
                         {
-                            ((provider === providerEnum.Marvel) ? (((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"])["available"]) : 0)) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
+                            ((provider === providerEnum.Marvel) ? (((TheBook["creators"] !== "null" && TheBook["creators"] !== null) ? (tryToParse(TheBook["creators"])["available"]) : 0)) : ((TheBook["creators"] !== "null" && TheBook["creators"] !== null) ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
                             <div>
                                 <h1>{t("characters")}</h1>
                                 {t("Numberofcharacters")}: {" "}
                                 {
                                     type === "volume" ?
-                                        ((provider === providerEnum.Marvel) ? ((TheBook.characters !== "null") ? tryToParse(TheBook.characters)["available"] : 0) : ((TheBook.characters !== "null") ? (tryToParse(TheBook.characters).length) : (0))) : ((provider === providerEnum.Marvel) ? ((TheBook.characters !== "null") ? tryToParse(TheBook.characters)["available"] : 0) : (tryToParse(TheBook.characters).length))
+                                        ((provider === providerEnum.Marvel) ? ((TheBook.characters !== "null" && TheBook.characters !== null) ? tryToParse(TheBook.characters)["available"] : 0) : ((TheBook.characters !== "null" && TheBook.characters !== null) ? (tryToParse(TheBook.characters).length) : (0))) : ((provider === providerEnum.Marvel) ? ((TheBook.characters !== "null" && TheBook.characters !== null) ? tryToParse(TheBook.characters)["available"] : 0) : (tryToParse(TheBook.characters).length))
                                 }
                                 <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
                                     {
@@ -963,12 +963,12 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             </div>
                         }
                         {
-                            ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null") ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
+                            ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null" &&TheBook["creators"] !== null ) ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null" &&TheBook["creators"] !== null) ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
                             <div>
                                 <h1>{t('Staff')}</h1>
                                 {t("Numberofpeople")}: {" "}
                                 {
-                                    ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null") ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0")))
+                                    ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null"&&TheBook["creators"] !== null) ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null"&&TheBook["creators"] !== null) ? (tryToParse(TheBook["creators"]).length) : ("0")))
 
                                 }
                                 <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>

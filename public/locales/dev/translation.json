@@ -361,5 +361,6 @@
         "Vertical_Reader_Mode": "dev",
         "webToonMode": "dev",
         "Scroll_bar_visible": "dev",
-        "releaseDates": "dev"
+        "releaseDates": "dev",
+        "please_wait_series_load" : "dev"
 }

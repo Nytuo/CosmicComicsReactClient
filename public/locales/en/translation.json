@@ -357,5 +357,6 @@
   "Vertical_Reader_Mode": "Vertical Reader Mode",
   "webToonMode": "WebToon Mode (Fixed width + Vertical Reader)",
   "Scroll_bar_visible": "ScrollBar visible",
-  "releaseDates": "Release Dates"
+  "releaseDates": "Release Dates",
+  "please_wait_series_load" : "Please wait until the series are loaded"
 }
