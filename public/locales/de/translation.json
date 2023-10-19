@@ -356,6 +356,7 @@
         "Page_Counter": "Paginanummer",
         "Vertical_Reader_Mode": "Verticale Leesmodus",
         "webToonMode": "WebToon Modus (Vaste breedte + Verticale lezer)",
-        "Scroll_bar_visible": "Schuifbalk zichtbaar"
+        "Scroll_bar_visible": "Schuifbalk zichtbaar",
+        "releaseDates": "Release data"
 
 }

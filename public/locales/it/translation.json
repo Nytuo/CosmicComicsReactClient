@@ -356,5 +356,6 @@
         "Page_Counter": "Contatore di pagine",
         "Vertical_Reader_Mode": "Modalità lettura verticale",
         "webToonMode": "Modalità WebToon (Larghezza fissa + Lettore verticale)",
-        "Scroll_bar_visible": "Barra di scorrimento visibile"
+        "Scroll_bar_visible": "Barra di scorrimento visibile",
+        "releaseDates": "Date di rilascio"
 }

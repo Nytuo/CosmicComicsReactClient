@@ -360,5 +360,6 @@
         "Page_Counter": "dev",
         "Vertical_Reader_Mode": "dev",
         "webToonMode": "dev",
-        "Scroll_bar_visible": "dev"
+        "Scroll_bar_visible": "dev",
+        "releaseDates": "dev"
 }

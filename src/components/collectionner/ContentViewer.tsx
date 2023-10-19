@@ -343,7 +343,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                     <Box
                         sx={
                             {
-                                width: "15vw",
+                                width: provider === providerEnum.Marvel ? "20vw" : "15vw",
                             }
                         }
                     >
@@ -484,7 +484,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                         >
                             {
                                 type === "volume" ?
-                                    (TheBook.dates !== "null" ? typeof tryToParse(TheBook.dates) === "object" ? t("dates") + tryToParse(TheBook.dates).map((date: {
+                                    provider === providerEnum.Marvel ? (
+                                        TheBook.dates !== "null" ? typeof tryToParse(TheBook.dates) === "object" ? t("releaseDates") + ": " + new Date(tryToParse(TheBook.dates)[0]["date"]).toLocaleDateString() : "?" : "?") : (TheBook.dates !== "null" ? typeof tryToParse(TheBook.dates) === "object" ? t("dates") + tryToParse(TheBook.dates).map((date: {
                                         type: string;
                                         date: string;
                                     }, index: number) => {
@@ -750,10 +751,10 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                 }/>
                             </div>
                         </Stack>
-                        <div id="price">{TheBook.prices === 'null' ? "" : TheBook.prices}{
+                        <div id="price" style={{marginTop: "15px"}}>{
                             ((TheBook.prices !== "null" && TheBook.prices !== "" && TheBook.prices != null) ?
                                 ((provider === providerEnum.Marvel) ?
-                                    t("prices") : "") : "")}
+                                    t("prices") + ":" : "") : "")}
                             <br/>
                             {
                                 ((TheBook.prices !== "null" && TheBook.prices !== "" && TheBook.prices != null) ?
@@ -764,7 +765,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                             price: string;
                                         }, index: number) => {
                                             return <p
-                                                key={index}>{price.type.replace(/([A-Z])/g, ' $1').trim() + " : " + price.price}</p>;
+                                                key={index}>{price.type.replace(/([A-Z])/g, ' $1').trim() + " : " + price.price + "$"}</p>;
                                         }) : "") : "")
                             }
                         </div>
@@ -773,6 +774,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                              style={
                                  {
                                      marginBottom: "10px",
+                                     marginTop: "10px"
                                  }
                              }
                         >
@@ -828,17 +830,17 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                         </div>
                         <div id="chapters">
                             {
-                                type === "volume" ? (TheBook.issueNumber === "null" || TheBook.issueNumber === "") ? "" : t("Numberofthisvolumewithintheseries") + ": " + TheBook.issueNumber : ((provider === providerEnum.Marvel) ? (t("NumberComics")) : (t("NumberChapter"))) + ": " + TheBook.issueNumber
+                                type === "volume" ? (TheBook.issueNumber === "null" || TheBook.issueNumber === "") ? "" : t("Numberofthisvolumewithintheseries") + TheBook.issueNumber : ((provider === providerEnum.Marvel) ? (t("NumberComics")) : (t("NumberChapter"))) + TheBook.issueNumber
                             }
                         </div>
                         <div id="id">
                             {type === "volume" ?
                                 (TheBook.characters !== "null" && providerEnum.Marvel) ?
-                                    t("thisisa") + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + t("Thisispartofthe") + " '" + tryToParse(TheBook.series).name + "' " + t("series") : (provider === providerEnum.Anilist) ?
-                                    t("Thisispartofthe") + " '" + TheBook.series.split("_")[2].replaceAll("$", " ") + "' " + t("series") : (provider === providerEnum.Marvel) ?
-                                        t("Thisispartofthe") + " '" + ((tryToParse(TheBook.series) !== null) ? tryToParse(TheBook.series).name : t("Unknown")) + "' " + t("series") : (provider === providerEnum.MANUAL) ?
-                                            t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : (provider === providerEnum.OL) ?
-                                                t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : (provider === providerEnum.GBooks) ? t("this is a") + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") : "" : provider === providerEnum.Marvel ? t("ThisseriesIDfromMarvel") + parseInt(TheBook.ID_book) : ""
+                                    t("thisisa") + " " + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + ". " + t("Thisispartofthe") + " '" + tryToParse(TheBook.series).name + "' " + t("series") + "." : (provider === providerEnum.Anilist) ?
+                                    t("Thisispartofthe") + " '" + TheBook.series.split("_")[2].replaceAll("$", " ") + "' " + t("series") + "." : (provider === providerEnum.Marvel) ?
+                                        t("Thisispartofthe") + " '" + ((tryToParse(TheBook.series) !== null) ? tryToParse(TheBook.series).name : t("Unknown")) + "' " + t("series") + "." : (provider === providerEnum.MANUAL) ?
+                                            t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") + "." : (provider === providerEnum.OL) ?
+                                                t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") + "." : (provider === providerEnum.GBooks) ? t("this is a") + " " + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + ". " + t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") + "." : "" : provider === providerEnum.Marvel ? t("ThisseriesIDfromMarvel") + ": " + parseInt(TheBook.ID_book) : ""
                             }
                         </div>
                         <div id="colissue">{
@@ -863,7 +865,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                         </div>
                         <div id="Volumes">
                             {
-                                (TheBook.volumes != null && TheBook.volumes !== "null" && TheBook.volumes !== undefined) ? t("numberOfVolume") + ": " + TheBook.volumes : ""
+                                (provider === providerEnum.Marvel) ? ((TheBook.volumes != null && TheBook.volumes !== "null" && TheBook.volumes !== undefined) ? t("numberOfVolume") + ": " + tryToParse(TheBook.volumes).length : "") : ((TheBook.volumes != null && TheBook.volumes !== "null" && TheBook.volumes !== undefined) ? t("numberOfVolume") + ": " + TheBook.volumes : "")
                             }
                         </div>
                         <div id="Trending">
@@ -875,7 +877,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             type == "volume" ? (
                                 TheBook.characters !== "null" ?
                                     <div id="readstat"><input type="number" step="1" min="0" id="readAddInput" value={
-                                        TheBook.pageCount
+                                        TheBook.last_page
                                     } max={
                                         TheBook.pageCount
                                     }
@@ -921,7 +923,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             ((provider === providerEnum.Marvel) ? (((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"])["available"]) : 0)) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
                             <div>
                                 <h1>{t("characters")}</h1>
-                                {t("Numberofcharacters")}
+                                {t("Numberofcharacters")}: {" "}
                                 {
                                     type === "volume" ?
                                         ((provider === providerEnum.Marvel) ? ((TheBook.characters !== "null") ? tryToParse(TheBook.characters)["available"] : 0) : ((TheBook.characters !== "null") ? (tryToParse(TheBook.characters).length) : (0))) : ((provider === providerEnum.Marvel) ? ((TheBook.characters !== "null") ? tryToParse(TheBook.characters)["available"] : 0) : (tryToParse(TheBook.characters).length))
@@ -964,7 +966,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null") ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
                             <div>
                                 <h1>{t('Staff')}</h1>
-                                {t("Numberofpeople")}
+                                {t("Numberofpeople")}: {" "}
                                 {
                                     ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null") ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null") ? (tryToParse(TheBook["creators"]).length) : ("0")))
 
@@ -985,12 +987,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                 {
                                                     (provider === providerEnum.Marvel) ?
                                                         (el.name === tryToParse(TheBook.creators)["items"][index].name) ?
-                                                            <><Avatar
-                                                                src={tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]}></Avatar><span>{el.name}</span><br/><span
-                                                                style={{
-                                                                    fontSize: "14px",
-                                                                    color: "#a8a8a8a8"
-                                                                }}>{tryToParse(TheBook.creators)["items"][index]["role"]}</span></> : ""
+                                                            <><Avatar sx={{width: 120, height: 120}}
+                                                                      src={tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]}></Avatar><span>{el.name}</span><br/><span>{tryToParse(TheBook.creators)["items"][index]["role"]}</span></> : ""
                                                         : (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ?
                                                             (tryToParse(TheBook.creators)[index] !== undefined && el.name === tryToParse(TheBook.creators)[index].name) ?
                                                                 <><Avatar sx={{width: 120, height: 120}}
@@ -1037,8 +1035,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             {
                                 (TheBook.variants !== "null" && TheBook.variants !== "" && TheBook.variants != null) ? (provider === providerEnum.Marvel) ? t("variantsList") + ' : ' + tryToParse(TheBook.variants).map((variant: {
                                     name: string;
-                                }, index: number) => {
-                                    return <p key={index}>{variant.name}</p>;
+                                }) => {
+                                    return variant.name;
                                 }) : "" : ""
                             }
                         </div>
