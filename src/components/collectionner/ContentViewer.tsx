@@ -96,6 +96,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
         FolderRes = FolderRes.replaceAll("\\", "/");
         FolderRes = FolderRes.replaceAll("//", "/");
         FolderRes = FolderRes.replaceAll("/", "ù");
+        setOpenExplorer({open: false, explorer: [], provider: provider, booksNumber: 0, type: "books"});
         fetch(PDP + "/getListOfFilesAndFolders/" + FolderRes).then((response) => {
             return response.text();
         }).then(async (data) => {
