@@ -1,5 +1,5 @@
 import logger from "@/logger.ts";
-import {toast} from "sonner";
+import { toast } from "sonner";
 
 /**
  * Displays a toast notification with the given text and variant.
@@ -18,4 +18,12 @@ export function ToasterHandler(text: string, variant: "success" | "error" | "war
         if (variant === "info") logger.info(text);
         toast.message(text);
     }
+}
+
+export function ToasterHandlerPromise(promise: any, loadingText: string, successText: string, errorText: string) {
+    toast.promise(promise, {
+        loading: loadingText,
+        success: successText,
+        error: errorText
+    });
 }

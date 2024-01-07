@@ -10,6 +10,7 @@
         "overlaymsg_piracy": "Vérifier si vos BD sont authentiques... Eh bien, non, c'est du piratage illégal...",
         "overlaymsg_opening": "Ouverture du dossier",
         "overlaymsg_takecare": "Nous prenons soin de vos bandes dessinées",
+        "overlaymsg_discover_file": "Découverte du fichier: ",
         "err_img": "Erreur lors du chargement des vignettes des fichiers... Si cela persiste, veuillez ouvrir un problème sur GitHub",
         "overlaymsg_worst": "LE PIRE CHARGEMENT DE TOUS LES TEMPS",
         "magnifier_toggle": "Activer la loupe",
@@ -358,6 +359,7 @@
         "webToonMode": "Mode WebToon (Largeur fixe + Lecteur vertical)",
         "Scroll_bar_visible": "Barre de défilement visible",
         "releaseDates": "Dates de sortie",
-        "please_wait_series_load" : "Veuillez patienter pendant le chargement des séries"
-
+        "please_wait_series_load" : "Veuillez patienter pendant le chargement des séries",
+        "extracting_cover" : "Extraction des couvertures",
+        "cover_extraction_completed" : "Extraction des couvertures terminée"
 }

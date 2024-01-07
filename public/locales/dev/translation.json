@@ -10,6 +10,7 @@
         "overlaymsg_piracy": "dev",
         "overlaymsg_opening": "dev",
         "overlaymsg_takecare": "dev",
+        "overlaymsg_discover_file": "dev",
         "err_img": "dev",
         "overlaymsg_worst": "dev",
         "magnifier_toggle": "dev",
@@ -362,5 +363,7 @@
         "webToonMode": "dev",
         "Scroll_bar_visible": "dev",
         "releaseDates": "dev",
-        "please_wait_series_load" : "dev"
+        "please_wait_series_load" : "dev",
+        "extracting_cover" : "dev",
+        "cover_extraction_completed" : "dev"
 }

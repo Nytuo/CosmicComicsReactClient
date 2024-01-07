@@ -10,6 +10,7 @@
         "overlaymsg_piracy": "Prüfen, ob Ihre Comics authentisch sind... Nun, nein, es ist alles illegale Piraterie...",
         "overlaymsg_opening": "Öffnen des Ordners",
         "overlaymsg_takecare": "Wir kümmern uns um Ihre Comics",
+        "overlaymsg_discover_file": "Entdeckung der Datei: ",
         "err_img": "Fehler beim Laden von Miniaturbildern von Dateien... Wenn dieses Problem weiterhin besteht, öffnen Sie bitte einen Fehler auf GitHub",
         "overlaymsg_worst": "SCHLECHTESTE BELADUNG ALLER ZEITEN",
         "magnifier_toggle": "Lupe aktivieren",
@@ -358,6 +359,7 @@
         "webToonMode": "WebToon Modus (Vaste breedte + Verticale lezer)",
         "Scroll_bar_visible": "Schuifbalk zichtbaar",
         "releaseDates": "Release data",
-        "please_wait_series_load" : "Wacht tot de serie is geladen"
-
+        "please_wait_series_load" : "Wacht tot de serie is geladen",
+        "extracting_cover" : "Cover extraheren",
+        "cover_extraction_completed" : "Cover extractie voltooid"
 }

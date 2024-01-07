@@ -1,4 +1,4 @@
-import {currentProfile, InsertIntoTarget, PDP} from "@/utils/Common.ts";
+import { currentProfile, InsertIntoTarget, PDP } from "@/utils/Common.ts";
 import {
     changeRating,
     downloadBook,
@@ -6,8 +6,8 @@ import {
     updateBookStatusForAll,
     updateBookStatusForOne
 } from "@/utils/Fetchers.ts";
-import {IBook} from "@/interfaces/IBook.ts";
-import {providerEnum, resolveTitle, tryToParse} from "@/utils/utils.ts";
+import { IBook } from "@/interfaces/IBook.ts";
+import { providerEnum, resolveTitle, tryToParse } from "@/utils/utils.ts";
 import {
     ArrowBack,
     ArrowForward,
@@ -24,27 +24,27 @@ import {
     Refresh,
     YoutubeSearchedFor
 } from "@mui/icons-material";
-import {Avatar, Box, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography} from "@mui/material";
+import { Avatar, Box, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import Rating from "@mui/material/Rating/Rating";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-import {useContext, useLayoutEffect, useState} from "react";
-import {useTranslation} from "react-i18next";
-import {ToasterHandler} from "../common/ToasterHandler.tsx";
+import { useContext, useLayoutEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ToasterHandler } from "../common/ToasterHandler.tsx";
 import DatabaseEditorDialog from "./dialogs/DatabaseEditorDialog.tsx";
-import {API} from "@/API/API.ts";
+import { API } from "@/API/API.ts";
 import Card from "./Card.tsx";
 import Book from "@/utils/Book.ts";
 import MoreInfoDialog from "./dialogs/MoreInfoDialog.tsx";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import {ScrollMenu, VisibilityContext} from "react-horizontal-scrolling-menu";
+import { ScrollMenu, VisibilityContext } from "react-horizontal-scrolling-menu";
 import ContainerExplorer from "./ContainerExplorer.tsx";
 import RematchDialog from "./dialogs/RematchDialog.tsx";
 
 //providerEnum to type
 type TProvider = 0 | 1 | 2 | 3 | 4;
 
-function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleChangeToDetails}: {
+function ContentViewer({ provider, TheBook, type, handleAddBreadcrumbs, handleChangeToDetails }: {
     provider: number;
     TheBook: any;
     type: 'series' | 'volume';
@@ -82,7 +82,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
         provider: any,
         booksNumber: number;
         type: "series" | "books";
-    }>(({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"}));
+    }>(({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" }));
 
     /**
      * Load the content of the element
@@ -96,7 +96,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
         FolderRes = FolderRes.replaceAll("\\", "/");
         FolderRes = FolderRes.replaceAll("//", "/");
         FolderRes = FolderRes.replaceAll("/", "ù");
-        setOpenExplorer({open: false, explorer: [], provider: provider, booksNumber: 0, type: "books"});
+        setOpenExplorer({ open: false, explorer: [], provider: provider, booksNumber: 0, type: "books" });
         fetch(PDP + "/getListOfFilesAndFolders/" + FolderRes).then((response) => {
             return response.text();
         }).then(async (data) => {
@@ -111,14 +111,14 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                 const readBookNB = await getFromDB("Books", "COUNT(*) FROM Books WHERE READ = 1 AND PATH = '" + path + "'");
                 setReadStatSeries(readBookNB ? JSON.parse(readBookNB)[0]["COUNT(*)"] + " / " + data.length + " volumes read" : "0 / 0 volumes read");
                 OSBook = await getFromDB("Books", "* FROM Books WHERE PATH = '" + path + "'").then(resa => {
-                    return InsertIntoTarget(resa, realname, date, path, OSBook, provider)
+                    return InsertIntoTarget(resa, realname, date, path, OSBook, provider);
                 });
             }
-            setOpenExplorer({open: true, explorer: OSBook, provider: provider, booksNumber: 0, type: "books"});
+            setOpenExplorer({ open: true, explorer: OSBook, provider: provider, booksNumber: 0, type: "books" });
         });
     }
 
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     useLayoutEffect(() => {
         const fetchCharacters = async () => {
             if (type === "volume") {
@@ -276,20 +276,20 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
     function LeftArrow() {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        const {isFirstItemVisible, scrollPrev} = useContext(VisibilityContext);
+        const { isFirstItemVisible, scrollPrev } = useContext(VisibilityContext);
 
         return (
-            <IconButton disabled={isFirstItemVisible} onClick={() => scrollPrev()}><ArrowBack/></IconButton>
+            <IconButton disabled={isFirstItemVisible} onClick={() => scrollPrev()}><ArrowBack /></IconButton>
         );
     }
 
     function RightArrow() {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        const {isLastItemVisible, scrollNext} = useContext(VisibilityContext);
+        const { isLastItemVisible, scrollNext } = useContext(VisibilityContext);
 
         return (
-            <IconButton disabled={isLastItemVisible} onClick={() => scrollNext()}><ArrowForward/></IconButton>
+            <IconButton disabled={isLastItemVisible} onClick={() => scrollNext()}><ArrowForward /></IconButton>
         );
     }
 
@@ -317,13 +317,13 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
 
     return (<>
         <DatabaseEditorDialog openModal={openDatabaseEditorDialog} onClose={handleCloseDatabaseEditorDialog}
-                              TheBook={TheBook} type={type === "volume" ? "book" : "series"}/>
+            TheBook={TheBook} type={type === "volume" ? "book" : "series"} />
         <MoreInfoDialog openModal={openMoreInfo} onClose={() => {
             closeMoreInfo();
         }} desc={moreInfoContent.desc} name={moreInfoContent.name} hrefURL={moreInfoContent.href}
-                        image={moreInfoContent.image} type={moreInfoContent.type}/>
+            image={moreInfoContent.image} type={moreInfoContent.type} />
         <RematchDialog openModal={openRematchDialog} onClose={handleCloseRematchDialog} provider={provider}
-                       type={type === "volume" ? "book" : "serie"} oldID={TheBook.ID_book}/>
+            type={type === "volume" ? "book" : "serie"} oldID={TheBook.ID_book} />
         <div
             style={
                 {
@@ -335,12 +335,12 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                 }
             }
         >
-            <img id="imageBGOV2" src="#" alt="#" style={{width: "100vw", height: "auto", display: "none"}}/>
+            <img id="imageBGOV2" src="#" alt="#" style={{ width: "100vw", height: "auto", display: "none" }} />
             <Box sx={{
                 width: "90vw",
             }}>
 
-                <Stack spacing={{xs: 1, sm: 2}} direction="row" useFlexGap flexWrap="wrap">
+                <Stack spacing={{ xs: 1, sm: 2 }} direction="row" useFlexGap flexWrap="wrap">
                     <Box
                         sx={
                             {
@@ -352,11 +352,11 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             type === "series" ? TheBook.URLCover === null || TheBook.URLCover === "null" ? "Images/fileDefault.png" : TheBook.URLCover : TheBook.URLCover === null || TheBook.URLCover === "null" ? "Images/fileDefault.png" :
                                 TheBook.URLCover.includes("public/FirstImagesOfAll") ? TheBook.URLCover.split("public/")[1] : TheBook.URLCover
                         } id="ImgColCover" alt="#"
-                             style={
-                                 {
-                                     height: "20vw",
-                                 }
-                             }
+                            style={
+                                {
+                                    height: "20vw",
+                                }
+                            }
                         />
                     </Box>
                     <Box
@@ -369,20 +369,20 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
 
                         {
                             type === "volume" ? (
-                                    (provider === providerEnum.Marvel) ?
-                                        <h1><a target='_blank'
-                                               href={((TheBook.URLs === null || TheBook.URLs === "null") ? ("#") : (tryToParse(TheBook.URLs)[0].url))}>{TheBook.NOM}<OpenInNew/></a>
-                                        </h1>
-                                        : (provider === providerEnum.Anilist) ?
-                                            <h1><a target='_blank'>{TheBook.NOM}</a></h1> :
-                                            <h1><a target='_blank'>{TheBook.NOM}</a></h1>) :
+                                (provider === providerEnum.Marvel) ?
+                                    <h1><a target='_blank'
+                                        href={((TheBook.URLs === null || TheBook.URLs === "null") ? ("#") : (tryToParse(TheBook.URLs)[0].url))}>{TheBook.NOM}<OpenInNew /></a>
+                                    </h1>
+                                    : (provider === providerEnum.Anilist) ?
+                                        <h1><a target='_blank'>{TheBook.NOM}</a></h1> :
+                                        <h1><a target='_blank'>{TheBook.NOM}</a></h1>) :
                                 (provider === providerEnum.Marvel) ?
                                     <h1>{TheBook.NOM}</h1> :
                                     (provider === providerEnum.Anilist) ?
                                         <h1><a target='_blank'
-                                               href={(TheBook.URLs == "null") ? ("#") : tryToParse(TheBook.URLs)}>{TheBook.NOM}<OpenInNew/></a>
+                                            href={(TheBook.URLs == "null") ? ("#") : tryToParse(TheBook.URLs)}>{TheBook.NOM}<OpenInNew /></a>
                                         </h1> :
-                                        <h1><a target='_blank'>{TheBook.NOM}<OpenInNew/></a></h1>
+                                        <h1><a target='_blank'>{TheBook.NOM}<OpenInNew /></a></h1>
                         }
                         <Grid2 container sx={
                             {
@@ -395,104 +395,104 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                     type === "volume" ?
                                         (TheBook.read === 1 || TheBook.read === "true") ?
                                             <Chip color="info" sx={
-                                                {marginRight: "5px"}
+                                                { marginRight: "5px" }
                                             } label={
                                                 t('READ')
-                                            } icon={<Done/>}/>
+                                            } icon={<Done />} />
                                             : TheBook.unread === 1 || TheBook.unread === "true" ?
                                                 <Chip color="error" sx={
-                                                    {marginRight: "5px"}
+                                                    { marginRight: "5px" }
                                                 } label={
                                                     t('UNREAD')
-                                                } icon={<Close/>}/>
+                                                } icon={<Close />} />
                                                 : TheBook.reading === 1 || TheBook.reading === "true" ?
                                                     <Chip color="warning" sx={
-                                                        {marginRight: "5px"}
+                                                        { marginRight: "5px" }
                                                     } label={
                                                         t('READING')
-                                                    } icon={<AutoStories/>}/>
+                                                    } icon={<AutoStories />} />
                                                     : ""
                                         : (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks ? TheBook.statut === "FINISHED" ?
-                                                <Chip color="info" sx={
-                                                    {marginRight: "5px"}
+                                            <Chip color="info" sx={
+                                                { marginRight: "5px" }
+                                            } label={
+                                                t('FINISHED')
+                                            } icon={<Done />} />
+                                            : TheBook.statut === "RELEASING" ?
+                                                <Chip color="warning" sx={
+                                                    { marginRight: "5px" }
                                                 } label={
-                                                    t('FINISHED')
-                                                } icon={<Done/>}/>
-                                                : TheBook.statut === "RELEASING" ?
-                                                    <Chip color="warning" sx={
-                                                        {marginRight: "5px"}
+                                                    t('RELEASING')
+                                                } icon={<AutoStories />} />
+                                                : TheBook.statut === "NOT_YET_RELEASED" ?
+                                                    <Chip color="error" sx={
+                                                        { marginRight: "5px" }
                                                     } label={
-                                                        t('RELEASING')
-                                                    } icon={<AutoStories/>}/>
-                                                    : TheBook.statut === "NOT_YET_RELEASED" ?
+                                                        t('NOT_YET_RELEASED')
+                                                    } icon={<Close />} />
+                                                    : <Chip color="error" sx={
+                                                        { marginRight: "5px" }
+                                                    } label={
+                                                        t('UNKNOWN')
+                                                    } icon={<QuestionMark />} /> : provider === providerEnum.Marvel ?
+                                            tryToParse(TheBook.end_date) > new Date().getFullYear() ?
+                                                <Chip color="warning" sx={
+                                                    { marginRight: "5px" }
+                                                } label={
+                                                    t('RELEASING')
+                                                } icon={
+                                                    <AutoStories />} /> : tryToParse(TheBook.end_date) < new Date().getFullYear() ?
+                                                    <Chip color="info" sx={
+                                                        { marginRight: "5px" }
+                                                    } label={
+                                                        t('FINISHED')
+                                                    } icon={
+                                                        <Done />} /> : tryToParse(TheBook.start_date) > new Date().getFullYear() ?
                                                         <Chip color="error" sx={
-                                                            {marginRight: "5px"}
+                                                            { marginRight: "5px" }
                                                         } label={
                                                             t('NOT_YET_RELEASED')
-                                                        } icon={<Close/>}/>
-                                                        : <Chip color="error" sx={
-                                                            {marginRight: "5px"}
-                                                        } label={
-                                                            t('UNKNOWN')
-                                                        } icon={<QuestionMark/>}/> : provider === providerEnum.Marvel ?
-                                                tryToParse(TheBook.end_date) > new Date().getFullYear() ?
-                                                    <Chip color="warning" sx={
-                                                        {marginRight: "5px"}
-                                                    } label={
-                                                        t('RELEASING')
-                                                    } icon={
-                                                        <AutoStories/>}/> : tryToParse(TheBook.end_date) < new Date().getFullYear() ?
-                                                        <Chip color="info" sx={
-                                                            {marginRight: "5px"}
-                                                        } label={
-                                                            t('FINISHED')
                                                         } icon={
-                                                            <Done/>}/> : tryToParse(TheBook.start_date) > new Date().getFullYear() ?
-                                                            <Chip color="error" sx={
-                                                                {marginRight: "5px"}
+                                                            <Close />} /> : tryToParse(TheBook.start_date) === new Date().getFullYear() ?
+                                                            <Chip color="warning" sx={
+                                                                { marginRight: "5px" }
                                                             } label={
-                                                                t('NOT_YET_RELEASED')
-                                                            } icon={
-                                                                <Close/>}/> : tryToParse(TheBook.start_date) === new Date().getFullYear() ?
-                                                                <Chip color="warning" sx={
-                                                                    {marginRight: "5px"}
-                                                                } label={
-                                                                    t('ENDSOON')
-                                                                } icon={<AutoStories/>}/> :
-                                                                <Chip color="error" sx={
-                                                                    {marginRight: "5px"}
-                                                                } label={
-                                                                    t('UNKNOWN')
-                                                                } icon={<QuestionMark/>
-                                                                }/> : <></>
+                                                                t('ENDSOON')
+                                                            } icon={<AutoStories />} /> :
+                                                            <Chip color="error" sx={
+                                                                { marginRight: "5px" }
+                                                            } label={
+                                                                t('UNKNOWN')
+                                                            } icon={<QuestionMark />
+                                                            } /> : <></>
                                         )
                                 }
                                 {
                                     TheBook.favorite === 1 ?
                                         <Chip color="error" label={
                                             t('favoriteParenthesis')
-                                        } icon={<Favorite/>}/>
+                                        } icon={<Favorite />} />
                                         : ""
                                 }
                             </Grid2>
                         </Grid2>
                         <div id="startDate"
-                             style={
-                                 {
-                                     marginBottom: "10px",
-                                 }
-                             }
+                            style={
+                                {
+                                    marginBottom: "10px",
+                                }
+                            }
                         >
                             {
                                 type === "volume" ?
                                     provider === providerEnum.Marvel ? (
                                         TheBook.dates !== "null" ? typeof tryToParse(TheBook.dates) === "object" ? t("releaseDates") + ": " + new Date(tryToParse(TheBook.dates)[0]["date"]).toLocaleDateString() : "?" : "?") : (TheBook.dates !== "null" ? typeof tryToParse(TheBook.dates) === "object" ? t("dates") + tryToParse(TheBook.dates).map((date: {
-                                        type: string;
-                                        date: string;
-                                    }, index: number) => {
-                                        return <p
-                                            key={index}>{date.type.replace(/([A-Z])/g, ' $1').trim() + " : " + date.date}</p>;
-                                    }) : "?" : "?") : ""
+                                            type: string;
+                                            date: string;
+                                        }, index: number) => {
+                                            return <p
+                                                key={index}>{date.type.replace(/([A-Z])/g, ' $1').trim() + " : " + date.date}</p>;
+                                        }) : "?" : "?") : ""
                             }
                             {
                                 type === "series" ? (!APINOTFOUND) ? ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.start_date)) + " -" : (tryToParse(TheBook.start_date).year)) == null ? "? -" : ((provider === providerEnum.Marvel) ? (tryToParse(TheBook.start_date)) + " -" : (tryToParse(TheBook.start_date).year)) + " -" : "" : ""
@@ -538,7 +538,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
 
                                         }
                                     }
-                                }><PlayArrow/></IconButton>
+                                }><PlayArrow /></IconButton>
                             </Tooltip>
                             <Tooltip title={t('mkread')}>
                                 <IconButton
@@ -552,150 +552,150 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                             ToasterHandler(t("mkread"), "success");
                                         }
                                     }
-                                ><Check/></IconButton>
+                                ><Check /></IconButton>
                             </Tooltip>
                             <Tooltip title={t('mkreading')}>
                                 <IconButton id="readingbtndetails"
-                                            style={{display: type === "series" ? "none" : "block"}}
-                                            onClick={
-                                                () => {
-                                                    if (type == "volume") {
-                                                        updateBookStatusForOne("reading", TheBook.ID_book);
-                                                    } else {
-                                                        updateBookStatusForAll("reading", TheBook.raw_title);
-                                                    }
-                                                    ToasterHandler(t("mkreading"), "success");
-                                                }
+                                    style={{ display: type === "series" ? "none" : "block" }}
+                                    onClick={
+                                        () => {
+                                            if (type == "volume") {
+                                                updateBookStatusForOne("reading", TheBook.ID_book);
+                                            } else {
+                                                updateBookStatusForAll("reading", TheBook.raw_title);
                                             }
-                                > <AutoStories/></IconButton></Tooltip>
+                                            ToasterHandler(t("mkreading"), "success");
+                                        }
+                                    }
+                                > <AutoStories /></IconButton></Tooltip>
                             <Tooltip title={t('mkunread')}>
                                 <IconButton id="decheckbtn"
-                                            onClick={
-                                                () => {
-                                                    if (type == "volume") {
-                                                        updateBookStatusForOne("unread", TheBook.ID_book);
-                                                    } else {
-                                                        updateBookStatusForAll("unread", TheBook.raw_title);
-                                                    }
-                                                    ToasterHandler(t("mkunread"), "success");
-                                                }
+                                    onClick={
+                                        () => {
+                                            if (type == "volume") {
+                                                updateBookStatusForOne("unread", TheBook.ID_book);
+                                            } else {
+                                                updateBookStatusForAll("unread", TheBook.raw_title);
                                             }
-                                ><Close/></IconButton>
+                                            ToasterHandler(t("mkunread"), "success");
+                                        }
+                                    }
+                                ><Close /></IconButton>
                             </Tooltip>
                             <Tooltip title={t('toogle_fav')}>
                                 <IconButton id="favoritebtn"
-                                            onClick={
-                                                async () => {
-                                                    if (type === "volume") {
-                                                        if (TheBook.favorite === 1) {
-                                                            TheBook.favorite = 0;
-                                                            ToasterHandler(t("remove_fav"), "success");
-                                                            await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
-                                                                if (!resa) return;
-                                                                const bookList = tryToParse(resa);
-                                                                for (const element of bookList) {
-                                                                    if (element.ID_book === TheBook.ID_book) {
-                                                                        const options = {
-                                                                            method: "POST", headers: {
-                                                                                "Content-Type": "application/json"
-                                                                            }, body: JSON.stringify({
-                                                                                "token": currentProfile.getToken,
-                                                                                "table": "Books",
-                                                                                "column": "favorite",
-                                                                                "whereEl": element.ID_book,
-                                                                                "value": false,
-                                                                                "where": "ID_book"
-                                                                            }, null, 2)
-                                                                        };
-                                                                        await fetch(PDP + "/DB/update", options);
-                                                                    }
-                                                                }
-                                                            });
-                                                        } else {
-                                                            TheBook.favorite = 1;
-                                                            ToasterHandler(t("add_fav"), "success");
-                                                            await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
-                                                                if (!resa) return;
-                                                                const bookList = tryToParse(resa);
-                                                                for (const element of bookList) {
-                                                                    if (element.ID_book === TheBook.ID_book) {
-                                                                        const options = {
-                                                                            method: "POST", headers: {
-                                                                                "Content-Type": "application/json"
-                                                                            }, body: JSON.stringify({
-                                                                                "token": currentProfile.getToken,
-                                                                                "table": "Books",
-                                                                                "column": "favorite",
-                                                                                "whereEl": element.ID_book,
-                                                                                "value": true,
-                                                                                "where": "ID_book"
-                                                                            }, null, 2)
-                                                                        };
-                                                                        await fetch(PDP + "/DB/update", options);
-                                                                    }
-                                                                }
-                                                            });
+                                    onClick={
+                                        async () => {
+                                            if (type === "volume") {
+                                                if (TheBook.favorite === 1) {
+                                                    TheBook.favorite = 0;
+                                                    ToasterHandler(t("remove_fav"), "success");
+                                                    await getFromDB("Books", "* FROM Books WHERE favorite=1").then(async (resa) => {
+                                                        if (!resa) return;
+                                                        const bookList = tryToParse(resa);
+                                                        for (const element of bookList) {
+                                                            if (element.ID_book === TheBook.ID_book) {
+                                                                const options = {
+                                                                    method: "POST", headers: {
+                                                                        "Content-Type": "application/json"
+                                                                    }, body: JSON.stringify({
+                                                                        "token": currentProfile.getToken,
+                                                                        "table": "Books",
+                                                                        "column": "favorite",
+                                                                        "whereEl": element.ID_book,
+                                                                        "value": false,
+                                                                        "where": "ID_book"
+                                                                    }, null, 2)
+                                                                };
+                                                                await fetch(PDP + "/DB/update", options);
+                                                            }
                                                         }
-                                                    } else if (TheBook.favorite === 1) {
-                                                        TheBook.favorite = 0;
-                                                        ToasterHandler(t("remove_fav"), "success");
-                                                        await getFromDB("Series", "* FROM Series WHERE favorite=1").then(async (resa) => {
-                                                            if (!resa) return;
-                                                            const bookList = tryToParse(resa);
-                                                            for (const element of bookList) {
-                                                                if (TheBook.raw_title === element.title) {
-                                                                    const options = {
-                                                                        method: "POST", headers: {
-                                                                            "Content-Type": "application/json"
-                                                                        }, body: JSON.stringify({
-                                                                            "token": currentProfile.getToken,
-                                                                            "table": "Series",
-                                                                            "column": "favorite",
-                                                                            "whereEl": element["ID_Series"],
-                                                                            "value": false,
-                                                                            "where": "ID_Series"
-                                                                        }, null, 2)
-                                                                    };
-                                                                    await fetch(PDP + "/DB/update", options);
-                                                                }
+                                                    });
+                                                } else {
+                                                    TheBook.favorite = 1;
+                                                    ToasterHandler(t("add_fav"), "success");
+                                                    await getFromDB("Books", "* FROM Books WHERE favorite=0").then(async (resa) => {
+                                                        if (!resa) return;
+                                                        const bookList = tryToParse(resa);
+                                                        for (const element of bookList) {
+                                                            if (element.ID_book === TheBook.ID_book) {
+                                                                const options = {
+                                                                    method: "POST", headers: {
+                                                                        "Content-Type": "application/json"
+                                                                    }, body: JSON.stringify({
+                                                                        "token": currentProfile.getToken,
+                                                                        "table": "Books",
+                                                                        "column": "favorite",
+                                                                        "whereEl": element.ID_book,
+                                                                        "value": true,
+                                                                        "where": "ID_book"
+                                                                    }, null, 2)
+                                                                };
+                                                                await fetch(PDP + "/DB/update", options);
                                                             }
-                                                        });
-                                                    } else {
-                                                        TheBook.favorite = 1;
-                                                        ToasterHandler(t("add_fav"), "success");
-                                                        await getFromDB("Series", "* FROM Series WHERE favorite=0").then(async (resa) => {
-                                                            if (!resa) return;
-                                                            const bookList = tryToParse(resa);
-                                                            for (const element of bookList) {
-                                                                console.log(TheBook.raw_title);
-                                                                console.log(element.title);
-                                                                if (TheBook.raw_title === element.title) {
-                                                                    console.log("found");
-                                                                    const options = {
-                                                                        method: "POST", headers: {
-                                                                            "Content-Type": "application/json"
-                                                                        }, body: JSON.stringify({
-                                                                            "token": currentProfile.getToken,
-                                                                            "table": "Series",
-                                                                            "column": "favorite",
-                                                                            "whereEl": element["ID_Series"],
-                                                                            "value": true,
-                                                                            "where": "ID_Series"
-                                                                        }, null, 2)
-                                                                    };
-                                                                    await fetch(PDP + "/DB/update", options);
-                                                                }
-                                                            }
-                                                        });
-                                                    }
+                                                        }
+                                                    });
                                                 }
+                                            } else if (TheBook.favorite === 1) {
+                                                TheBook.favorite = 0;
+                                                ToasterHandler(t("remove_fav"), "success");
+                                                await getFromDB("Series", "* FROM Series WHERE favorite=1").then(async (resa) => {
+                                                    if (!resa) return;
+                                                    const bookList = tryToParse(resa);
+                                                    for (const element of bookList) {
+                                                        if (TheBook.raw_title === element.title) {
+                                                            const options = {
+                                                                method: "POST", headers: {
+                                                                    "Content-Type": "application/json"
+                                                                }, body: JSON.stringify({
+                                                                    "token": currentProfile.getToken,
+                                                                    "table": "Series",
+                                                                    "column": "favorite",
+                                                                    "whereEl": element["ID_Series"],
+                                                                    "value": false,
+                                                                    "where": "ID_Series"
+                                                                }, null, 2)
+                                                            };
+                                                            await fetch(PDP + "/DB/update", options);
+                                                        }
+                                                    }
+                                                });
+                                            } else {
+                                                TheBook.favorite = 1;
+                                                ToasterHandler(t("add_fav"), "success");
+                                                await getFromDB("Series", "* FROM Series WHERE favorite=0").then(async (resa) => {
+                                                    if (!resa) return;
+                                                    const bookList = tryToParse(resa);
+                                                    for (const element of bookList) {
+                                                        console.log(TheBook.raw_title);
+                                                        console.log(element.title);
+                                                        if (TheBook.raw_title === element.title) {
+                                                            console.log("found");
+                                                            const options = {
+                                                                method: "POST", headers: {
+                                                                    "Content-Type": "application/json"
+                                                                }, body: JSON.stringify({
+                                                                    "token": currentProfile.getToken,
+                                                                    "table": "Series",
+                                                                    "column": "favorite",
+                                                                    "whereEl": element["ID_Series"],
+                                                                    "value": true,
+                                                                    "where": "ID_Series"
+                                                                }, null, 2)
+                                                            };
+                                                            await fetch(PDP + "/DB/update", options);
+                                                        }
+                                                    }
+                                                });
                                             }
-                                > <Favorite/></IconButton>
+                                        }
+                                    }
+                                > <Favorite /></IconButton>
                             </Tooltip>
                             <Tooltip title={t('EDIT')}>
                                 <IconButton onClick={() => {
                                     setOpenDatabaseEditorDialog(true);
-                                }} id="editmodalBtn"> <Edit/></IconButton>
+                                }} id="editmodalBtn"> <Edit /></IconButton>
                             </Tooltip>
                             <Tooltip title={t('downloadBook')}>
 
@@ -704,38 +704,38 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                         // noinspection JSIgnoredPromiseFromCall
                                         downloadBook(TheBook.PATH);
                                     }
-                                }> <Download/></IconButton>
+                                }> <Download /></IconButton>
                             </Tooltip>
                             <Tooltip title={t('refreshMetadata')}>
                                 <IconButton id="refreshBtn"
-                                            onClick={
-                                                async () => {
-                                                    if (type === "volume") {
-                                                        if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL) {
-                                                            ToasterHandler(t("providerCannotRematch"), "error");
-                                                        } else if (TheBook.lock !== 1) {
-                                                            await new API().refreshMeta(TheBook.ID_book, provider, "book");
-                                                        } else {
-                                                            ToasterHandler(t("bookLocked"), "error");
-                                                        }
-                                                    } else if (provider === providerEnum.MANUAL) {
-                                                        ToasterHandler(t("providerCannotRematch"), "error");
-                                                    } else if (TheBook.lock !== 1) {
-                                                        await new API().refreshMeta(TheBook.ID_book, provider, "series");
-                                                    } else {
-                                                        ToasterHandler(t("seriesLocked"), "error");
-                                                    }
-
+                                    onClick={
+                                        async () => {
+                                            if (type === "volume") {
+                                                if (provider === providerEnum.Anilist || provider === providerEnum.MANUAL) {
+                                                    ToasterHandler(t("providerCannotRematch"), "error");
+                                                } else if (TheBook.lock !== 1) {
+                                                    await new API().refreshMeta(TheBook.ID_book, provider, "book");
+                                                } else {
+                                                    ToasterHandler(t("bookLocked"), "error");
                                                 }
+                                            } else if (provider === providerEnum.MANUAL) {
+                                                ToasterHandler(t("providerCannotRematch"), "error");
+                                            } else if (TheBook.lock !== 1) {
+                                                await new API().refreshMeta(TheBook.ID_book, provider, "series");
+                                            } else {
+                                                ToasterHandler(t("seriesLocked"), "error");
                                             }
-                                > <Refresh/></IconButton>
+
+                                        }
+                                    }
+                                > <Refresh /></IconButton>
                             </Tooltip>
                             <Tooltip title={t('rematch')}>
                                 <IconButton id="rematchBtn"
-                                            onClick={
-                                                () => handleOpenRematchDialog()
-                                            }
-                                > <YoutubeSearchedFor/></IconButton>
+                                    onClick={
+                                        () => handleOpenRematchDialog()
+                                    }
+                                > <YoutubeSearchedFor /></IconButton>
                             </Tooltip>
                         </Grid2>
                             <div id="ratingContainer" className="rating">
@@ -749,14 +749,14 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                             changeRating('Series', TheBook.ID_book, newValue);
                                         }
                                     }
-                                }/>
+                                } />
                             </div>
                         </Stack>
-                        <div id="price" style={{marginTop: "15px"}}>{
+                        <div id="price" style={{ marginTop: "15px" }}>{
                             ((TheBook.prices !== "null" && TheBook.prices !== "" && TheBook.prices != null) ?
                                 ((provider === providerEnum.Marvel) ?
                                     t("prices") + ":" : "") : "")}
-                            <br/>
+                            <br />
                             {
                                 ((TheBook.prices !== "null" && TheBook.prices !== "" && TheBook.prices != null) ?
                                     ((provider === providerEnum.Marvel) ?
@@ -772,16 +772,16 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                         </div>
 
                         <div id="description"
-                             style={
-                                 {
-                                     marginBottom: "10px",
-                                     marginTop: "10px"
-                                 }
-                             }
+                            style={
+                                {
+                                    marginBottom: "10px",
+                                    marginTop: "10px"
+                                }
+                            }
                         >
 
                             <div
-                                dangerouslySetInnerHTML={{__html: (TheBook.description != null && TheBook.description !== "null") ? TheBook.description : ""}}
+                                dangerouslySetInnerHTML={{ __html: (TheBook.description != null && TheBook.description !== "null") ? TheBook.description : "" }}
                                 style={
                                     {
                                         textAlign: "justify",
@@ -793,9 +793,9 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             type === 'series' ?
                                 provider !== providerEnum.Marvel ?
                                     (TheBook.score != null && TheBook.score !== "null" && TheBook.score !== 0) ?
-                                        <Box sx={{position: 'relative', display: 'inline-flex'}}>
+                                        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
                                             <CircularProgress variant="determinate"
-                                                              value={parseInt(TheBook.score.toString())}/>
+                                                value={parseInt(TheBook.score.toString())} />
                                             <Box
                                                 sx={{
                                                     top: 0,
@@ -838,10 +838,10 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             {type === "volume" ?
                                 (TheBook.characters !== "null" && providerEnum.Marvel) ?
                                     t("thisisa") + " " + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + ". " + t("Thisispartofthe") + " '" + tryToParse(TheBook.series).name + "' " + t("series") + "." : (provider === providerEnum.Anilist) ?
-                                    t("Thisispartofthe") + " '" + TheBook.series.split("_")[2].replaceAll("$", " ") + "' " + t("series") + "." : (provider === providerEnum.Marvel) ?
-                                        t("Thisispartofthe") + " '" + ((tryToParse(TheBook.series) !== null) ? tryToParse(TheBook.series).name : t("Unknown")) + "' " + t("series") + "." : (provider === providerEnum.MANUAL) ?
-                                            t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") + "." : (provider === providerEnum.OL) ?
-                                                t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") + "." : (provider === providerEnum.GBooks) ? t("this is a") + " " + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + ". " + t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") + "." : "" : provider === providerEnum.Marvel ? t("ThisseriesIDfromMarvel") + ": " + parseInt(TheBook.ID_book) : ""
+                                        t("Thisispartofthe") + " '" + TheBook.series.split("_")[2].replaceAll("$", " ") + "' " + t("series") + "." : (provider === providerEnum.Marvel) ?
+                                            t("Thisispartofthe") + " '" + ((tryToParse(TheBook.series) !== null) ? tryToParse(TheBook.series).name : t("Unknown")) + "' " + t("series") + "." : (provider === providerEnum.MANUAL) ?
+                                                t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") + "." : (provider === providerEnum.OL) ?
+                                                    t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") + "." : (provider === providerEnum.GBooks) ? t("this is a") + " " + TheBook.format + " " + t("of") + " " + TheBook.pageCount + " " + t("pages") + ". " + t("Thisispartofthe") + " '" + TheBook.series + "' " + t("series") + "." : "" : provider === providerEnum.Marvel ? t("ThisseriesIDfromMarvel") + ": " + parseInt(TheBook.ID_book) : ""
                             }
                         </div>
                         <div id="colissue">{
@@ -882,25 +882,25 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                     } max={
                                         TheBook.pageCount
                                     }
-                                                              onBlur={
-                                                                  async (e) => {
-                                                                      const options = {
-                                                                          method: "POST", headers: {
-                                                                              "Content-Type": "application/json"
-                                                                          }, body: JSON.stringify({
-                                                                              "token": currentProfile.getToken,
-                                                                              "table": "Books",
-                                                                              "column": "last_page",
-                                                                              "whereEl": TheBook.ID_book,
-                                                                              "value": e.target.value,
-                                                                              "where": "ID_book"
-                                                                          }, null, 2)
-                                                                      };
-                                                                      await fetch(PDP + "/DB/update", options).catch((err) => {
-                                                                          ToasterHandler(err, "error");
-                                                                      });
-                                                                  }
-                                                              }
+                                        onBlur={
+                                            async (e) => {
+                                                const options = {
+                                                    method: "POST", headers: {
+                                                        "Content-Type": "application/json"
+                                                    }, body: JSON.stringify({
+                                                        "token": currentProfile.getToken,
+                                                        "table": "Books",
+                                                        "column": "last_page",
+                                                        "whereEl": TheBook.ID_book,
+                                                        "value": e.target.value,
+                                                        "where": "ID_book"
+                                                    }, null, 2)
+                                                };
+                                                await fetch(PDP + "/DB/update", options).catch((err) => {
+                                                    ToasterHandler(err, "error");
+                                                });
+                                            }
+                                        }
                                     />/ {TheBook.pageCount} {t('pagesRead')}</div> : "") : readStatSeries
                         }
                     </Box>
@@ -916,8 +916,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             && <div>
                                 <h1>{t("volumes")}</h1>
                                 <ContainerExplorer type="book" stateExplorer={openExplorer}
-                                                   handleAddBreadcrumbs={handleAddBreadcrumbs}
-                                                   handleOpenDetails={handleChangeToDetails}/>
+                                    handleAddBreadcrumbs={handleAddBreadcrumbs}
+                                    handleOpenDetails={handleChangeToDetails} />
                             </div>
                         }
                         {
@@ -933,27 +933,27 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                     {
                                         characters.map((el: any, index: number) => {
                                             return <div key={index}
-                                                        style={{
-                                                            marginLeft: "20px",
-                                                            textAlign: "center",
-                                                            cursor: "pointer",
-                                                        }}
-                                                        onClick={
-                                                            () => onClickHandleOpenMoreInfo(el)
-                                                        }
+                                                style={{
+                                                    marginLeft: "20px",
+                                                    textAlign: "center",
+                                                    cursor: "pointer",
+                                                }}
+                                                onClick={
+                                                    () => onClickHandleOpenMoreInfo(el)
+                                                }
                                             >
                                                 {
                                                     (provider === providerEnum.Marvel) ? <Box>
-                                                            <Avatar sx={{width: 120, height: 120}}
-                                                                    alt={t('aCharacter')}
-                                                                    src={tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]}/>
-                                                            <Typography>{el.name}</Typography></Box> :
+                                                        <Avatar sx={{ width: 120, height: 120 }}
+                                                            alt={t('aCharacter')}
+                                                            src={tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]} />
+                                                        <Typography>{el.name}</Typography></Box> :
                                                         (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ?
-                                                            <Box sx={{textAlign: "center"}}>
-                                                                <Avatar sx={{width: 120, height: 120}}
-                                                                        alt={t('aCharacter')}
-                                                                        src={el.image.replaceAll('"', '')}/><Typography
-                                                                textAlign={"center"}>{el.name}</Typography></Box> : ""
+                                                            <Box sx={{ textAlign: "center" }}>
+                                                                <Avatar sx={{ width: 120, height: 120 }}
+                                                                    alt={t('aCharacter')}
+                                                                    src={el.image.replaceAll('"', '')} /><Typography
+                                                                        textAlign={"center"}>{el.name}</Typography></Box> : ""
                                                 }
                                             </div>;
 
@@ -964,38 +964,38 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                             </div>
                         }
                         {
-                            ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null" &&TheBook["creators"] !== null ) ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null" &&TheBook["creators"] !== null) ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
+                            ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null" && TheBook["creators"] !== null) ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null" && TheBook["creators"] !== null) ? (tryToParse(TheBook["creators"]).length) : ("0"))) > 0 &&
                             <div>
                                 <h1>{t('Staff')}</h1>
                                 {t("Numberofpeople")}: {" "}
                                 {
-                                    ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null"&&TheBook["creators"] !== null) ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null"&&TheBook["creators"] !== null) ? (tryToParse(TheBook["creators"]).length) : ("0")))
+                                    ((provider === providerEnum.Marvel) ? ((TheBook["creators"] !== "null" && TheBook["creators"] !== null) ? tryToParse(TheBook["creators"])["available"] : 0) : ((TheBook["creators"] !== "null" && TheBook["creators"] !== null) ? (tryToParse(TheBook["creators"]).length) : ("0")))
 
                                 }
                                 <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
                                     {
                                         staff.map((el: any, index: number) => {
                                             return <div key={index}
-                                                        style={{
-                                                            marginLeft: "20px",
-                                                            textAlign: "center",
-                                                            cursor: "pointer",
-                                                        }}
-                                                        onClick={
-                                                            () => onClickHandleOpenMoreInfo(el)
-                                                        }
+                                                style={{
+                                                    marginLeft: "20px",
+                                                    textAlign: "center",
+                                                    cursor: "pointer",
+                                                }}
+                                                onClick={
+                                                    () => onClickHandleOpenMoreInfo(el)
+                                                }
                                             >
                                                 {
                                                     (provider === providerEnum.Marvel) ?
                                                         (el.name === tryToParse(TheBook.creators)["items"][index].name) ?
-                                                            <><Avatar sx={{width: 120, height: 120}}
-                                                                      src={tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]}></Avatar><span>{el.name}</span><br/><span>{tryToParse(TheBook.creators)["items"][index]["role"]}</span></> : ""
+                                                            <><Avatar sx={{ width: 120, height: 120 }}
+                                                                src={tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]}></Avatar><span>{el.name}</span><br /><span>{tryToParse(TheBook.creators)["items"][index]["role"]}</span></> : ""
                                                         : (provider === providerEnum.Anilist || provider === providerEnum.MANUAL || provider === providerEnum.OL || provider === providerEnum.GBooks) ?
                                                             (tryToParse(TheBook.creators)[index] !== undefined && el.name === tryToParse(TheBook.creators)[index].name) ?
-                                                                <><Avatar sx={{width: 120, height: 120}}
-                                                                          src={el.image.replaceAll('"', "")}></Avatar><br/><span>{el.name}</span></>
-                                                                : <><Avatar sx={{width: 120, height: 120}}
-                                                                            src={el.image.replaceAll('"', "")}></Avatar><br/><span>{el.name}</span></> : ""
+                                                                <><Avatar sx={{ width: 120, height: 120 }}
+                                                                    src={el.image.replaceAll('"', "")}></Avatar><br /><span>{el.name}</span></>
+                                                                : <><Avatar sx={{ width: 120, height: 120 }}
+                                                                    src={el.image.replaceAll('"', "")}></Avatar><br /><span>{el.name}</span></> : ""
                                                 }
                                             </div>;
                                         })}
@@ -1023,8 +1023,8 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                                     }
                                                 }
                                             }
-                                                         book={new Book(el.ID_book, el.name, ((provider === providerEnum.Marvel) ? (tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]) : (el.image)), "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, provider.toString())}
-                                                         provider={provider}
+                                                book={new Book(el.ID_book, el.name, ((provider === providerEnum.Marvel) ? (tryToParse(el.image).path + "/detail." + tryToParse(el.image)["extension"]) : (el.image)), "null", null, null, null, 0, 0, 0, 0, 0, 0, null, "null", "null", null, 0, null, null, null, null, null, null, 0, provider.toString())}
+                                                provider={provider}
                                             />;
                                         })}
                                 </div>
@@ -1041,7 +1041,7 @@ function ContentViewer({provider, TheBook, type, handleAddBreadcrumbs, handleCha
                                 }) : "" : ""
                             }
                         </div>
-                        <div style={{textAlign: "center"}}><p
+                        <div style={{ textAlign: "center" }}><p
                             id="provider_text">{((provider === providerEnum.Marvel) ? (t("providedBy") + " Marvel. © 2014 Marvel") : ((provider === providerEnum.Anilist) ? (t("providedBy") + " Anilist.") : ((provider === providerEnum.MANUAL) ? (t("notFromAPI")) : ((provider === providerEnum.OL) ? (t("providedBy") + " OpenLibrary.") : ((provider === providerEnum.GBooks) ? (t("providedBy") + " Google Books.") : t("notFromAPI"))))))}</p>
                         </div>
                     </Box>

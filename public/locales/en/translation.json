@@ -10,6 +10,7 @@
   "overlaymsg_piracy": "Checking if your Comics are authentics... Well, no it's all illegal piracy...",
   "overlaymsg_opening": "Opening the folder",
   "overlaymsg_takecare": "We take care of your comics",
+  "overlaymsg_discover_file": "Discovering file: ",
   "err_img": "Error when loading thumbnails of files... If this persist, please open an issue on GitHub",
   "overlaymsg_worst": "WORST LOADING EVER",
   "magnifier_toggle": "Activate Magnifier",
@@ -358,5 +359,7 @@
   "webToonMode": "WebToon Mode (Fixed width + Vertical Reader)",
   "Scroll_bar_visible": "ScrollBar visible",
   "releaseDates": "Release Dates",
-  "please_wait_series_load" : "Please wait until the series are loaded"
+  "please_wait_series_load" : "Please wait until the series are loaded",
+  "extracting_cover" : "Extracting cover...",
+  "cover_extraction_completed" : "Cover extraction completed"
 }

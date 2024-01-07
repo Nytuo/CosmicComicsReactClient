@@ -2,11 +2,11 @@
 // noinspection AllyJsxHardcodedStringInspection
 
 import * as React from 'react';
-import {styled, useTheme} from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar, {AppBarProps as MuiAppBarProps} from '@mui/material/AppBar';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
@@ -25,25 +25,25 @@ import {
     Tune,
     VerticalAlignCenter
 } from '@mui/icons-material';
-import {Stack, Tooltip} from '@mui/material';
-import {useTranslation} from 'react-i18next';
+import { LinearProgress, Stack, Tooltip } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import MovableImage from './MovableImage.tsx';
-import {ToasterHandler} from '../common/ToasterHandler.tsx';
-import {getCookie, PDP} from '@/utils/Common.ts';
-import {DeleteFromDB, getFromDB, InsertIntoDB, modifyConfigJson, ModifyDB} from '@/utils/Fetchers.ts';
+import { ToasterHandler, ToasterHandlerPromise } from '../common/ToasterHandler.tsx';
+import { getCookie, PDP } from '@/utils/Common.ts';
+import { DeleteFromDB, getFromDB, InsertIntoDB, modifyConfigJson, ModifyDB } from '@/utils/Fetchers.ts';
 import Logger from '@/logger.ts';
-import {useEffectOnce} from '@/utils/UseEffectOnce.tsx';
+import { useEffectOnce } from '@/utils/UseEffectOnce.tsx';
 import SubMenu from './SubMenu.tsx';
 import BookSettingsDialog from './dialogs/BookSettingsDialog.tsx';
 import Magnifier from './Magnifier.tsx';
-import {IUserSettings} from "@/interfaces/IUserSettings.ts";
-import {GetTheName} from "@/utils/utils.ts";
+import { IUserSettings } from "@/interfaces/IUserSettings.ts";
+import { GetTheName } from "@/utils/utils.ts";
 
 const drawerWidth = 240;
 
-const Main = styled('main', {shouldForwardProp: (prop) => prop !== 'open'})<{
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
     open?: boolean;
-}>(({theme, open}) => ({
+}>(({ theme, open }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
@@ -66,7 +66,7 @@ interface AppBarProps extends MuiAppBarProps {
 
 const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({theme, open}) => ({
+})<AppBarProps>(({ theme, open }) => ({
     transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
@@ -81,7 +81,7 @@ const AppBar = styled(MuiAppBar, {
     }),
 }));
 
-const DrawerHeader = styled('div')(({theme}) => ({
+const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     padding: theme.spacing(0, 1),
@@ -117,6 +117,11 @@ export default function PersistentDrawerLeft() {
     const [DoublePageMode, setDoublePageMode] = React.useState(false);
     const [innerWidth, setInnerWidth] = React.useState(window.innerWidth);
     const [webToonMode, setWebToonMode] = React.useState(false);
+    const [unzipStatus, setUnzipStatus] = React.useState({
+        "status": "waiting",
+        "percentage": 0,
+        "current_file": "",
+    });
 
     React.useLayoutEffect(() => {
         window.addEventListener("resize", () => {
@@ -155,7 +160,7 @@ export default function PersistentDrawerLeft() {
     };
 
     const connected = getCookie("selectedProfile", document);
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     let isADirectory: boolean = false;
 
 
@@ -240,41 +245,52 @@ export default function PersistentDrawerLeft() {
 
 
     async function prepareReader() {
-        ToasterHandler(t("loading_cache"), "info");
-        Logger.info("Preparing Reader");
-        if (listofImg.length === 0) {
-            ToasterHandler(t("no_book"), "error");
-            return;
-        }
-        const currentPage = localStorage.getItem("currentPage");
-        setCurrentPage(currentPage === null ? 0 : parseInt(currentPage));
-        const filepage = currentPage === null ? 0 : parseInt(currentPage);
-        await getUserConfig();
-        await getBookID();
-        await preloadImage(listofImg);
-        console.log(filepage);
-        if (filepage !== 0) {
-            // noinspection ES6MissingAwait
-            Reader(listofImg, filepage);
-        } else {
-            let lastpage = 0;
-            try {
-                await getFromDB("Books", "last_page FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'").then(async (res) => {
-                    console.log(res);
-                    if (res === "[]" || res === undefined || res === null || res === "" || res.length === 0) {
-                        lastpage = 0;
-                    } else {
-                        lastpage = JSON.parse(res)[0]["last_page"];
-                        setCurrentPage(lastpage);
-                    }
-                    // noinspection ES6MissingAwait
-                    Reader(listofImg, lastpage);
-                });
-            } catch (error) {
-                console.log(error);
+        const promise = new Promise((resolve, reject) => {
+            Logger.info("Preparing Reader");
+            if (listofImg.length === 0) {
+                reject("No images to load");
+                return;
             }
-        }
-        ToasterHandler(t("loaded_local"), "success");
+            const currentPage = localStorage.getItem("currentPage");
+            setCurrentPage(currentPage === null ? 0 : parseInt(currentPage));
+            const filepage = currentPage === null ? 0 : parseInt(currentPage);
+
+            getUserConfig()
+                .then(() => getBookID())
+                .then(() => preloadImage(listofImg))
+                .then(() => {
+                    console.log(filepage);
+                    if (filepage !== 0) {
+                        Reader(listofImg, filepage);
+                    } else {
+                        getFromDB("Books", "last_page FROM Books WHERE PATH='" + localStorage.getItem("currentBook") + "'")
+                            .then((res) => {
+                                console.log(res);
+                                let lastpage = 0;
+                                if (res === "[]" || res === undefined || res === null || res === "" || res.length === 0) {
+                                    lastpage = 0;
+                                } else {
+                                    lastpage = JSON.parse(res)[0]["last_page"];
+                                    setCurrentPage(lastpage);
+                                }
+                                Reader(listofImg, lastpage);
+                            })
+                            .catch((error) => {
+                                reject(error);
+                            });
+                    }
+                    resolve("done");
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        });
+        ToasterHandlerPromise(promise, t("loading_cache"), t("loaded_local"), t("error_loading_local"));
+        setUnzipStatus({
+            "status": "finish",
+            "percentage": 100,
+            "current_file": "",
+        });
         fixHeight();
     }
 
@@ -289,10 +305,10 @@ export default function PersistentDrawerLeft() {
             await fetch(PDP + "/viewer/view/current/" + connected).then(
                 (response) => {
                     response.json().then((data) => {
-                            listofImg = data === false ? [] : data;
-                            setListofImgState(data);
-                            setTotalPages(listofImg.length - 1);
-                        }
+                        listofImg = data === false ? [] : data;
+                        setListofImgState(data);
+                        setTotalPages(listofImg.length - 1);
+                    }
                     ).catch(function (error) {
                         console.log(error);
                     });
@@ -408,17 +424,17 @@ export default function PersistentDrawerLeft() {
             setImageOne(images[0]);
         }
         setTimeout(() => {
-                if (backgroundColorAuto) {
-                    Logger.info("ColorThief : Enable");
-                    GettheBGColor(listOfImg[page]).then((BGColor) => {
-                        if (typeof BGColor !== "string") return;
-                        Logger.debug("ColorThief : " + BGColor);
-                        BGColor = BGColor.replaceAll("[", "").replaceAll("]", "");
-                        const RGBArray = BGColor.split(',');
-                        document.body.style.background = "rgb(" + RGBArray[0] + "," + RGBArray[1] + "," + RGBArray[2] + ")";
-                    });
-                }
+            if (backgroundColorAuto) {
+                Logger.info("ColorThief : Enable");
+                GettheBGColor(listOfImg[page]).then((BGColor) => {
+                    if (typeof BGColor !== "string") return;
+                    Logger.debug("ColorThief : " + BGColor);
+                    BGColor = BGColor.replaceAll("[", "").replaceAll("]", "");
+                    const RGBArray = BGColor.split(',');
+                    document.body.style.background = "rgb(" + RGBArray[0] + "," + RGBArray[1] + "," + RGBArray[2] + ")";
+                });
             }
+        }
             ,
             50
         );
@@ -637,6 +653,19 @@ export default function PersistentDrawerLeft() {
         }
     }
 
+    function getStatusFromServer(seconds: number) {
+        let interval = setInterval(() => {
+            fetch(PDP + "/getStatus/" + connected + "/unzip")
+                .then((response) => response.json())
+                .then((data) => {
+                    setUnzipStatus(data);
+                    if (data.status === "finish" || data.status === "error") {
+                        clearInterval(interval);
+                    }
+                });
+        }, seconds * 1000);
+    }
+
     React.useLayoutEffect(() => {
         function keyListener(e: {
             ctrlKey: any;
@@ -734,13 +763,14 @@ export default function PersistentDrawerLeft() {
                             if (!existCCI) {
                                 Logger.info("CCI doesn't exist");
                                 //Unzip if the folder doesn't exist
+                                getStatusFromServer(5);
                                 fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then(async (response) => {
                                     Logger.info("Unzip for " + path + " : " + response.status);
                                     await fetch(PDP + "/viewer/view", {
                                         "method": "GET",
                                         "headers": {
                                             "Content-Type": "application/json",
-                                            "path": localStorage.getItem("currentBook") !== null ? localStorage.getItem("currentBook") : "",
+                                            "path": localStorage.getItem("currentBook") || "",
                                         }
                                     }).then((response) => {
                                         return response.json();
@@ -748,25 +778,24 @@ export default function PersistentDrawerLeft() {
                                         listofImg = dataLOI === false ? [] : dataLOI;
                                         setListofImgState(dataLOI);
                                         setTotalPages(listofImg.length - 1);
+                                        prepareReader();
                                     }).catch((error) => {
                                         console.log(error);
                                     });
-                                    prepareReader();
                                 });
+
                             } else if (isDir) {
                                 Logger.info("Trying to load images from CCI cache");
                                 //If the path is a folder then it contains images
-                                ToasterHandler(t("loading_cache"), "info");
-                                // @ts-ignore
-                                await fetch(PDP + "/viewer/view",{
+                                await fetch(PDP + "/viewer/view", {
                                     "method": "GET",
                                     "headers": {
                                         "Content-Type": "application/json",
-                                        "path": localStorage.getItem("currentBook") !== null ? localStorage.getItem("currentBook") : "",
+                                        "path": localStorage.getItem("currentBook") || "",
                                     }
                                 }).then((response) => {
-                                   return response.json();
-                                }).then((dataLOI:any) => {
+                                    return response.json();
+                                }).then((dataLOI: any) => {
                                     listofImg = dataLOI === false ? [] : dataLOI;
                                     setListofImgState(dataLOI);
                                     setTotalPages(listofImg.length - 1);
@@ -791,12 +820,13 @@ export default function PersistentDrawerLeft() {
                                                     ) {
                                                         Logger.info("path.txt is not equal to path, Unzipping");
                                                         // if it's not the same we need to extract it
+                                                        getStatusFromServer(5);
                                                         fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then(async () => {
                                                             await fetch(PDP + "/viewer/view", {
                                                                 "method": "GET",
                                                                 "headers": {
                                                                     "Content-Type": "application/json",
-                                                                    "path": localStorage.getItem("currentBook") !== null ? localStorage.getItem("currentBook") : "",
+                                                                    "path": localStorage.getItem("currentBook") || "",
                                                                 }
                                                             }).then((response) => {
                                                                 return response.json();
@@ -804,10 +834,10 @@ export default function PersistentDrawerLeft() {
                                                                 listofImg = dataLOI === false ? [] : dataLOI;
                                                                 setListofImgState(dataLOI);
                                                                 setTotalPages(listofImg.length - 1);
+                                                                prepareReader();
                                                             }).catch((error) => {
                                                                 console.log(error);
                                                             });
-                                                            prepareReader();
                                                         });
                                                     } else {
                                                         Logger.info("path.txt is equal to path, reading");
@@ -815,7 +845,7 @@ export default function PersistentDrawerLeft() {
                                                             "method": "GET",
                                                             "headers": {
                                                                 "Content-Type": "application/json",
-                                                                "path": localStorage.getItem("currentBook") !== null ? localStorage.getItem("currentBook") : "",
+                                                                "path": localStorage.getItem("currentBook") || "",
                                                             }
                                                         }).then((response) => {
                                                             return response.json();
@@ -833,6 +863,7 @@ export default function PersistentDrawerLeft() {
                                         } else {
                                             // if don't have a path.txt we extract
                                             Logger.info("path.txt doesn't exist, Unzipping");
+                                            getStatusFromServer(5);
                                             fetch(PDP + "/Unzip/" + window.encodeURIComponent(path) + "/" + connected).then((response) => {
                                                 return response.text();
                                             }).then(async () => {
@@ -841,7 +872,7 @@ export default function PersistentDrawerLeft() {
                                                     "method": "GET",
                                                     "headers": {
                                                         "Content-Type": "application/json",
-                                                        "path": localStorage.getItem("currentBook") !== null ? localStorage.getItem("currentBook") : "",
+                                                        "path": CosmicComicsTempI || "",
                                                     }
                                                 }).then((response) => {
                                                     return response.json();
@@ -849,10 +880,10 @@ export default function PersistentDrawerLeft() {
                                                     listofImg = dataLOI === false ? [] : dataLOI;
                                                     setListofImgState(dataLOI);
                                                     setTotalPages(listofImg.length - 1);
+                                                    prepareReader();
                                                 }).catch((error) => {
                                                     console.log(error);
                                                 });
-                                                prepareReader();
                                             });
                                         }
                                     });
@@ -936,7 +967,7 @@ export default function PersistentDrawerLeft() {
                     console.log(e);
                 }
             },
-            {threshold: [0.1]}
+            { threshold: [0.1] }
         );
         if (VIV_On) {
             setVIV_Count(preloadedImages.length);
@@ -963,10 +994,26 @@ export default function PersistentDrawerLeft() {
         }
     }, [baseWidth]);
 
+    React.useLayoutEffect(() => {
+        setTimeout(() => {
+            const overlay = document.getElementById("overlay");
+            if (overlay !== null) {
+                if (unzipStatus.status === "finish") {
+                    overlay.style.display = "none";
+                }
+                else {
+                    overlay.style.display = "block";
+                }
+
+            }
+        }, 500);
+    }, [unzipStatus]);
+
+
     return (
         <>
-            <Box sx={{display: 'flex'}}>
-                <CssBaseline/>
+            <Box sx={{ display: 'flex' }}>
+                <CssBaseline />
                 <AppBar position="fixed" open={open}>
                     <Toolbar>
                         <Tooltip title={t('openDrawer')}>
@@ -975,9 +1022,9 @@ export default function PersistentDrawerLeft() {
                                 aria-label={t('openDrawer')}
                                 onClick={handleDrawerOpen}
                                 edge="start"
-                                sx={{mr: 2, ...(open && {display: 'none'})}}
+                                sx={{ mr: 2, ...(open && { display: 'none' }) }}
                             >
-                                <MenuIcon/>
+                                <MenuIcon />
                             </IconButton>
                         </Tooltip>
                         <Tooltip title={t("go_back")}>
@@ -989,9 +1036,9 @@ export default function PersistentDrawerLeft() {
                                 }
                                 color="inherit"
                                 edge="start"
-                                sx={{mr: 2}}
+                                sx={{ mr: 2 }}
                             >
-                                <CollectionsBookmark/>
+                                <CollectionsBookmark />
                             </IconButton></Tooltip>
                         <div
                             style={{
@@ -1014,9 +1061,9 @@ export default function PersistentDrawerLeft() {
                                         }
                                     }
                                     edge="start"
-                                    sx={{mr: 2,}}
+                                    sx={{ mr: 2, }}
                                 >
-                                    <AlignHorizontalCenter/>
+                                    <AlignHorizontalCenter />
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={t("fix_height")}>
@@ -1027,9 +1074,9 @@ export default function PersistentDrawerLeft() {
                                     }
                                     }
                                     edge="start"
-                                    sx={{mr: 2,}}
+                                    sx={{ mr: 2, }}
                                 >
-                                    <VerticalAlignCenter/>
+                                    <VerticalAlignCenter />
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={t("full_screen")}>
@@ -1049,10 +1096,10 @@ export default function PersistentDrawerLeft() {
                                         }
                                     }
                                     edge="start"
-                                    sx={{mr: 2,}}
+                                    sx={{ mr: 2, }}
                                 >
                                     {
-                                        isFullscreen ? <FullscreenExit/> : <Fullscreen/>
+                                        isFullscreen ? <FullscreenExit /> : <Fullscreen />
                                     }
                                 </IconButton>
                             </Tooltip>
@@ -1065,9 +1112,9 @@ export default function PersistentDrawerLeft() {
                                         }
                                     }
                                     edge="start"
-                                    sx={{mr: 2,}}
+                                    sx={{ mr: 2, }}
                                 >
-                                    <Tune/>
+                                    <Tune />
                                 </IconButton>
                             </Tooltip>
                             <SubMenu
@@ -1099,14 +1146,14 @@ export default function PersistentDrawerLeft() {
                 >
                     <DrawerHeader>
                         <IconButton onClick={handleDrawerClose}>
-                            {theme.direction === 'ltr' ? <ChevronLeftIcon/> : <ChevronRightIcon/>}
+                            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                         </IconButton>
                     </DrawerHeader>
-                    <Divider/>
-                    <div id="SideBar" style={{overflowY: "scroll", height: "100%", scrollBehavior: "smooth"}}>
+                    <Divider />
+                    <div id="SideBar" style={{ overflowY: "scroll", height: "100%", scrollBehavior: "smooth" }}>
                         {
                             preloadedImages.map((el: string, i: number) => {
-                                return <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem/>} key={i}
+                                return <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />} key={i}
                                 >
                                     <div
                                         key={i}
@@ -1149,56 +1196,64 @@ export default function PersistentDrawerLeft() {
                 <Main open={open} sx={{
                     padding: "0px"
                 }}>
+                    <div id="overlay" style={{ background: theme.palette.background.default, display: "none" }}>
+                        <div style={{ textAlign: "center", marginTop: "25%", marginLeft: "10%", marginRight: "10%" }}>
+                            <LinearProgress variant="determinate" value={unzipStatus.percentage} />
+                            <p id="overlaymsg" style={{ marginTop: "10px" }}>
+                                {t("extracting")}  ({unzipStatus.current_file} {unzipStatus.percentage}%)
+                            </p>
+                        </div>
+                    </div>
                     {
                         VIV_On ? <>
-                                {
-                                    preloadedImages.map((el: string, i: number) => {
-                                            return <div id={"div_imgViewer_" + i} key={i}>
-                                                <img id={"imgViewer_" + i} src={el} alt={i + 1 + "th page"}
-                                                     width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
-                                                     height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
-                                                     style={
-                                                         {
-                                                             display: "flex",
-                                                             justifyContent: "center",
-                                                             alignItems: "center",
-                                                             margin: "auto",
-                                                             position: "relative",
-                                                         }
-                                                     }
-                                                />
-                                            </div>;
-                                        }
-                                    )
+                            {
+                                preloadedImages.map((el: string, i: number) => {
+                                    return <div id={"div_imgViewer_" + i} key={i}>
+                                        <img id={"imgViewer_" + i} src={el} alt={i + 1 + "th page"}
+                                            width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
+                                            height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
+                                            style={
+                                                {
+                                                    display: "flex",
+                                                    justifyContent: "center",
+                                                    alignItems: "center",
+                                                    margin: "auto",
+                                                    position: "relative",
+                                                }
+                                            }
+                                        />
+                                    </div>;
                                 }
-                            </> :
+                                )
+                            }
+                        </> :
                             isMagnifierOn ? <Magnifier zoomFactor={2}>
                                 {imageOne !== null ? <MovableImage id={"imgViewer_0"} disableMove={true} src={imageOne}
-                                                                   origin={origins[0]}
-                                                                   width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
-                                                                   height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
-                                                                   rotation={rotation} alt="Logo"/> : null
+                                    origin={origins[0]}
+                                    width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
+                                    height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
+                                    rotation={rotation} alt="Logo" /> : null
                                 }
                                 {
                                     imageTwo !== null ?
                                         <MovableImage id={"imgViewer_1"} disableMove={true} src={imageTwo}
-                                                      origin={origins[1]}
-                                                      width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
-                                                      height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
-                                                      rotation={rotation} alt="Logo"/> : null
+                                            origin={origins[1]}
+                                            width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
+                                            height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
+                                            rotation={rotation} alt="Logo" /> : null
                                 }
                             </Magnifier> : <>{imageOne !== null ?
                                 <MovableImage id={"imgViewer_0"} src={imageOne} origin={origins[0]} disableMove={false}
-                                              width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
-                                              height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
-                                              rotation={rotation} alt="Logo"/> : null}
+                                    width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
+                                    height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
+                                    rotation={rotation} alt="Logo" /> : null}
                                 {
                                     imageTwo !== null ?
                                         <MovableImage id={"imgViewer_1"} src={imageTwo} origin={origins[1]}
-                                                      disableMove={false}
-                                                      width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
-                                                      height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
-                                                      rotation={rotation} alt="Logo"/> : null
+                                            disableMove={false}
+                                            width={typeof baseWidth === "number" ? (baseWidth + zoomLevel + "px") : "auto"}
+                                            height={typeof baseHeight === "number" ? baseHeight + zoomLevel + "px" : "auto"}
+                                            rotation={rotation} alt="Logo" /> : null
                                 }</>}
                     <p style={{
                         color: "white",
@@ -1221,14 +1276,14 @@ export default function PersistentDrawerLeft() {
                         borderRadius: "10px",
                         padding: "5px"
                     }}
-                         onMouseEnter={() => {
-                             setOpacityForNavigation("1");
-                         }
-                         }
-                         onMouseLeave={() => {
-                             setOpacityForNavigation("0.1");
-                         }
-                         }
+                        onMouseEnter={() => {
+                            setOpacityForNavigation("1");
+                        }
+                        }
+                        onMouseLeave={() => {
+                            setOpacityForNavigation("0.1");
+                        }
+                        }
                     >
                         <Tooltip title={t("go_start")}>
                             <IconButton
@@ -1244,9 +1299,9 @@ export default function PersistentDrawerLeft() {
                                 }
                                 color="inherit"
                                 edge="start"
-                                sx={{mr: 2, ml: 2}}
+                                sx={{ mr: 2, ml: 2 }}
                             >
-                                <FirstPage/>
+                                <FirstPage />
                             </IconButton>
                         </Tooltip>
                         <Tooltip title={t("go_previous")}>
@@ -1257,9 +1312,9 @@ export default function PersistentDrawerLeft() {
                                 }
                                 }
                                 edge="start"
-                                sx={{mr: 2,}}
+                                sx={{ mr: 2, }}
                             >
-                                <NavigateBefore/>
+                                <NavigateBefore />
                             </IconButton>
                         </Tooltip>
                         <Tooltip title={t("go_next")}>
@@ -1269,9 +1324,9 @@ export default function PersistentDrawerLeft() {
                                     NextPage();
                                 }}
                                 edge="start"
-                                sx={{mr: 2,}}
+                                sx={{ mr: 2, }}
                             >
-                                <NavigateNext/>
+                                <NavigateNext />
                             </IconButton>
                         </Tooltip>
                         <Tooltip title={t("go_end")}>
@@ -1310,9 +1365,9 @@ export default function PersistentDrawerLeft() {
                                     }
                                 }
                                 edge="start"
-                                sx={{mr: 2,}}
+                                sx={{ mr: 2, }}
                             >
-                                <LastPage/>
+                                <LastPage />
                             </IconButton>
                         </Tooltip>
                     </div>
@@ -1328,14 +1383,14 @@ export default function PersistentDrawerLeft() {
                         borderRadius: "10px",
                         padding: "5px"
                     }}
-                         onMouseEnter={() => {
-                             setOpacityForNavigation("1");
-                         }
-                         }
-                         onMouseLeave={() => {
-                             setOpacityForNavigation("0.1");
-                         }
-                         }
+                        onMouseEnter={() => {
+                            setOpacityForNavigation("1");
+                        }
+                        }
+                        onMouseLeave={() => {
+                            setOpacityForNavigation("0.1");
+                        }
+                        }
                     >
                         <Tooltip title={t("go_next")}>
 
@@ -1345,9 +1400,9 @@ export default function PersistentDrawerLeft() {
                                     NextPage();
                                 }}
                                 edge="start"
-                                sx={{ml: 1, mr: 1}}
+                                sx={{ ml: 1, mr: 1 }}
                             >
-                                <NavigateNext/>
+                                <NavigateNext />
                             </IconButton>
                         </Tooltip>
                     </div>
@@ -1363,14 +1418,14 @@ export default function PersistentDrawerLeft() {
                         borderRadius: "10px",
                         padding: "5px"
                     }}
-                         onMouseEnter={() => {
-                             setOpacityForNavigation("1");
-                         }
-                         }
-                         onMouseLeave={() => {
-                             setOpacityForNavigation("0.1");
-                         }
-                         }
+                        onMouseEnter={() => {
+                            setOpacityForNavigation("1");
+                        }
+                        }
+                        onMouseLeave={() => {
+                            setOpacityForNavigation("0.1");
+                        }
+                        }
                     >
                         <Tooltip title={t("go_previous")}>
 
@@ -1381,24 +1436,24 @@ export default function PersistentDrawerLeft() {
                                 }
                                 }
                                 edge="start"
-                                sx={{ml: 1, mr: 1}}
+                                sx={{ ml: 1, mr: 1 }}
                             >
-                                <NavigateBefore/>
+                                <NavigateBefore />
                             </IconButton>
                         </Tooltip>
                     </div>
                 </Main>
             </Box>
             <BookSettingsDialog openModal={openBookSettings} onClose={handleCloseBookSettings} Reader={Reader}
-                                LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage}
-                                setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage}
-                                setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON}
-                                slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn}
-                                slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval}
-                                mangaMode={mangaMode} setMangaMode={setMangaMode} VIV_On={VIV_On} setVIVOn={setVIV_On}
-                                setWebToonMode={setWebToonMode} fixWidth={fixWidth} fixHeight={fixHeight}
-                                setBackgroundColorAuto={setBackgroundColorAuto}
-                                backgroundColorAuto={backgroundColorAuto} userSettings={userSettings}/>
+                LOI={listofImgState} currentPage={currentPage} setCurrentPage={setCurrentPage}
+                setDoublePageMode={setDoublePageMode} setBlankFirstPage={setBlankFirstPage}
+                setDPMNoH={setDPMNoH} setActionbarON={setActionbarON} actionbarON={actionbarON}
+                slideShow={isSlideShowOn} setSlideShow={setIsSlideShowOn}
+                slideShowInterval={slideShowInterval} setSlideShowInterval={setSlideShowInterval}
+                mangaMode={mangaMode} setMangaMode={setMangaMode} VIV_On={VIV_On} setVIVOn={setVIV_On}
+                setWebToonMode={setWebToonMode} fixWidth={fixWidth} fixHeight={fixHeight}
+                setBackgroundColorAuto={setBackgroundColorAuto}
+                backgroundColorAuto={backgroundColorAuto} userSettings={userSettings} />
         </>
     );
 

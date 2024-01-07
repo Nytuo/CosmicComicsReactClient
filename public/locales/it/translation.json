@@ -10,6 +10,7 @@
         "overlaymsg_piracy": "Controllare se i vostri fumetti sono autentici... Beh, no, è tutta pirateria illegale...",
         "overlaymsg_opening": "Apertura della cartella",
         "overlaymsg_takecare": "Ci prendiamo cura dei vostri fumetti",
+        "overlaymsg_discover_file": "Scoprire il file: ",
         "err_img": "Errore durante il caricamento delle miniature dei file... Se il problema persiste, aprire un problema su GitHub",
         "overlaymsg_worst": "IL PEGGIOR CARICAMENTO DI SEMPRE",
         "magnifier_toggle": "Attivare la lente d'ingrandimento",
@@ -358,5 +359,7 @@
         "webToonMode": "Modalità WebToon (Larghezza fissa + Lettore verticale)",
         "Scroll_bar_visible": "Barra di scorrimento visibile",
         "releaseDates": "Date di rilascio",
-        "please_wait_series_load" : "Attendere il caricamento della serie"
+        "please_wait_series_load" : "Attendere il caricamento della serie",
+        "extracting_cover" : "Estrazione della copertina",
+        "cover_extraction_completed" : "Estrazione della copertina completata"
 }

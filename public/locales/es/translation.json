@@ -10,6 +10,7 @@
         "overlaymsg_piracy": "Comprobando si tus Comics son auténticos... Bueno, no todo es piratería ilegal...",
         "overlaymsg_opening": "Abrir la carpeta",
         "overlaymsg_takecare": "Cuidamos de tus cómics",
+        "overlaymsg_discover_file": "Descubre el expediente: ",
         "err_img": "Error al cargar miniaturas de archivos... Si esto persiste, por favor, abra un problema en GitHub",
         "overlaymsg_worst": "LA PEOR CARGA DE LA HISTORIA",
         "magnifier_toggle": "Activar lupa",
@@ -358,4 +359,7 @@
         "webToonMode": "Modo WebToon (Ancho fijo + Lector vertical)",
         "Scroll_bar_visible": "Barra de desplazamiento visible",
         "releaseDates": "Fechas de lanzamiento",
-        "please_wait_series_load" : "Por favor, espere mientras se cargan las series"
+        "please_wait_series_load" : "Por favor, espere mientras se cargan las series",
+        "extracting_cover" : " Extracción de la cubierta",
+        "cover_extraction_completed" : "Extracción de la cubierta completada"
+}
