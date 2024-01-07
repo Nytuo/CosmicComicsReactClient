@@ -11,7 +11,7 @@ import { Bookmark, Download, Info, PhotoLibrary, Settings, TipsAndUpdates } from
 import AboutDialog from './AboutDialog.tsx';
 import BookmarksDialog from './BookmarksDialog.tsx';
 import DownloadDialog from './DownloadDialog.tsx';
-import { ToasterHandler } from '../../common/ToasterHandler.tsx';
+import { ToasterHandler, ToasterHandlerPromise } from '../../common/ToasterHandler.tsx';
 import { currentProfile, PDP } from '@/utils/Common.ts';
 import SettingsDialog from './SettingsDialog.tsx';
 
@@ -149,7 +149,7 @@ export default function NavigationDialog({ onClose, openModal, CosmicComicsTemp 
                                             }, null, 2)
                                         });
 
-                                        ToasterHandler(promise, "promise");
+                                        ToasterHandlerPromise(promise, t("extracting_cover"), t("cover_extraction_completed"), t("error"));
                                     }
                                 }
                             >
