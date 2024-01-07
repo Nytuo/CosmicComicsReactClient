@@ -342,7 +342,6 @@ export default function MiniDrawer({
                 let found = false;
                 const titlesList = [];
                 const returnedPath = JSON.parse(res);
-                let foundPATH = "";
                 for (const element of returnedPath) {
                     titlesList.push(element.PATH);
                 }
@@ -350,7 +349,6 @@ export default function MiniDrawer({
                     console.log(el);
                     if (el === path) {
                         found = true;
-                        foundPATH = el;
                     }
                 });
                 if (!found) {

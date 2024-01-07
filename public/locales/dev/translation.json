@@ -363,5 +363,7 @@
         "webToonMode": "dev",
         "Scroll_bar_visible": "dev",
         "releaseDates": "dev",
-        "please_wait_series_load" : "dev"
+        "please_wait_series_load" : "dev",
+        "extracting_cover" : "dev",
+        "cover_extraction_completed" : "dev"
 }

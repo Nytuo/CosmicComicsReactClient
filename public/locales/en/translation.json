@@ -359,5 +359,7 @@
   "webToonMode": "WebToon Mode (Fixed width + Vertical Reader)",
   "Scroll_bar_visible": "ScrollBar visible",
   "releaseDates": "Release Dates",
-  "please_wait_series_load" : "Please wait until the series are loaded"
+  "please_wait_series_load" : "Please wait until the series are loaded",
+  "extracting_cover" : "Extracting cover...",
+  "cover_extraction_completed" : "Cover extraction completed"
 }

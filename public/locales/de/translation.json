@@ -359,6 +359,7 @@
         "webToonMode": "WebToon Modus (Vaste breedte + Verticale lezer)",
         "Scroll_bar_visible": "Schuifbalk zichtbaar",
         "releaseDates": "Release data",
-        "please_wait_series_load" : "Wacht tot de serie is geladen"
-
+        "please_wait_series_load" : "Wacht tot de serie is geladen",
+        "extracting_cover" : "Cover extraheren",
+        "cover_extraction_completed" : "Cover extractie voltooid"
 }

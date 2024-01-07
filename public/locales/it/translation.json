@@ -359,5 +359,7 @@
         "webToonMode": "Modalità WebToon (Larghezza fissa + Lettore verticale)",
         "Scroll_bar_visible": "Barra di scorrimento visibile",
         "releaseDates": "Date di rilascio",
-        "please_wait_series_load" : "Attendere il caricamento della serie"
+        "please_wait_series_load" : "Attendere il caricamento della serie",
+        "extracting_cover" : "Estrazione della copertina",
+        "cover_extraction_completed" : "Estrazione della copertina completata"
 }
