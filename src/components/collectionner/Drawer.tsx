@@ -1,10 +1,10 @@
 // noinspection HtmlUnknownTarget
 
 import * as React from 'react';
-import {alpha, CSSObject, styled, Theme, useTheme} from '@mui/material/styles';
+import { alpha, CSSObject, styled, Theme, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar, {AppBarProps as MuiAppBarProps} from '@mui/material/AppBar';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -28,32 +28,32 @@ import {
     MoreHoriz,
     MoreVert
 } from '@mui/icons-material';
-import {Autocomplete, Avatar, CircularProgress, Menu, MenuItem, TextField} from '@mui/material';
+import { Autocomplete, Avatar, CircularProgress, LinearProgress, Menu, MenuItem, TextField } from '@mui/material';
 import CollapsedBreadcrumbs from './Breadcrumb.tsx';
-import {useTranslation} from 'react-i18next';
-import {AllBooks, deleteLib, DetectFolderInLibrary, getFromDB, InsertIntoDB, logout} from '@/utils/Fetchers.ts';
-import {buildTitleFromProvider, providerEnum, tryToParse} from '@/utils/utils.ts';
+import { useTranslation } from 'react-i18next';
+import { AllBooks, deleteLib, DetectFolderInLibrary, getFromDB, InsertIntoDB, logout } from '@/utils/Fetchers.ts';
+import { buildTitleFromProvider, providerEnum, tryToParse } from '@/utils/utils.ts';
 import HomeContainer from './Home.tsx';
-import {cardModeEX, currentProfile, InsertIntoTarget, PDP} from '@/utils/Common.ts';
+import { cardModeEX, currentProfile, InsertIntoTarget, PDP } from '@/utils/Common.ts';
 import UserAccountDialog from './dialogs/UserAccountDialog.tsx';
-import {IBook} from '@/interfaces/IBook.ts';
+import { IBook } from '@/interfaces/IBook.ts';
 import Book from '@/utils/Book.ts';
 import Details from './Details.tsx';
 import Series from './Series.tsx';
-import {Marvel} from '@/API/Marvel.ts';
-import {Anilist} from '@/API/Anilist.ts';
+import { Marvel } from '@/API/Marvel.ts';
+import { Anilist } from '@/API/Anilist.ts';
 import ContainerExplorer from './ContainerExplorer.tsx';
-import {ToasterHandler} from '../common/ToasterHandler.tsx';
+import { ToasterHandler } from '../common/ToasterHandler.tsx';
 import UploadDialog from './dialogs/UploadDialog.tsx';
 import NavigationDialog from './dialogs/NavigationDialog.tsx';
 import APISelectorDialog from './dialogs/APISelectorDialog.tsx';
 import AddingLibraryDialog from './dialogs/AddingLibraryDialog.tsx';
-import {API} from '@/API/API.ts';
-import {ISeriesOfBook} from "@/interfaces/ISeriesOfBook.ts";
+import { API } from '@/API/API.ts';
+import { ISeriesOfBook } from "@/interfaces/ISeriesOfBook.ts";
 
 //#region Styles
 const drawerWidth = 240;
-const Search = styled('div')(({theme}) => ({
+const Search = styled('div')(({ theme }) => ({
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
     backgroundColor: alpha(theme.palette.common.white, 0.15),
@@ -69,7 +69,7 @@ const Search = styled('div')(({theme}) => ({
     },
 }));
 
-const StyledInputBase = styled(TextField)(({theme}) => ({
+const StyledInputBase = styled(TextField)(({ theme }) => ({
     color: 'inherit',
     '& .MuiInputBase-input': {
         padding: theme.spacing(1, 1, 1, 0),
@@ -103,7 +103,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
     },
 });
 
-const DrawerHeader = styled('div')(({theme}) => ({
+const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',
@@ -118,7 +118,7 @@ interface AppBarProps extends MuiAppBarProps {
 
 const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({theme, open}) => ({
+})<AppBarProps>(({ theme, open }) => ({
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
         easing: theme.transitions.easing.sharp,
@@ -140,8 +140,8 @@ const AppBar = styled(MuiAppBar, {
     }),
 }));
 
-const Drawer = styled(MuiDrawer, {shouldForwardProp: (prop) => prop !== 'open'})(
-    ({theme, open}) => ({
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+    ({ theme, open }) => ({
         width: drawerWidth,
         flexShrink: 0,
         whiteSpace: 'nowrap',
@@ -161,12 +161,12 @@ const Drawer = styled(MuiDrawer, {shouldForwardProp: (prop) => prop !== 'open'})
 //#endregion
 
 export default function MiniDrawer({
-                                       CosmicComicsTemp
-                                   }: {
-                                       CosmicComicsTemp: string;
-                                   }
+    CosmicComicsTemp
+}: {
+    CosmicComicsTemp: string;
+}
 ) {
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     const theme = useTheme();
     //#region States
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -194,13 +194,13 @@ export default function MiniDrawer({
         provider: any,
         booksNumber: number;
         type: "series" | "books";
-    }>(({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"}));
+    }>(({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" }));
     const [openAPISelector, setOpenAPISelector] = React.useState(false);
     const [breadcrumbs, setBreadcrumbs] = React.useState<{ text: string; onClick: () => void; }[]>([{
         text: t("HOME"), onClick: () => {
             setOpenDetails(null);
-            setOpenSeries({open: false, series: [], provider: null});
-            setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
+            setOpenSeries({ open: false, series: [], provider: null });
+            setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
             handleRemoveBreadcrumbsTo(1);
         }
     }]);
@@ -208,6 +208,7 @@ export default function MiniDrawer({
     const [isLoading, setIsLoading] = React.useState(false);
     const [searchOpen, setSearchOpen] = React.useState(false);
     const [searchOptions, setSearchOptions] = React.useState<ISearchElement[]>([]);
+    const [bookDiscoverProgress, setBookDiscoverProgress] = React.useState({ x: 0, of: 0, file: "" });
     //#endregion
     const isMenuOpen = Boolean(anchorEl);
     const isAPIOpen = Boolean(anchorAPI);
@@ -280,31 +281,31 @@ export default function MiniDrawer({
     };
 
     const handleOpenDetails = (open: boolean, book: IBook, provider: any) => {
-        setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
-        setOpenSeries({open: false, series: [], provider: null});
-        setOpenDetails({open: open, book: book, provider: provider});
+        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
+        setOpenSeries({ open: false, series: [], provider: null });
+        setOpenDetails({ open: open, book: book, provider: provider });
     };
 
     const handleOpenSeries = (open: boolean, series: ISeriesOfBook[], provider: any) => {
-        setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
+        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
         setOpenDetails(null);
-        setOpenSeries({open: open, series: series, provider: provider});
+        setOpenSeries({ open: open, series: series, provider: provider });
     };
 
     const handleChangeToDetails = (_open: boolean, book: IBook, provider: any) => {
-        setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
-        setOpenSeries({open: false, series: [], provider: null});
-        setOpenDetails({open: true, book: book, provider: provider});
+        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
+        setOpenSeries({ open: false, series: [], provider: null });
+        setOpenDetails({ open: true, book: book, provider: provider });
     };
 
     const handleChangeToSeries = (_open: boolean, series: ISeriesOfBook[], provider: any) => {
-        setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
+        setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
         setOpenDetails(null);
-        setOpenSeries({open: true, series: series, provider: provider});
+        setOpenSeries({ open: true, series: series, provider: provider });
         handleRemoveBreadcrumbsTo(1);
     };
     const handleAddBreadcrumbs = (text: string, onClick: () => void) => {
-        setBreadcrumbs([...breadcrumbs, {text: text, onClick: onClick}]);
+        setBreadcrumbs([...breadcrumbs, { text: text, onClick: onClick }]);
     };
     const handleRemoveBreadcrumbsTo = (index: number) => {
         setBreadcrumbs(breadcrumbs.slice(0, index));
@@ -323,8 +324,9 @@ export default function MiniDrawer({
      * @param _FolderRes The folder result
      * @param libraryPath The path to the library
      */
-    async function loadContent(provider: number, _FolderRes: string, libraryPath: string) {
+    async function loadContent(provider: number, _FolderRes: string, libraryPath: string, skip_notfound = false) {
         let n = 0;
+
         const listOfImages = [];
         let FolderRes = JSON.parse(_FolderRes);
         const divlist = document.createElement("div");
@@ -335,6 +337,7 @@ export default function MiniDrawer({
             for (const element of FolderRes) {
                 const path = element;
                 const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "").replace("/", "");
+                setBookDiscoverProgress({ x: FolderRes.indexOf(element), of: FolderRes.length - 1, file: name });
                 console.log(name);
                 let found = false;
                 const titlesList = [];
@@ -365,7 +368,31 @@ export default function MiniDrawer({
                         const randID = Math.floor(Math.random() * 1000000);
                         await InsertIntoDB("Series", "(ID_Series,title,note,statut,start_date,end_date,description,Score,genres,cover,BG,CHARACTERS,TRENDING,STAFF,SOURCE,volumes,chapters,favorite,PATH,lock)", "('" + randID + "U_0" + "','" + JSON.stringify(name.replaceAll("'", "''")) + "',null,null,null,null,null,'0',null,null,null,null,null,null,null,null,null,0,'" + path + "',false)");
                     }
-                } else {
+                }
+            }
+            if (isOneOfThemIsNotFounded) {
+                loadContent(provider, _FolderRes, libraryPath, true);
+                return;
+            }
+
+            if (skip_notfound || !isOneOfThemIsNotFounded) {
+                for (const element of FolderRes) {
+                    const path = element;
+                    const name = path.replaceAll(libraryPath.replaceAll("\\", "/"), "").replace("/", "");
+                    setBookDiscoverProgress({ x: FolderRes.indexOf(element), of: FolderRes.length - 1, file: name });
+                    console.log(name);
+                    const titlesList = [];
+                    const returnedPath = JSON.parse(res);
+                    let foundPATH = "";
+                    for (const element of returnedPath) {
+                        titlesList.push(element.PATH);
+                    }
+                    titlesList.forEach((el) => {
+                        console.log(el);
+                        if (el === path) {
+                            foundPATH = el;
+                        }
+                    });
                     await getFromDB("Series", "* FROM Series where PATH = '" + foundPATH + "'").then((resa) => {
                         if (!resa) return;
                         console.log(foundPATH);
@@ -449,18 +476,18 @@ export default function MiniDrawer({
                     });
                 }
             }
+            setBookDiscoverProgress({ x: 0, of: 0, file: "" });
         });
+
         if (!cardMode && n === 0 && !isOneOfThemIsNotFounded) {
             ToasterHandler(t("empty_notSupported"), "error");
             setOpenDetails(null);
-            setOpenSeries({open: false, series: [], provider: null});
-            setOpenExplorer({open: false, explorer: [], provider: null, booksNumber: 0, type: "series"});
+            setOpenSeries({ open: false, series: [], provider: null });
+            setOpenExplorer({ open: false, explorer: [], provider: null, booksNumber: 0, type: "series" });
             setIsLoading(false);
             handleRemoveBreadcrumbsTo(1);
         }
-        if (isOneOfThemIsNotFounded) {
-            loadContent(provider, _FolderRes, libraryPath);
-        }
+
     }
 
 
@@ -487,7 +514,7 @@ export default function MiniDrawer({
                     return InsertIntoTarget(resa, realname, date, path, OSBook, provider);
                 });
             }
-            setOpenExplorer({open: true, explorer: OSBook, provider: provider, booksNumber: 0, type: "books"});
+            setOpenExplorer({ open: true, explorer: OSBook, provider: provider, booksNumber: 0, type: "books" });
         });
     }
 
@@ -512,12 +539,13 @@ export default function MiniDrawer({
                         loadView(result, result, "", provider);
                         console.log("OpenLibrary_FUN=>", result);
                     } else {
+                        setBookDiscoverProgress({ x: 0, of: dataParsed.length - 1, file: "" });
                         // noinspection JSIgnoredPromiseFromCall
                         loadContent(provider, dataParsed, result);
                     }
                 });
             } else {
-                setOpenSeries({open: true, series: [], provider: provider});
+                setOpenSeries({ open: true, series: [], provider: provider });
             }
         }, 500);
     }
@@ -656,8 +684,8 @@ export default function MiniDrawer({
                 }
                 }
             >
-                <MoreHoriz/>
-                <p style={{marginLeft: "10px"}}>{t('navigation')}</p>
+                <MoreHoriz />
+                <p style={{ marginLeft: "10px" }}>{t('navigation')}</p>
             </MenuItem>
             <MenuItem onClick={handleProfileMenuOpen}>
                 <IconButton
@@ -667,9 +695,9 @@ export default function MiniDrawer({
                     aria-haspopup="true"
                     color="inherit"
                 >
-                    <Avatar alt="" src={currentProfile.getPP}/>
+                    <Avatar alt="" src={currentProfile.getPP} />
                 </IconButton>
-                <p style={{marginLeft: "10px"}}>{t('profile')}</p>
+                <p style={{ marginLeft: "10px" }}>{t('profile')}</p>
             </MenuItem>
         </Menu>
     );
@@ -704,17 +732,17 @@ export default function MiniDrawer({
     }
 
     return (
-        <Box sx={{display: 'flex'}}>
-            <CssBaseline/>
-            <UserAccountDialog forWhat={dialogFor} onClose={handleCloseUserAccount} openModal={userAccountOpen}/>
-            <UploadDialog openModal={uploadOpen} onClose={handleCloseUpload} cosmicComicsTemp={CosmicComicsTemp}/>
+        <Box sx={{ display: 'flex' }}>
+            <CssBaseline />
+            <UserAccountDialog forWhat={dialogFor} onClose={handleCloseUserAccount} openModal={userAccountOpen} />
+            <UploadDialog openModal={uploadOpen} onClose={handleCloseUpload} cosmicComicsTemp={CosmicComicsTemp} />
             <NavigationDialog openModal={openNavigation} onClose={handleCloseNavigation}
-                              CosmicComicsTemp={CosmicComicsTemp}/>
+                CosmicComicsTemp={CosmicComicsTemp} />
             <APISelectorDialog openModal={openAPISelector} onClose={() => {
                 setOpenAPISelector(false);
-            }}/>
+            }} />
             <AddingLibraryDialog openModal={createLibraryOpen} onClose={handleCloseCreateLibrary}
-                                 type={createLibraryEditMode} old={old}/>
+                type={createLibraryEditMode} old={old} />
             <AppBar position="fixed" open={open}>
                 <Toolbar>
                     <IconButton
@@ -724,10 +752,10 @@ export default function MiniDrawer({
                         edge="start"
                         sx={{
                             marginRight: "5px",
-                            ...(open && {display: 'none'}),
+                            ...(open && { display: 'none' }),
                         }}
                     >
-                        <MenuIcon/>
+                        <MenuIcon />
                     </IconButton>
                     <img
                         src="Images/Logo.png"
@@ -744,12 +772,12 @@ export default function MiniDrawer({
                         className="navbar-brand"
                         height="40px"
                     />
-                    <CollapsedBreadcrumbs breadcrumbs={breadcrumbs}/>
-                    <Box sx={{display: {xs: 'none', md: 'flex'}}}>
+                    <CollapsedBreadcrumbs breadcrumbs={breadcrumbs} />
+                    <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                         <Search>
                             <Autocomplete
                                 id="asynchronous-demo"
-                                sx={{width: 300}}
+                                sx={{ width: 300 }}
                                 open={searchOpen}
                                 onOpen={() => {
                                     setSearchOpen(true);
@@ -771,7 +799,7 @@ export default function MiniDrawer({
                                             endAdornment: (
                                                 <React.Fragment>
                                                     {searchLoading ?
-                                                        <CircularProgress color="inherit" size={20}/> : null}
+                                                        <CircularProgress color="inherit" size={20} /> : null}
                                                     {params.InputProps.endAdornment}
                                                 </React.Fragment>
                                             ),
@@ -859,12 +887,12 @@ export default function MiniDrawer({
                         </Search>
                     </Box>
 
-                    <Box sx={{flexGrow: 1}}/>
-                    <Box sx={{display: {xs: 'none', md: 'flex'}}}>
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                         <IconButton size="large" color="inherit"
-                                    onClick={handleOpenNavigation}
+                            onClick={handleOpenNavigation}
                         >
-                            <MoreHoriz/>
+                            <MoreHoriz />
                         </IconButton>
 
                         <IconButton
@@ -876,10 +904,10 @@ export default function MiniDrawer({
                             onClick={handleProfileMenuOpen}
                             color="inherit"
                         >
-                            <Avatar alt="" src={currentProfile.getPP}/>
+                            <Avatar alt="" src={currentProfile.getPP} />
                         </IconButton>
                     </Box>
-                    <Box sx={{display: {xs: 'flex', md: 'none'}}}>
+                    <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
                             size="large"
                             aria-label={t('showMore')}
@@ -888,7 +916,7 @@ export default function MiniDrawer({
                             onClick={handleMobileMenuOpen}
                             color="inherit"
                         >
-                            <MoreVert/>
+                            <MoreVert />
                         </IconButton>
                     </Box>
                 </Toolbar>
@@ -922,13 +950,13 @@ export default function MiniDrawer({
             <Drawer variant="permanent" open={open}>
                 <DrawerHeader>
                     <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon/> : <ChevronLeftIcon/>}
+                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
                     </IconButton>
                 </DrawerHeader>
-                <Divider/>
+                <Divider />
                 <List>
                     {[t("addLib"), t('open_file'), t('TRACKER')].map((text, index) => (
-                        <ListItem key={index + text} disablePadding sx={{display: 'block'}}>
+                        <ListItem key={index + text} disablePadding sx={{ display: 'block' }}>
                             <ListItemButton
                                 sx={{
                                     minHeight: 48,
@@ -953,23 +981,23 @@ export default function MiniDrawer({
                                     }}
                                 >
                                     {
-                                        text === t("addLib") ? <LibraryAdd/> : (text === t('open_file') ? <FileOpen/> :
-                                            <LocalLibrary/>)
+                                        text === t("addLib") ? <LibraryAdd /> : (text === t('open_file') ? <FileOpen /> :
+                                            <LocalLibrary />)
                                     }
 
                                 </ListItemIcon>
-                                <ListItemText primary={text} sx={{opacity: open ? 1 : 0}}/>
+                                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
                             </ListItemButton>
                         </ListItem>
                     ))}
                 </List>
-                <Divider/>
+                <Divider />
                 <List>
-                    <ListItem key={t('HOME') + Math.random()} disablePadding sx={{display: 'block'}}>
+                    <ListItem key={t('HOME') + Math.random()} disablePadding sx={{ display: 'block' }}>
                         <ListItemButton
                             onClick={() => {
                                 setOpenDetails(null);
-                                setOpenSeries({open: false, series: [], provider: null});
+                                setOpenSeries({ open: false, series: [], provider: null });
                                 setOpenExplorer({
                                     open: false,
                                     explorer: [],
@@ -993,12 +1021,12 @@ export default function MiniDrawer({
                                     justifyContent: 'center',
                                 }}
                             >
-                                <Home/>
+                                <Home />
                             </ListItemIcon>
-                            <ListItemText primary={t('HOME')} sx={{opacity: open ? 1 : 0}}/>
+                            <ListItemText primary={t('HOME')} sx={{ opacity: open ? 1 : 0 }} />
                         </ListItemButton>
                     </ListItem>
-                    <ListItem key={t('download') + Math.random()} disablePadding sx={{display: 'block'}}>
+                    <ListItem key={t('download') + Math.random()} disablePadding sx={{ display: 'block' }}>
                         <ListItemButton
                             onClick={() => {
                                 openLibrary(CosmicComicsTemp + "/downloads", 2);
@@ -1020,17 +1048,17 @@ export default function MiniDrawer({
                                     justifyContent: 'center',
                                 }}
                             >
-                                <Download/>
+                                <Download />
                             </ListItemIcon>
-                            <ListItemText primary={t('download')} sx={{opacity: open ? 1 : 0}}/>
+                            <ListItemText primary={t('download')} sx={{ opacity: open ? 1 : 0 }} />
                         </ListItemButton>
                     </ListItem>
-                    <ListItem key={t('ALL') + Math.random()} disablePadding sx={{display: 'block'}}>
+                    <ListItem key={t('ALL') + Math.random()} disablePadding sx={{ display: 'block' }}>
                         <ListItemButton
                             onClick={async () => {
                                 setIsLoading(true);
                                 setOpenDetails(null);
-                                setOpenSeries({open: false, series: [], provider: null});
+                                setOpenSeries({ open: false, series: [], provider: null });
                                 if (openExplorer && openExplorer.open)
                                     openExplorer.explorer = [];
                                 await AllBooks().then(AllBookOpener);
@@ -1051,17 +1079,17 @@ export default function MiniDrawer({
                                     justifyContent: 'center',
                                 }}
                             >
-                                <LibraryBooks/>
+                                <LibraryBooks />
                             </ListItemIcon>
-                            <ListItemText primary={t('ALL')} sx={{opacity: open ? 1 : 0}}/>
+                            <ListItemText primary={t('ALL')} sx={{ opacity: open ? 1 : 0 }} />
                         </ListItemButton>
                     </ListItem>
-                    <ListItem key={t('TRACKER') + Math.random()} disablePadding sx={{display: 'block'}}>
+                    <ListItem key={t('TRACKER') + Math.random()} disablePadding sx={{ display: 'block' }}>
                         <ListItemButton
                             onClick={async () => {
                                 setIsLoading(true);
                                 setOpenDetails(null);
-                                setOpenSeries({open: false, series: [], provider: null});
+                                setOpenSeries({ open: false, series: [], provider: null });
                                 if (openExplorer && openExplorer.open)
                                     openExplorer.explorer = [];
                                 await AllBooks("PATH IS NULL OR PATH = '' OR PATH = 'null'").then(AllBookOpener);
@@ -1083,22 +1111,22 @@ export default function MiniDrawer({
                                     justifyContent: 'center',
                                 }}
                             >
-                                <GpsFixed/>
+                                <GpsFixed />
                             </ListItemIcon>
-                            <ListItemText primary={t('TRACKER')} sx={{opacity: open ? 1 : 0}}/>
+                            <ListItemText primary={t('TRACKER')} sx={{ opacity: open ? 1 : 0 }} />
                         </ListItemButton>
                     </ListItem>
                 </List>
-                <Divider/>
+                <Divider />
                 <List>
                     {
                         libraries.map((el: any, index: number) => {
-                            return <ListItem key={el["NAME"]} disablePadding sx={{display: 'block'}}>
+                            return <ListItem key={el["NAME"]} disablePadding sx={{ display: 'block' }}>
                                 <ListItemButton
                                     onClick={() => {
                                         setIsLoading(true);
                                         setOpenDetails(null);
-                                        setOpenSeries({open: false, series: [], provider: null});
+                                        setOpenSeries({ open: false, series: [], provider: null });
                                         if (openExplorer && openExplorer.open)
                                             openExplorer.explorer = [];
                                         openLibrary(el["PATH"], el["API_ID"]);
@@ -1125,10 +1153,10 @@ export default function MiniDrawer({
                                                         (el["API_ID"] === providerEnum.OL) ? "./Images/OL.svg" :
                                                             (el["API_ID"] === providerEnum.GBooks) ? "./Images/Gbooks.svg" : ""
                                         } alt="" className="libLogo"
-                                             style={el["API_ID"] === providerEnum.MANUAL ? {filter: "invert(100%)"} : el["API_ID"] === providerEnum.OL ? {filter: "invert(100%)"} : {}}/>
+                                            style={el["API_ID"] === providerEnum.MANUAL ? { filter: "invert(100%)" } : el["API_ID"] === providerEnum.OL ? { filter: "invert(100%)" } : {}} />
 
                                     </ListItemIcon>
-                                    <ListItemText primary={el["NAME"]} sx={{opacity: open ? 1 : 0}}/>
+                                    <ListItemText primary={el["NAME"]} sx={{ opacity: open ? 1 : 0 }} />
                                     <ListItemIcon
                                         sx={{
                                             display: open ? 'flex' : 'none',
@@ -1152,7 +1180,7 @@ export default function MiniDrawer({
                                             }
                                             color="inherit"
                                         >
-                                            <MoreVert/>
+                                            <MoreVert />
                                         </IconButton>
                                     </ListItemIcon>
                                 </ListItemButton>
@@ -1161,28 +1189,34 @@ export default function MiniDrawer({
                     }
                 </List>
             </Drawer>
-            <Box component="main" sx={{flexGrow: 1, p: 3}}>
-                <DrawerHeader/>
-                {isLoading ? <div id="overlay" style={{background: theme.palette.background.default}}>
-                    <div style={{textAlign: "center", marginTop: "25%"}}>
-                        <CircularProgress/>
-                        <p id="decompressfilename" style={{marginTop: "10px"}}></p>
-                        <p id="overlaymsg" style={{marginTop: "10px"}}>
+            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+                <DrawerHeader />
+                {isLoading && bookDiscoverProgress.of !== 0 ? <div id="overlay" style={{ background: theme.palette.background.default }}>
+                    <div style={{ textAlign: "center", marginTop: "25%", marginLeft: "10%", marginRight: "10%" }}>
+                        <LinearProgress variant="determinate" value={bookDiscoverProgress.x * 100 / bookDiscoverProgress.of} />
+                        <p id="overlaymsg" style={{ marginTop: "10px" }}>
+                            {t("overlaymsg_discover_file")} {bookDiscoverProgress.file} ({bookDiscoverProgress.x} / {bookDiscoverProgress.of})
+                        </p>
+                    </div>
+                </div> : (isLoading && bookDiscoverProgress.of === 0 ? <div id="overlay" style={{ background: theme.palette.background.default }}>
+                    <div style={{ textAlign: "center", marginTop: "25%" }}>
+                        <CircularProgress />
+                        <p id="overlaymsg" style={{ marginTop: "10px" }}>
                             {t("overlaymsg_takecare")}
                         </p>
                     </div>
-                </div> : <></>}
+                </div> : <></>)}
                 {
                     openExplorer && openExplorer.open ? <ContainerExplorer type='lite' stateExplorer={openExplorer}
-                                                                           handleAddBreadcrumbs={handleAddBreadcrumbs}
-                                                                           handleOpenDetails={openExplorer.type === "series" ? handleOpenSeries : handleOpenDetails}/> :
+                        handleAddBreadcrumbs={handleAddBreadcrumbs}
+                        handleOpenDetails={openExplorer.type === "series" ? handleOpenSeries : handleOpenDetails} /> :
                         openSeries && openSeries.open ?
                             <Series stateSeries={openSeries} handleAddBreadcrumbs={handleAddBreadcrumbs}
-                                    handleChangeToDetails={handleChangeToDetails}
-                                    handleChangeToSeries={handleChangeToSeries}/> :
+                                handleChangeToDetails={handleChangeToDetails}
+                                handleChangeToSeries={handleChangeToSeries} /> :
                             openDetails && openDetails.open ?
-                                <Details stateDetails={openDetails} handleAddBreadcrumbs={handleAddBreadcrumbs}/> :
-                                <HomeContainer handleOpenDetails={handleOpenDetails}/>
+                                <Details stateDetails={openDetails} handleAddBreadcrumbs={handleAddBreadcrumbs} /> :
+                                <HomeContainer handleOpenDetails={handleOpenDetails} />
                 }
             </Box>
         </Box>

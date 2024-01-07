@@ -1,7 +1,7 @@
-import {ToasterHandler} from "@/components/common/ToasterHandler.tsx";
+import { ToasterHandler } from "@/components/common/ToasterHandler.tsx";
 import logger from "@/logger.ts";
-import {currentProfile, PDP} from "@/utils/Common.ts";
-import {DetectFolderInLibrary, getFromDB} from "@/utils/Fetchers.ts";
+import { currentProfile, PDP } from "@/utils/Common.ts";
+import { DetectFolderInLibrary, getFromDB } from "@/utils/Fetchers.ts";
 
 /**
  * Represents an API class that provides methods for refreshing metadata and launching metadata refresh.
@@ -90,4 +90,4 @@ class API {
     }
 }
 
-export {API};
+export { API };

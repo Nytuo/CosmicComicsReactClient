@@ -10,6 +10,7 @@
         "overlaymsg_piracy": "Controllare se i vostri fumetti sono autentici... Beh, no, è tutta pirateria illegale...",
         "overlaymsg_opening": "Apertura della cartella",
         "overlaymsg_takecare": "Ci prendiamo cura dei vostri fumetti",
+        "overlaymsg_discover_file": "Scoprire il file: ",
         "err_img": "Errore durante il caricamento delle miniature dei file... Se il problema persiste, aprire un problema su GitHub",
         "overlaymsg_worst": "IL PEGGIOR CARICAMENTO DI SEMPRE",
         "magnifier_toggle": "Attivare la lente d'ingrandimento",
