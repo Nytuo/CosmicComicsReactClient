@@ -1,11 +1,11 @@
 import * as React from 'react';
-import {useEffect} from 'react';
+import { useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import VerticalStepper from '../../common/VerticalStepper.tsx';
 
 /**
@@ -16,14 +16,14 @@ import VerticalStepper from '../../common/VerticalStepper.tsx';
  * @param createFunction - The function that creates the account.
  * @returns {JSX.Element} - A dialog component for creating a new account.
  */
-export default function CreateAccountDialog({openModal, title, text, createFunction}: {
+export default function CreateAccountDialog({ openModal, title, text, createFunction }: {
     openModal: boolean,
     title: string,
     text: string,
     createFunction: any;
 }): JSX.Element {
     const [open, setOpen] = React.useState(openModal);
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     useEffect(() => {
         if (openModal !== open) {
             setOpen(openModal);
@@ -32,7 +32,7 @@ export default function CreateAccountDialog({openModal, title, text, createFunct
     return (
         <div>
             <Dialog open={open} fullWidth={true}
-                    maxWidth="md">
+                maxWidth="md">
                 <DialogTitle>{title}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -51,6 +51,7 @@ export default function CreateAccountDialog({openModal, title, text, createFunct
                                 type="text"
                                 fullWidth
                                 variant="standard"
+                                required
                             />
                         },
                         {
@@ -63,25 +64,12 @@ export default function CreateAccountDialog({openModal, title, text, createFunct
                                 fullWidth
                                 variant="standard"
                             />
-                        },
-                        {
-                            label: t("servNameLabel"),
-                            content: <TextField
-                                margin="dense"
-                                id="port"
-                                label={t("servNameLabel")}
-                                type="number"
-                                fullWidth
-                                variant="standard"
-                            />
-
                         }
                     ]}
-                                     onFinish={() => createFunction(
-                                         document.getElementById("username") as HTMLInputElement,
-                                         document.getElementById("password") as HTMLInputElement,
-                                         document.getElementById("port") as HTMLInputElement
-                                     )}
+                        onFinish={() => createFunction(
+                            document.getElementById("username") as HTMLInputElement,
+                            document.getElementById("password") as HTMLInputElement,
+                        )}
                     />
                 </DialogContent>
             </Dialog>

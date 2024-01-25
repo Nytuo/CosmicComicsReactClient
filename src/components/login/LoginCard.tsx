@@ -1,6 +1,6 @@
 import React from 'react';
 import IProfile from '@/interfaces/IProfile.ts';
-import {setCookie} from '@/utils/Common.ts';
+import { PDP, setCookie } from '@/utils/Common.ts';
 
 /**
  * Renders a login card for a given profile.
@@ -11,7 +11,7 @@ import {setCookie} from '@/utils/Common.ts';
  * @param {React.Dispatch<React.SetStateAction<IProfile | undefined>>} props.setSelectedProfile - The state setter for the selected profile.
  * @returns {JSX.Element} The login card component.
  */
-export function LoginCard({profile, keyX, setOpenLogin, setSelectedProfile}: {
+export function LoginCard({ profile, keyX, setOpenLogin, setSelectedProfile }: {
     profile: IProfile,
     keyX: number,
     setOpenLogin: React.Dispatch<React.SetStateAction<boolean>>,
@@ -19,17 +19,23 @@ export function LoginCard({profile, keyX, setOpenLogin, setSelectedProfile}: {
 }): JSX.Element {
     return (
         <div onClick={
-            () => {
+            async () => {
                 if (profile.passcode) {
                     setSelectedProfile(profile);
                     setOpenLogin(true);
                 } else {
-                    setCookie('selectedProfile', profile.name, 2, document);
-                    window.location.href = "/collectionner";
+                    await fetch(PDP + "/profile/login/" + profile.name + "/" + "_nopasswordisusedforthisaccount_", { 'cache': 'no-cache' }).then(function (response) {
+                        return response.text();
+                    }).then(function (data) {
+                        if (!data.includes("404")) {
+                            setCookie('selectedProfile', data, 2, document);
+                            window.location.href = "collectionner";
+                        }
+                    });
                 }
             }
         } id={String(keyX)} className="login_elements">
-            <img src={profile.image} className="profile_image" alt={profile.name}/>
+            <img src={profile.image} className="profile_image" alt={profile.name} />
             <h3>{profile.name}</h3>
         </div>
     );
