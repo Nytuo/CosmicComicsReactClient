@@ -220,11 +220,17 @@ function ContentViewer({
         const NameToFetchList: string[] = [];
         if (provider == providerEnum.Marvel) {
           tryToParse(TheBook.characters)["items"].forEach((el: any) => {
-            NameToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
+            if (typeof el.name === "string") {
+              NameToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
+            }
           });
         } else if (provider == providerEnum.Anilist) {
           tryToParse(TheBook.characters).forEach((el: any) => {
-            NameToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
+            if (typeof el.name.full === "string") {
+              NameToFetchList.push(
+                "'" + el.name.full.replaceAll("'", "''") + "'",
+              );
+            }
           });
         } else if (provider == providerEnum.OL) {
           ToasterHandler("OpenLibrary " + t("cannotFetchCharacters"), "error");
@@ -232,6 +238,7 @@ function ContentViewer({
           ToasterHandler("Google Books " + t("cannotFetchCharacters"), "error");
         }
         const NameToFetch = NameToFetchList.join(",");
+
         await getFromDB(
           "Characters",
           "* FROM Characters WHERE name IN (" + NameToFetch + ")",
@@ -257,8 +264,15 @@ function ContentViewer({
               StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
             },
           );
+        } else if (provider == providerEnum.Anilist) {
+          tryToParse(TheBook.creators).forEach((el: { name: any }) => {
+            if (typeof el.name.full === "string") {
+              StaffToFetchList.push(
+                "'" + el.name.full.replaceAll("'", "''") + "'",
+              );
+            }
+          });
         } else if (
-          provider == providerEnum.Anilist ||
           provider == providerEnum.MANUAL ||
           provider == providerEnum.OL
         ) {

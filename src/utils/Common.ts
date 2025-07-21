@@ -116,7 +116,7 @@ function checkLogin() {
         ) {
           window.location.href = "/login";
         } else {
-          currentProfile.setName = data;
+          currentProfile.setName = data.replaceAll('"', "");
           fetch(PDP + "/config/getConfig/" + currentProfile.getToken)
             .then(function (response) {
               return response.text();
