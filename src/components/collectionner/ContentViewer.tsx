@@ -49,6 +49,7 @@ import MoreInfoDialog from "./dialogs/MoreInfoDialog.tsx";
 import { ScrollMenu, VisibilityContext } from "react-horizontal-scrolling-menu";
 import ContainerExplorer from "./ContainerExplorer.tsx";
 import RematchDialog from "./dialogs/RematchDialog.tsx";
+import ColorThief from "colorthief/dist/color-thief.mjs";
 
 //providerEnum to type
 type TProvider = 0 | 1 | 2 | 3 | 4;
@@ -326,71 +327,50 @@ function ContentViewer({
       }
     }
     const handleAsyncBG = async () => {
-      let options;
-      if (provider != providerEnum.Marvel) {
-        if (TheBook.BG_cover != null && TheBook.BG_cover !== "null") {
-          options = {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              img: TheBook.BG_cover,
-            },
-          };
-        } else if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
-          options = {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              img: TheBook.URLCover,
-            },
-          };
-        } else {
-          return "#000000";
-        }
-      } else if (TheBook.BG_cover === null || TheBook.BG_cover === "null") {
-        return "#000000";
-      } else if (
-        TheBook.BG_cover &&
-        TheBook.BG_cover["path"] != null &&
-        TheBook.BG_cover["path"] !== "null"
-      ) {
-        options = {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            img: TheBook.BG_cover["path"],
-          },
-        };
-      } else if (TheBook.URLCover != null && TheBook.URLCover !== "null") {
-        options = {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            img: TheBook.URLCover,
-          },
-        };
-      } else {
-        return "#000000";
-      }
+      let imgUrl = "";
 
-      await fetch(PDP + "/img/getPalette/" + currentProfile.getToken, options)
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (data) {
-          const Blurcolors = data[0];
-          const BlurColorDarker = data[1];
-          setTimeout(function () {
-            document.getElementsByTagName("body")[0].style.transition =
-              "background 0.5s ease-in-out 0.5s";
-            document.getElementsByTagName("body")[0].style.background =
-              "linear-gradient(to left top, " +
-              Blurcolors +
-              ", " +
-              BlurColorDarker +
-              ") no-repeat fixed";
+      if (provider !== providerEnum.Marvel) {
+        imgUrl =
+          TheBook.BG_cover && TheBook.BG_cover !== "null"
+            ? TheBook.BG_cover
+            : TheBook.URLCover && TheBook.URLCover !== "null"
+              ? TheBook.URLCover
+              : null;
+      } else {
+        imgUrl =
+          TheBook.BG_cover?.path && TheBook.BG_cover.path !== "null"
+            ? TheBook.BG_cover.path
+            : TheBook.URLCover && TheBook.URLCover !== "null"
+              ? TheBook.URLCover
+              : null;
+      }
+      if (!imgUrl) return "#000000";
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = imgUrl;
+
+      img.onload = () => {
+        const colorThief = new ColorThief();
+        try {
+          const [r, g, b] = colorThief.getColor(img);
+          const darker = `rgb(${Math.floor(r * 0.6)}, ${Math.floor(
+            g * 0.6,
+          )}, ${Math.floor(b * 0.6)})`;
+
+          setTimeout(() => {
+            const body = document.getElementsByTagName("body")[0];
+            body.style.transition = "background 0.5s ease-in-out 0.5s";
+            body.style.background = `linear-gradient(to left top, rgb(${r}, ${g}, ${b}), ${darker}) no-repeat fixed`;
           }, 500);
-        });
+        } catch (e) {
+          console.error("ColorThief error:", e);
+        }
+      };
+
+      img.onerror = () => {
+        console.error("Image failed to load:", imgUrl);
+      };
     };
     // noinspection JSIgnoredPromiseFromCall
     handleAsyncBG();
