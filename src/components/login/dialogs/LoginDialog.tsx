@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect} from 'react';
+import { useEffect } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -9,9 +9,9 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import IProfile from "../../../interfaces/IProfile.ts";
 // noinspection ES6PreferShortImport // Important, do not remove, Webstorm will try to shorten the import and it will break the app.
-import {PDP, setCookie} from "../../../utils/Common.ts";
-import {ToasterHandler} from "../../common/ToasterHandler.tsx";
-import {useTranslation} from 'react-i18next';
+import { PDP, setCookie } from "../../../utils/Common.ts";
+import { ToasterHandler } from "../../common/ToasterHandler.tsx";
+import { useTranslation } from 'react-i18next';
 import Logger from '@/logger.ts';
 
 /**
@@ -26,7 +26,7 @@ import Logger from '@/logger.ts';
  * @param profile - An optional `IProfile` object representing the user's profile.
  * @returns A `LoginDialog` component.
  */
-export default function LoginDialog({onClose, openModal, title, text, okBtn, cancelBtn, profile}: {
+export default function LoginDialog({ onClose, openModal, title, text, okBtn, cancelBtn, profile }: {
     onClose: any,
     openModal: boolean,
     title: string,
@@ -35,7 +35,7 @@ export default function LoginDialog({onClose, openModal, title, text, okBtn, can
     cancelBtn: string,
     profile: IProfile | undefined;
 }) {
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     const [open, setOpen] = React.useState(openModal);
 
     // This is used to update the state of the dialog when the parent component changes the value of openModal.
@@ -62,7 +62,7 @@ export default function LoginDialog({onClose, openModal, title, text, okBtn, can
     const handleConnect = async (): Promise<any> => {
         if (profile && document.getElementById("passwordLogin")) {
             Logger.debug(PDP + "/profile/login/" + profile.name + "/" + (document.getElementById("passwordLogin") as HTMLInputElement)?.value.trim());
-            await fetch(PDP + "/profile/login/" + profile.name + "/" + (document.getElementById("passwordLogin") as HTMLInputElement)?.value.trim(), {'cache': 'no-cache'}).then(function (response) {
+            await fetch(PDP + "/profile/login/" + profile.name + "/" + (document.getElementById("passwordLogin") as HTMLInputElement)?.value.trim(), { 'cache': 'no-cache' }).then(function (response) {
                 return response.text();
             }).then(function (data) {
                 if (data === "false") {
@@ -82,7 +82,7 @@ export default function LoginDialog({onClose, openModal, title, text, okBtn, can
     return (
         <div>
             <Dialog open={open} onClose={handleClose} fullWidth={true}
-                    maxWidth="md">
+                maxWidth="md">
                 <DialogTitle>{title}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
