@@ -430,7 +430,7 @@ async function AllBooks(filters = ""): Promise<any> {
 }
 
 async function makeFavorite(book: IBook) {
-  if (book.favorite === 1) {
+  if (book.favorite == 1 || book.favorite == "true") {
     book.favorite = 0;
     ToasterHandler(t("remove_fav"), "success");
     await getFromDB("Books", "* FROM Books WHERE favorite=1").then(

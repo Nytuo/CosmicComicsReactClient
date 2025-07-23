@@ -691,7 +691,7 @@ function ContentViewer({
                   ) : (
                     <></>
                   )}
-                  {TheBook.favorite === 1 ? (
+                  {TheBook.favorite == 1 || TheBook.favorite == "true" ? (
                     <Chip
                       color="error"
                       label={t("favoriteParenthesis")}
@@ -876,12 +876,15 @@ function ContentViewer({
                       id="favoritebtn"
                       onClick={async () => {
                         if (type === "volume") {
-                          if (TheBook.favorite === 1) {
+                          if (
+                            TheBook.favorite == 1 ||
+                            TheBook.favorite == "true"
+                          ) {
                             TheBook.favorite = 0;
                             ToasterHandler(t("remove_fav"), "success");
                             await getFromDB(
                               "Books",
-                              "* FROM Books WHERE favorite=1",
+                              "* FROM Books WHERE favorite=1 OR favorite='true'",
                             ).then(async (resa) => {
                               if (!resa) return;
                               const bookList = tryToParse(resa);
@@ -914,7 +917,7 @@ function ContentViewer({
                             ToasterHandler(t("add_fav"), "success");
                             await getFromDB(
                               "Books",
-                              "* FROM Books WHERE favorite=0",
+                              "* FROM Books WHERE favorite=0 OR favorite='false'",
                             ).then(async (resa) => {
                               if (!resa) return;
                               const bookList = tryToParse(resa);
@@ -943,15 +946,20 @@ function ContentViewer({
                               }
                             });
                           }
-                        } else if (TheBook.favorite === 1) {
+                        } else if (
+                          TheBook.favorite == 1 ||
+                          TheBook.favorite == "true"
+                        ) {
                           TheBook.favorite = 0;
                           ToasterHandler(t("remove_fav"), "success");
+                          console.log("favorite", TheBook.favorite);
                           await getFromDB(
                             "Series",
-                            "* FROM Series WHERE favorite=1",
+                            "* FROM Series WHERE favorite=1 OR favorite='true'",
                           ).then(async (resa) => {
                             if (!resa) return;
                             const bookList = tryToParse(resa);
+                            console.log("bookList", bookList);
                             for (const element of bookList) {
                               if (TheBook.raw_title === element.title) {
                                 const options = {
@@ -981,7 +989,7 @@ function ContentViewer({
                           ToasterHandler(t("add_fav"), "success");
                           await getFromDB(
                             "Series",
-                            "* FROM Series WHERE favorite=0",
+                            "* FROM Series WHERE favorite=0 OR favorite='false'",
                           ).then(async (resa) => {
                             if (!resa) return;
                             const bookList = tryToParse(resa);

@@ -53,7 +53,7 @@ function Card({
           },
         }}
         badgeContent={
-          book.favorite === 1 || book.favorite === "true" ? (
+          book.favorite == 1 || book.favorite == "true" ? (
             <Favorite
               sx={{
                 width: "20px",
