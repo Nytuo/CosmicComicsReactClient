@@ -112,7 +112,8 @@ function checkLogin() {
           data === "undefined" ||
           data === "" ||
           data === null ||
-          data === undefined
+          data === undefined ||
+          data === "Invalid token"
         ) {
           window.location.href = "/login";
         } else {
