@@ -286,9 +286,9 @@ export default function PersistentDrawerLeft() {
         reject("No images to load");
         return;
       }
-      const currentPage = localStorage.getItem("currentPage");
-      setCurrentPage(currentPage === null ? 0 : parseInt(currentPage));
-      const filepage = currentPage === null ? 0 : parseInt(currentPage);
+      const currentPage_ls = localStorage.getItem("currentPage");
+      setCurrentPage(currentPage_ls === null ? 0 : parseInt(currentPage_ls));
+      const filepage = currentPage_ls === null ? 0 : parseInt(currentPage_ls);
 
       getUserConfig()
         .then(() => getBookID())
@@ -488,7 +488,9 @@ export default function PersistentDrawerLeft() {
         Logger.info("ColorThief : Enable");
         const colorThief = new ColorThief();
         try {
-          const [r, g, b] = colorThief.getColor(images[0]);
+          const dummyImgElement = document.createElement("img");
+          dummyImgElement.src = images[0];
+          const [r, g, b] = colorThief.getColor(dummyImgElement);
           const darker = `rgb(${Math.floor(r * 0.6)}, ${Math.floor(
             g * 0.6,
           )}, ${Math.floor(b * 0.6)})`;
@@ -510,10 +512,6 @@ export default function PersistentDrawerLeft() {
   let scrollindex_next = 1;
   const [VIV_On, setVIV_On] = React.useState(false);
   const [VIV_Count, setVIV_Count] = React.useState(0);
-
-  const shortname = GetTheName(
-    localStorage.getItem("currentBook")?.split(".")[0],
-  );
 
   //Going to the next page
   function NextPage(override = false) {
@@ -589,12 +587,12 @@ export default function PersistentDrawerLeft() {
       if (currentPage < totalPages) {
         setCurrentPage(currentPage + 1);
         if (currentPage === totalPages - 1) {
-          ModifyDB("Books", "reading", "false", shortname).then(() => {
+          ModifyDB("Books", "reading", "false", bookID).then(() => {
             // noinspection JSIgnoredPromiseFromCall
-            ModifyDB("Books", "read", "true", shortname);
+            ModifyDB("Books", "read", "true", bookID);
           });
         }
-        ModifyDB("Books", "last_page", currentPage.toString(), shortname).then(
+        ModifyDB("Books", "last_page", currentPage.toString(), bookID).then(
           () => {
             // noinspection JSIgnoredPromiseFromCall
             Reader(listofImgState, currentPage + 1);
@@ -729,7 +727,11 @@ export default function PersistentDrawerLeft() {
         .then((response) => response.json())
         .then((data) => {
           setUnzipStatus(data);
-          if (data.status === "finish" || data.status === "error") {
+          if (
+            data.status === "finish" ||
+            data.status === "error" ||
+            data.status === "done"
+          ) {
             clearInterval(interval);
           }
         });
@@ -847,7 +849,7 @@ export default function PersistentDrawerLeft() {
                         method: "GET",
                         headers: {
                           "Content-Type": "application/json",
-                          path: localStorage.getItem("currentBook") || "",
+                          path: CosmicComicsTempI || "",
                         },
                       })
                         .then((response) => {
@@ -870,7 +872,7 @@ export default function PersistentDrawerLeft() {
                       method: "GET",
                       headers: {
                         "Content-Type": "application/json",
-                        path: localStorage.getItem("currentBook") || "",
+                        path: CosmicComicsTempI || "",
                       },
                     })
                       .then((response) => {
@@ -916,6 +918,7 @@ export default function PersistentDrawerLeft() {
                                   ) ||
                                 path.includes(".pdf")
                               ) {
+                                Logger.info("path.txt : " + readCCTIP);
                                 Logger.info(
                                   "path.txt is not equal to path, Unzipping",
                                 );
@@ -932,9 +935,7 @@ export default function PersistentDrawerLeft() {
                                     method: "GET",
                                     headers: {
                                       "Content-Type": "application/json",
-                                      path:
-                                        localStorage.getItem("currentBook") ||
-                                        "",
+                                      path: CosmicComicsTempI || "",
                                     },
                                   })
                                     .then((response) => {
@@ -959,8 +960,7 @@ export default function PersistentDrawerLeft() {
                                   method: "GET",
                                   headers: {
                                     "Content-Type": "application/json",
-                                    path:
-                                      localStorage.getItem("currentBook") || "",
+                                    path: CosmicComicsTempI || "",
                                   },
                                 })
                                   .then((response) => {
@@ -994,7 +994,6 @@ export default function PersistentDrawerLeft() {
                               return response.text();
                             })
                             .then(async () => {
-                              Logger.info("Unziped");
                               await fetch(PDP + "/viewer/view", {
                                 method: "GET",
                                 headers: {
@@ -1129,7 +1128,7 @@ export default function PersistentDrawerLeft() {
     setTimeout(() => {
       const overlay = document.getElementById("overlay");
       if (overlay !== null) {
-        if (unzipStatus.status === "finish") {
+        if (unzipStatus.status === "finish" || unzipStatus.status === "done") {
           overlay.style.display = "none";
         } else {
           overlay.style.display = "block";
@@ -1565,8 +1564,8 @@ export default function PersistentDrawerLeft() {
                     max = totalPages;
                   }
                   setCurrentPage(totalPages);
-                  ModifyDB("Books", "reading", "false", shortname).then(() => {
-                    ModifyDB("Books", "read", "true", shortname).then(() => {
+                  ModifyDB("Books", "reading", "false", bookID).then(() => {
+                    ModifyDB("Books", "read", "true", bookID).then(() => {
                       if (VIV_On || webToonMode)
                         window.scrollTo(0, document.body.scrollHeight);
                       else

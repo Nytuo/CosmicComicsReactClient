@@ -129,17 +129,6 @@ function checkLogin() {
             .catch(function (error) {
               console.log(error);
             });
-          fetch(PDP + "/config/getConfig/" + currentProfile.getToken)
-            .then(function (response) {
-              return response.text();
-            })
-            .then(function (data) {
-              const currenttheme = SearchInJSON("theme", JSON.parse(data));
-              setTheme(currenttheme);
-            })
-            .catch(function (error) {
-              console.log(error);
-            });
         }
       })
       .catch(function (error) {

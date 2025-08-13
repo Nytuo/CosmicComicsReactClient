@@ -188,9 +188,9 @@ function updateBookStatusForOne(
   const asso: { [key: string]: any } = {};
   const allPosibleValues = ["unread", "reading", "read"];
   for (const element of allPosibleValues) {
-    asso[element] = false;
+    asso[element] = "0";
   }
-  asso[setTo] = true;
+  asso[setTo] = "1";
   const columns = [];
   const values = [];
   for (const key in asso) {
@@ -267,20 +267,8 @@ async function DeleteFromDB(dbName: string, id: string, option: string) {
  * @return {Promise<void>} the promise
  */
 async function downloadBook(path: string): Promise<void> {
-  const option = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(
-      {
-        path: path,
-      },
-      null,
-      2,
-    ),
-  };
-  await fetch(PDP + "/DL", option).then(() => {
-    window.open(PDP + "/getDLBook", "_blank");
-  });
+  const parsedPath = encodeURIComponent(path);
+  window.open(PDP + "/download/" + parsedPath, "_blank");
 }
 
 /**
