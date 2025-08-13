@@ -36,7 +36,7 @@ import {
 } from "@mui/material";
 import Rating from "@mui/material/Rating/Rating";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-import { useContext, useLayoutEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ToasterHandler } from "../common/ToasterHandler.tsx";
 import DatabaseEditorDialog from "./dialogs/DatabaseEditorDialog.tsx";
@@ -50,6 +50,7 @@ import { ScrollMenu, VisibilityContext } from "react-horizontal-scrolling-menu";
 import ContainerExplorer from "./ContainerExplorer.tsx";
 import RematchDialog from "./dialogs/RematchDialog.tsx";
 import ColorThief from "colorthief/dist/color-thief.mjs";
+import { use } from "i18next";
 
 //providerEnum to type
 type TProvider = 0 | 1 | 2 | 3 | 4;
@@ -157,9 +158,9 @@ function ContentViewer({
           setReadStatSeries(
             readBookNB
               ? JSON.parse(readBookNB)[0]["COUNT(*)"] +
-                  " / " +
-                  data.length +
-                  " volumes read"
+              " / " +
+              data.length +
+              " volumes read"
               : "0 / 0 volumes read",
           );
           OSBook = await getFromDB(
@@ -188,9 +189,10 @@ function ContentViewer({
 
   const { t } = useTranslation();
   useLayoutEffect(() => {
+    console.log("ContentViewer useLayoutEffect", TheBook, provider, type);
     const fetchCharacters = async () => {
       if (type === "volume") {
-        if (TheBook.characters !== "null") {
+        if (TheBook.characters !== "null" && TheBook.characters !== "NULL") {
           const NameToFetchList: string[] = [];
           if (provider == providerEnum.Marvel) {
             tryToParse(TheBook.characters)["items"].forEach((el: any) => {
@@ -252,7 +254,7 @@ function ContentViewer({
 
     const fetchCreators = async () => {
       if (
-        TheBook.creators !== "null" &&
+        TheBook.creators !== "null" && TheBook.creators !== "NULL" &&
         TheBook.creators !== null &&
         TheBook.creators !== undefined &&
         TheBook.creators !== ""
@@ -260,12 +262,12 @@ function ContentViewer({
         const StaffToFetchList: string[] = [];
         if (provider == providerEnum.Marvel) {
           tryToParse(TheBook.creators)["items"].forEach(
-            (el: { name: string }) => {
+            (el: { name: string; }) => {
               StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
             },
           );
         } else if (provider == providerEnum.Anilist) {
-          tryToParse(TheBook.creators).forEach((el: { name: any }) => {
+          tryToParse(TheBook.creators).forEach((el: { name: any; }) => {
             if (typeof el.name.full === "string") {
               StaffToFetchList.push(
                 "'" + el.name.full.replaceAll("'", "''") + "'",
@@ -276,7 +278,7 @@ function ContentViewer({
           provider == providerEnum.MANUAL ||
           provider == providerEnum.OL
         ) {
-          tryToParse(TheBook.creators).forEach((el: { name: string }) => {
+          tryToParse(TheBook.creators).forEach((el: { name: string; }) => {
             StaffToFetchList.push("'" + el.name.replaceAll("'", "''") + "'");
           });
         } else if (provider == providerEnum.GBooks) {
@@ -435,8 +437,8 @@ function ContentViewer({
         el.name,
         el.description,
         tryToParse(el.image).path +
-          "/detail." +
-          tryToParse(el.image)["extension"],
+        "/detail." +
+        tryToParse(el.image)["extension"],
         tryToParse(el.url)[0].url,
       );
     } else if (
@@ -710,47 +712,47 @@ function ContentViewer({
               >
                 {type === "volume"
                   ? provider == providerEnum.Marvel
-                    ? TheBook.dates !== "null"
+                    ? TheBook.dates !== "null" && TheBook.dates !== "NULL"
                       ? typeof tryToParse(TheBook.dates) === "object"
                         ? t("releaseDates") +
-                          ": " +
-                          new Date(
-                            tryToParse(TheBook.dates)[0]["date"],
-                          ).toLocaleDateString()
+                        ": " +
+                        new Date(
+                          tryToParse(TheBook.dates)[0]["date"],
+                        ).toLocaleDateString()
                         : "?"
                       : "?"
-                    : TheBook.dates !== "null"
+                    : TheBook.dates !== "null" && TheBook.dates !== "NULL"
                       ? typeof tryToParse(TheBook.dates) === "object"
                         ? t("dates") +
-                          tryToParse(TheBook.dates).map(
-                            (
-                              date: {
-                                type: string;
-                                date: string;
-                              },
-                              index: number,
-                            ) => {
-                              return (
-                                <p key={index}>
-                                  {date.type.replace(/([A-Z])/g, " $1").trim() +
-                                    " : " +
-                                    date.date}
-                                </p>
-                              );
+                        tryToParse(TheBook.dates).map(
+                          (
+                            date: {
+                              type: string;
+                              date: string;
                             },
-                          )
+                            index: number,
+                          ) => {
+                            return (
+                              <p key={index}>
+                                {date.type.replace(/([A-Z])/g, " $1").trim() +
+                                  " : " +
+                                  date.date}
+                              </p>
+                            );
+                          },
+                        )
                         : "?"
                       : "?"
                   : ""}
                 {type === "series"
                   ? !APINOTFOUND
                     ? (provider == providerEnum.Marvel
-                        ? tryToParse(TheBook.start_date) + " -"
-                        : tryToParse(TheBook.start_date).year) == null
+                      ? tryToParse(TheBook.start_date) + " -"
+                      : tryToParse(TheBook.start_date).year) == null
                       ? "? -"
                       : (provider == providerEnum.Marvel
-                          ? tryToParse(TheBook.start_date) + " -"
-                          : tryToParse(TheBook.start_date).year) + " -"
+                        ? tryToParse(TheBook.start_date) + " -"
+                        : tryToParse(TheBook.start_date).year) + " -"
                     : ""
                   : ""}
                 {type === "series"
@@ -763,8 +765,8 @@ function ContentViewer({
                 {type === "series"
                   ? !APINOTFOUND
                     ? (provider == providerEnum.Marvel
-                        ? " " + tryToParse(TheBook.end_date)
-                        : tryToParse(TheBook.end_date).year) == null ||
+                      ? " " + tryToParse(TheBook.end_date)
+                      : tryToParse(TheBook.end_date).year) == null ||
                       tryToParse(TheBook.end_date) > new Date().getFullYear()
                       ? " ?"
                       : provider == providerEnum.Marvel
@@ -1114,35 +1116,36 @@ function ContentViewer({
               </Stack>
               <div id="price" style={{ marginTop: "15px" }}>
                 {TheBook.prices !== "null" &&
-                TheBook.prices !== "" &&
-                TheBook.prices != null
+                  TheBook.prices !== "NULL" &&
+                  TheBook.prices !== "" &&
+                  TheBook.prices != null
                   ? provider == providerEnum.Marvel
                     ? t("prices") + ":"
                     : ""
                   : ""}
                 <br />
-                {TheBook.prices !== "null" &&
-                TheBook.prices !== "" &&
-                TheBook.prices != null
+                {TheBook.prices !== "null" &&TheBook.prices !== "NULL" &&
+                  TheBook.prices !== "" &&
+                  TheBook.prices != null
                   ? provider == providerEnum.Marvel
                     ? tryToParse(TheBook.prices).map(
-                        (
-                          price: {
-                            type: string;
-                            price: string;
-                          },
-                          index: number,
-                        ) => {
-                          return (
-                            <p key={index}>
-                              {price.type.replace(/([A-Z])/g, " $1").trim() +
-                                " : " +
-                                price.price +
-                                "$"}
-                            </p>
-                          );
+                      (
+                        price: {
+                          type: string;
+                          price: string;
                         },
-                      )
+                        index: number,
+                      ) => {
+                        return (
+                          <p key={index}>
+                            {price.type.replace(/([A-Z])/g, " $1").trim() +
+                              " : " +
+                              price.price +
+                              "$"}
+                          </p>
+                        );
+                      },
+                    )
                     : ""
                   : ""}
               </div>
@@ -1158,7 +1161,8 @@ function ContentViewer({
                   dangerouslySetInnerHTML={{
                     __html:
                       TheBook.description != null &&
-                      TheBook.description !== "null"
+                        TheBook.description !== "null" &&
+                        TheBook.description !== "NULL"
                         ? TheBook.description
                         : "",
                   }}
@@ -1170,8 +1174,8 @@ function ContentViewer({
               {type === "series" ? (
                 provider != providerEnum.Marvel ? (
                   TheBook.score != null &&
-                  TheBook.score !== "null" &&
-                  TheBook.score !== 0 ? (
+                    TheBook.score !== "null" &&TheBook.score !== "NULL" &&
+                    TheBook.score !== 0 ? (
                     <Box sx={{ position: "relative", display: "inline-flex" }}>
                       <CircularProgress
                         variant="determinate"
@@ -1207,159 +1211,160 @@ function ContentViewer({
               )}
 
               <div id="genres">
-                {provider == providerEnum.Anilist ||
-                provider == providerEnum.MANUAL ||
-                provider == providerEnum.OL ||
-                provider == providerEnum.GBooks
+                {(provider == providerEnum.Anilist ||
+                  provider == providerEnum.MANUAL ||
+                  provider == providerEnum.OL ||
+                  provider == providerEnum.GBooks) && TheBook.genres
                   ? t("Genres") + ": "
                   : ""}
                 {TheBook.genres !== undefined && TheBook.genres !== null
                   ? tryToParse(TheBook.genres).map((el: any, index: number) => {
-                      return index !== tryToParse(TheBook.genres).length - 1
-                        ? el + " / "
-                        : el;
-                    })
+                    return index !== tryToParse(TheBook.genres).length - 1
+                      ? el + " / "
+                      : el;
+                  })
                   : ""}
               </div>
               <div id="chapters">
                 {type === "volume"
-                  ? TheBook.issueNumber === "null" || TheBook.issueNumber === ""
+                  ? TheBook.issueNumber === "NULL" || TheBook.issueNumber === "null" || TheBook.issueNumber === ""
                     ? ""
                     : t("Numberofthisvolumewithintheseries") +
-                      TheBook.issueNumber
+                    TheBook.issueNumber
                   : (provider === providerEnum.Marvel
-                      ? t("NumberComics")
-                      : t("NumberChapter")) + TheBook.issueNumber}
+                    ? t("NumberComics")
+                    : t("NumberChapter")) + TheBook.issueNumber}
               </div>
               <div id="id">
                 {type === "volume"
-                  ? TheBook.characters !== "null" && providerEnum.Marvel
+                  ? TheBook.characters !== "null" &&TheBook.characters !== "NULL" && providerEnum.Marvel
                     ? t("thisisa") +
-                      " " +
-                      TheBook.format +
-                      " " +
-                      t("of") +
-                      " " +
-                      TheBook.pageCount +
-                      " " +
-                      t("pages") +
-                      ". " +
-                      t("Thisispartofthe") +
+                    " " +
+                    TheBook.format +
+                    " " +
+                    t("of") +
+                    " " +
+                    TheBook.pageCount +
+                    " " +
+                    t("pages") +
+                    ". " +
+                    t("Thisispartofthe") +
+                    " '" +
+                    tryToParse(TheBook.series).name +
+                    "' " +
+                    t("series") +
+                    "."
+                    : provider == providerEnum.Anilist
+                      ? t("Thisispartofthe") +
                       " '" +
-                      tryToParse(TheBook.series).name +
+                      TheBook.series.split("_")[2].replaceAll("$", " ") +
                       "' " +
                       t("series") +
                       "."
-                    : provider == providerEnum.Anilist
-                      ? t("Thisispartofthe") +
+                      : provider == providerEnum.Marvel
+                        ? t("Thisispartofthe") +
                         " '" +
-                        TheBook.series.split("_")[2].replaceAll("$", " ") +
+                        (tryToParse(TheBook.series) !== null
+                          ? tryToParse(TheBook.series).name
+                          : t("Unknown")) +
                         "' " +
                         t("series") +
                         "."
-                      : provider == providerEnum.Marvel
-                        ? t("Thisispartofthe") +
+                        : provider == providerEnum.MANUAL
+                          ? t("Thisispartofthe") +
                           " '" +
-                          (tryToParse(TheBook.series) !== null
-                            ? tryToParse(TheBook.series).name
-                            : t("Unknown")) +
+                          TheBook.series +
                           "' " +
                           t("series") +
                           "."
-                        : provider == providerEnum.MANUAL
-                          ? t("Thisispartofthe") +
+                          : provider == providerEnum.OL
+                            ? t("Thisispartofthe") +
                             " '" +
                             TheBook.series +
                             "' " +
                             t("series") +
                             "."
-                          : provider == providerEnum.OL
-                            ? t("Thisispartofthe") +
+                            : provider == providerEnum.GBooks
+                              ? t("this is a") +
+                              " " +
+                              TheBook.format +
+                              " " +
+                              t("of") +
+                              " " +
+                              TheBook.pageCount +
+                              " " +
+                              t("pages") +
+                              ". " +
+                              t("Thisispartofthe") +
                               " '" +
                               TheBook.series +
                               "' " +
                               t("series") +
                               "."
-                            : provider == providerEnum.GBooks
-                              ? t("this is a") +
-                                " " +
-                                TheBook.format +
-                                " " +
-                                t("of") +
-                                " " +
-                                TheBook.pageCount +
-                                " " +
-                                t("pages") +
-                                ". " +
-                                t("Thisispartofthe") +
-                                " '" +
-                                TheBook.series +
-                                "' " +
-                                t("series") +
-                                "."
                               : ""
                   : provider == providerEnum.Marvel
                     ? t("ThisseriesIDfromMarvel") +
-                      ": " +
-                      parseInt(TheBook.ID_book)
+                    ": " +
+                    parseInt(TheBook.ID_book)
                     : ""}
               </div>
               <div id="colissue">
                 {type === "volume"
-                  ? TheBook.collectedIssues === "null"
-                    ? ""
-                    : tryToParse(TheBook.collectedIssues).map(
-                        (
-                          issue: {
-                            name: string;
-                          },
-                          index: number,
-                        ) => {
-                          return <p key={index}>{issue.name}</p>;
+                  ? (TheBook.collectedIssues != "null" && TheBook.collectedIssues != "0" && TheBook.collectedIssues != "" && TheBook.collectedIssues != "NULL")
+                    ? (tryToParse(TheBook.collectedIssues).map(
+                      (
+                        issue: {
+                          name: string;
                         },
-                      )
+                        index: number,
+                      ) => {
+                        return <p key={index}>{issue.name}</p>;
+                      },
+                    )) : ""
                   : ""}
               </div>
               <div id="col">
                 {type === "volume"
-                  ? TheBook.collections === "null"
-                    ? ""
-                    : tryToParse(TheBook.collections).map(
-                        (
-                          col: {
-                            name: string;
-                          },
-                          index: number,
-                        ) => {
-                          return <p key={index}>{col.name}</p>;
+                  ? TheBook.collections != "null" && TheBook.collections != "0" && TheBook.collections != "" && TheBook.collections != "NULL"
+                    ? tryToParse(TheBook.collections).map(
+                      (
+                        col: {
+                          name: string;
                         },
-                      )
+                        index: number,
+                      ) => {
+                        return <p key={index}>{col.name}</p>;
+                      },
+                    ) : ""
                   : ""}
               </div>
               <div id="Volumes">
                 {provider == providerEnum.Marvel
                   ? TheBook.volumes != null &&
                     TheBook.volumes !== "null" &&
+                    TheBook.volumes !== "NULL" &&
                     TheBook.volumes !== undefined
                     ? t("numberOfVolume") +
-                      ": " +
-                      tryToParse(TheBook.volumes).length
+                    ": " +
+                    tryToParse(TheBook.volumes).length
                     : ""
                   : TheBook.volumes != null &&
-                      TheBook.volumes !== "null" &&
-                      TheBook.volumes !== undefined
+                    TheBook.volumes !== "null" &&
+                    TheBook.volumes !== "NULL" &&
+                    TheBook.volumes !== undefined
                     ? t("numberOfVolume") + ": " + TheBook.volumes
                     : ""}
               </div>
               <div id="Trending">
                 {TheBook.trending != null &&
-                TheBook.trending !== "null" &&
-                TheBook.trending !== undefined
+                  TheBook.trending !== "null" &&
+                  TheBook.trending !== "NULL" &&
+                  TheBook.trending !== undefined
                   ? t("trending") + ": " + TheBook.trending
                   : ""}
               </div>
               {type == "volume" ? (
-                TheBook.characters !== "null" ? (
+                TheBook.characters !== "null" && TheBook.characters !== "NULL" ? (
                   <div id="readstat">
                     <input
                       type="number"
@@ -1420,170 +1425,170 @@ function ContentViewer({
                 </div>
               )}
               {(provider == providerEnum.Marvel
-                ? TheBook["creators"] !== "null" && TheBook["creators"] !== null
+                ? TheBook["creators"] !== "null" && TheBook["creators"] !== "NULL" && TheBook["creators"] !== null
                   ? tryToParse(TheBook["creators"])["available"]
                   : 0
-                : TheBook["creators"] !== "null" && TheBook["creators"] !== null
+                : TheBook["creators"] !== "null" && TheBook["creators"] !== "NULL" && TheBook["creators"] !== null
                   ? tryToParse(TheBook["creators"]).length
                   : "0") > 0 && (
-                <div>
-                  <h1>{t("characters")}</h1>
-                  {t("Numberofcharacters")}:{" "}
-                  {type === "volume"
-                    ? provider == providerEnum.Marvel
-                      ? TheBook.characters !== "null" &&
-                        TheBook.characters !== null
-                        ? tryToParse(TheBook.characters)["available"]
-                        : 0
-                      : TheBook.characters !== "null" &&
+                  <div>
+                    <h1>{t("characters")}</h1>
+                    {t("Numberofcharacters")}:{" "}
+                    {type === "volume"
+                      ? provider == providerEnum.Marvel
+                        ? TheBook.characters !== "null" &&
                           TheBook.characters !== null
-                        ? tryToParse(TheBook.characters).length
-                        : 0
-                    : provider == providerEnum.Marvel
-                      ? TheBook.characters !== "null" &&
-                        TheBook.characters !== null
-                        ? tryToParse(TheBook.characters)["available"]
-                        : 0
-                      : tryToParse(TheBook.characters).length}
-                  <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
-                    {characters.map((el: any, index: number) => {
-                      return (
-                        <div
-                          key={index}
-                          style={{
-                            marginLeft: "20px",
-                            textAlign: "center",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => onClickHandleOpenMoreInfo(el)}
-                        >
-                          {provider == providerEnum.Marvel ? (
-                            <Box>
-                              <Avatar
-                                sx={{ width: 120, height: 120 }}
-                                alt={t("aCharacter")}
-                                src={
-                                  tryToParse(el.image).path +
-                                  "/detail." +
-                                  tryToParse(el.image)["extension"]
-                                }
-                              />
-                              <Typography>{el.name}</Typography>
-                            </Box>
-                          ) : provider == providerEnum.Anilist ||
-                            provider == providerEnum.MANUAL ||
-                            provider == providerEnum.OL ||
-                            provider == providerEnum.GBooks ? (
-                            <Box sx={{ textAlign: "center" }}>
-                              <Avatar
-                                sx={{ width: 120, height: 120 }}
-                                alt={t("aCharacter")}
-                                src={el.image.replaceAll('"', "")}
-                              />
-                              <Typography textAlign={"center"}>
-                                {el.name}
-                              </Typography>
-                            </Box>
-                          ) : (
-                            ""
-                          )}
-                        </div>
-                      );
-                    })}
-                  </ScrollMenu>
-                </div>
-              )}
-              {(provider == providerEnum.Marvel
-                ? TheBook["creators"] !== "null" && TheBook["creators"] !== null
-                  ? tryToParse(TheBook["creators"])["available"]
-                  : 0
-                : TheBook["creators"] !== "null" && TheBook["creators"] !== null
-                  ? tryToParse(TheBook["creators"]).length
-                  : "0") > 0 && (
-                <div>
-                  <h1>{t("Staff")}</h1>
-                  {t("Numberofpeople")}:{" "}
-                  {provider == providerEnum.Marvel
-                    ? TheBook["creators"] !== "null" &&
-                      TheBook["creators"] !== null
-                      ? tryToParse(TheBook["creators"])["available"]
-                      : 0
-                    : TheBook["creators"] !== "null" &&
-                        TheBook["creators"] !== null
-                      ? tryToParse(TheBook["creators"]).length
-                      : "0"}
-                  <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
-                    {staff.map((el: any, index: number) => {
-                      return (
-                        <div
-                          key={index}
-                          style={{
-                            marginLeft: "20px",
-                            textAlign: "center",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => onClickHandleOpenMoreInfo(el)}
-                        >
-                          {provider == providerEnum.Marvel ? (
-                            el.name ===
-                            tryToParse(TheBook.creators)["items"][index]
-                              .name ? (
-                              <>
+                          ? tryToParse(TheBook.characters)["available"]
+                          : 0
+                        : TheBook.characters !== "null" &&
+                          TheBook.characters !== null
+                          ? tryToParse(TheBook.characters).length
+                          : 0
+                      : provider == providerEnum.Marvel
+                        ? TheBook.characters !== "null" &&
+                          TheBook.characters !== null
+                          ? tryToParse(TheBook.characters)["available"]
+                          : 0
+                        : tryToParse(TheBook.characters).length}
+                    <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
+                      {characters.map((el: any, index: number) => {
+                        return (
+                          <div
+                            key={index}
+                            style={{
+                              marginLeft: "20px",
+                              textAlign: "center",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => onClickHandleOpenMoreInfo(el)}
+                          >
+                            {provider == providerEnum.Marvel ? (
+                              <Box>
                                 <Avatar
                                   sx={{ width: 120, height: 120 }}
+                                  alt={t("aCharacter")}
                                   src={
                                     tryToParse(el.image).path +
                                     "/detail." +
                                     tryToParse(el.image)["extension"]
                                   }
-                                ></Avatar>
-                                <span>{el.name}</span>
-                                <br />
-                                <span>
-                                  {
-                                    tryToParse(TheBook.creators)["items"][
-                                      index
-                                    ]["role"]
-                                  }
-                                </span>
-                              </>
+                                />
+                                <Typography>{el.name}</Typography>
+                              </Box>
+                            ) : provider == providerEnum.Anilist ||
+                              provider == providerEnum.MANUAL ||
+                              provider == providerEnum.OL ||
+                              provider == providerEnum.GBooks ? (
+                              <Box sx={{ textAlign: "center" }}>
+                                <Avatar
+                                  sx={{ width: 120, height: 120 }}
+                                  alt={t("aCharacter")}
+                                  src={el.image.replaceAll('"', "")}
+                                />
+                                <Typography textAlign={"center"}>
+                                  {el.name}
+                                </Typography>
+                              </Box>
                             ) : (
                               ""
-                            )
-                          ) : provider == providerEnum.Anilist ||
-                            provider == providerEnum.MANUAL ||
-                            provider == providerEnum.OL ||
-                            provider == providerEnum.GBooks ? (
-                            tryToParse(TheBook.creators)[index] !== undefined &&
-                            el.name ===
-                              tryToParse(TheBook.creators)[index].name ? (
-                              <>
-                                <Avatar
-                                  sx={{ width: 120, height: 120 }}
-                                  src={el.image.replaceAll('"', "")}
-                                ></Avatar>
-                                <br />
-                                <span>{el.name}</span>
-                              </>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </ScrollMenu>
+                  </div>
+                )}
+              {(provider == providerEnum.Marvel
+                ? TheBook["creators"] !== "null" && TheBook["creators"] !== "NULL" && TheBook["creators"] !== null
+                  ? tryToParse(TheBook["creators"])["available"]
+                  : 0
+                : TheBook["creators"] !== "null" && TheBook["creators"] !== "NULL" && TheBook["creators"] !== null
+                  ? tryToParse(TheBook["creators"]).length
+                  : "0") > 0 && (
+                  <div>
+                    <h1>{t("Staff")}</h1>
+                    {t("Numberofpeople")}:{" "}
+                    {provider == providerEnum.Marvel
+                      ? TheBook["creators"] !== "null" &&
+                        TheBook["creators"] !== null
+                        ? tryToParse(TheBook["creators"])["available"]
+                        : 0
+                      : TheBook["creators"] !== "null" &&
+                        TheBook["creators"] !== null
+                        ? tryToParse(TheBook["creators"]).length
+                        : "0"}
+                    <ScrollMenu LeftArrow={LeftArrow} RightArrow={RightArrow}>
+                      {staff.map((el: any, index: number) => {
+                        return (
+                          <div
+                            key={index}
+                            style={{
+                              marginLeft: "20px",
+                              textAlign: "center",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => onClickHandleOpenMoreInfo(el)}
+                          >
+                            {provider == providerEnum.Marvel ? (
+                              el.name ===
+                                tryToParse(TheBook.creators)["items"][index]
+                                  .name ? (
+                                <>
+                                  <Avatar
+                                    sx={{ width: 120, height: 120 }}
+                                    src={
+                                      tryToParse(el.image).path +
+                                      "/detail." +
+                                      tryToParse(el.image)["extension"]
+                                    }
+                                  ></Avatar>
+                                  <span>{el.name}</span>
+                                  <br />
+                                  <span>
+                                    {
+                                      tryToParse(TheBook.creators)["items"][
+                                      index
+                                      ]["role"]
+                                    }
+                                  </span>
+                                </>
+                              ) : (
+                                ""
+                              )
+                            ) : provider == providerEnum.Anilist ||
+                              provider == providerEnum.MANUAL ||
+                              provider == providerEnum.OL ||
+                              provider == providerEnum.GBooks ? (
+                              tryToParse(TheBook.creators)[index] !== undefined &&
+                                el.name ===
+                                tryToParse(TheBook.creators)[index].name ? (
+                                <>
+                                  <Avatar
+                                    sx={{ width: 120, height: 120 }}
+                                    src={el.image.replaceAll('"', "")}
+                                  ></Avatar>
+                                  <br />
+                                  <span>{el.name}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Avatar
+                                    sx={{ width: 120, height: 120 }}
+                                    src={el.image.replaceAll('"', "")}
+                                  ></Avatar>
+                                  <br />
+                                  <span>{el.name}</span>
+                                </>
+                              )
                             ) : (
-                              <>
-                                <Avatar
-                                  sx={{ width: 120, height: 120 }}
-                                  src={el.image.replaceAll('"', "")}
-                                ></Avatar>
-                                <br />
-                                <span>{el.name}</span>
-                              </>
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </div>
-                      );
-                    })}
-                  </ScrollMenu>
-                </div>
-              )}
+                              ""
+                            )}
+                          </div>
+                        );
+                      })}
+                    </ScrollMenu>
+                  </div>
+                )}
 
               <div id="SiteURL"></div>
               {relations.length > 0 && (
@@ -1607,8 +1612,8 @@ function ContentViewer({
                                 el.name,
                                 el.description,
                                 tryToParse(el.image).path +
-                                  "/detail." +
-                                  tryToParse(el.image)["extension"],
+                                "/detail." +
+                                tryToParse(el.image)["extension"],
                                 tryToParse(el.url)[0].url,
                                 "cover",
                               );
@@ -1633,8 +1638,8 @@ function ContentViewer({
                               el.name,
                               provider == providerEnum.Marvel
                                 ? tryToParse(el.image).path +
-                                  "/detail." +
-                                  tryToParse(el.image)["extension"]
+                                "/detail." +
+                                tryToParse(el.image)["extension"]
                                 : el.image,
                               "null",
                               null,
@@ -1670,17 +1675,17 @@ function ContentViewer({
               )}
 
               <div>
-                {TheBook.variants !== "null" &&
-                TheBook.variants !== "" &&
-                TheBook.variants != null
+                {TheBook.variants !== "null" && TheBook.variants !== "NULL" &&
+                  TheBook.variants !== "" &&
+                  TheBook.variants != null
                   ? provider == providerEnum.Marvel
                     ? t("variantsList") +
-                      " : " +
-                      tryToParse(TheBook.variants).map(
-                        (variant: { name: string }) => {
-                          return variant.name;
-                        },
-                      )
+                    " : " +
+                    tryToParse(TheBook.variants).map(
+                      (variant: { name: string; }) => {
+                        return variant.name;
+                      },
+                    )
                     : ""
                   : ""}
               </div>
