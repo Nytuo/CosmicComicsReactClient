@@ -51,7 +51,7 @@ class API {
                 "type": "noedit",
                 "column": isSeries ? "ID_Series" : "ID_book",
                 "whereEl": old_id,
-                "value": `'${new_id}'`,
+                "value": `${new_id}`,
                 "where": isSeries ? "ID_Series" : "ID_book"
             }, null, 2)
         }).then(() => {
@@ -77,7 +77,7 @@ class API {
             },
             body: JSON.stringify({
                 "id": id,
-                "provider": provider,
+                "provider": Number(provider),
                 "type": type,
                 "token": currentProfile.getToken
             })
