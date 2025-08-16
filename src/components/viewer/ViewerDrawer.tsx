@@ -316,7 +316,7 @@ export default function PersistentDrawerLeft() {
                 ) {
                   lastpage = 0;
                 } else {
-                  lastpage = JSON.parse(res)[0]["last_page"];
+                  lastpage = Number(JSON.parse(res)[0]["last_page"]);
                   setCurrentPage(lastpage);
                 }
                 Reader(listofImg, lastpage);
