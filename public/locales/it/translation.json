@@ -203,7 +203,7 @@
         "addLib": "Aggiungi biblioteca",
         "download": "Scaricare",
         "ALL": "Tutti",
-        "TRACKER": "Inseguitore",
+        "TRACKER": "Manual Books",
         "DELETE": "Cancellare",
         "ADD": "Aggiungi",
         "EDIT": "Modifica",
@@ -361,5 +361,6 @@
         "releaseDates": "Date di rilascio",
         "please_wait_series_load" : "Attendere il caricamento della serie",
         "extracting_cover" : "Estrazione della copertina",
-        "cover_extraction_completed" : "Estrazione della copertina completata"
+        "cover_extraction_completed" : "Estrazione della copertina completata",
+        "add_a_new_manual_book": "Aggiungi un nuovo libro manuale"
 }

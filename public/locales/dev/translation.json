@@ -365,5 +365,6 @@
         "releaseDates": "dev",
         "please_wait_series_load" : "dev",
         "extracting_cover" : "dev",
-        "cover_extraction_completed" : "dev"
+        "cover_extraction_completed" : "dev",
+        "add_a_new_manual_book": "dev"
 }

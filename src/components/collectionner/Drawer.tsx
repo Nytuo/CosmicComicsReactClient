@@ -23,6 +23,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import { Button } from "@mui/material";
 import {
   Download,
   FileOpen,
@@ -211,6 +212,7 @@ export default function MiniDrawer({
     "add" | "edit"
   >("add");
   const [old, setOld] = React.useState<any>(null);
+  const [manualBook, setManualBook] = React.useState(false);
   const [dialogFor, setDialogFor] = React.useState<"edit" | "create">("edit");
   const [openDetails, setOpenDetails] = React.useState<{
     open: boolean;
@@ -247,6 +249,7 @@ export default function MiniDrawer({
       text: t("HOME"),
       onClick: () => {
         setOpenDetails(null);
+        setManualBook(false);
         setOpenSeries({ open: false, series: [], provider: null });
         setOpenExplorer({
           open: false,
@@ -1241,7 +1244,7 @@ export default function MiniDrawer({
         </DrawerHeader>
         <Divider />
         <List>
-          {[t("addLib"), t("open_file"), t("TRACKER")].map((text, index) => (
+          {[t("addLib"), t("open_file")].map((text, index) => (
             <ListItem
               key={index + text}
               disablePadding
@@ -1258,8 +1261,6 @@ export default function MiniDrawer({
                     handleOpenCreateLibrary();
                   } else if (text === t("open_file")) {
                     handleOpenUpload();
-                  } else if (text === t("TRACKER")) {
-                    handleOpenTracker();
                   }
                 }}
               >
@@ -1294,6 +1295,7 @@ export default function MiniDrawer({
               onClick={() => {
                 setOpenDetails(null);
                 setOpenSeries({ open: false, series: [], provider: null });
+                setManualBook(false);
                 setOpenExplorer({
                   open: false,
                   explorer: [],
@@ -1333,6 +1335,7 @@ export default function MiniDrawer({
             <ListItemButton
               onClick={() => {
                 openLibrary(CosmicComicsTemp + "/downloads", 2);
+                setManualBook(false);
                 if (openExplorer && openExplorer.open)
                   openExplorer.explorer = [];
                 handleRemoveBreadcrumbsTo(1);
@@ -1372,6 +1375,7 @@ export default function MiniDrawer({
                   openExplorer.explorer = [];
                 await AllBooks().then(AllBookOpener);
                 setIsLoading(false);
+                setManualBook(false);
                 handleRemoveBreadcrumbsTo(1);
               }}
               sx={{
@@ -1407,7 +1411,7 @@ export default function MiniDrawer({
                 await AllBooks(
                   "PATH IS NULL OR PATH = '' OR PATH = 'null'",
                 ).then(AllBookOpener);
-
+                setManualBook(true);
                 setIsLoading(false);
                 handleRemoveBreadcrumbsTo(1);
               }}
@@ -1450,6 +1454,7 @@ export default function MiniDrawer({
                     if (openExplorer && openExplorer.open)
                       openExplorer.explorer = [];
                     openLibrary(el["PATH"], el["API_ID"]);
+                    setManualBook(false);
                     handleRemoveBreadcrumbsTo(1);
                   }}
                   sx={{
@@ -1565,7 +1570,13 @@ export default function MiniDrawer({
         ) : (
           <></>
         )}
-        {openExplorer && openExplorer.open ? (
+        {openExplorer && openExplorer.open ? (<>
+          {
+            manualBook && <Button onClick={() => {
+            setOpenAPISelector(true);
+            }}>{t("add_a_new_manual_book")}</Button>
+          }
+
           <ContainerExplorer
             type="lite"
             stateExplorer={openExplorer}
@@ -1575,7 +1586,7 @@ export default function MiniDrawer({
                 ? handleOpenSeries
                 : handleOpenDetails
             }
-          />
+          /></>
         ) : openSeries && openSeries.open ? (
           <Series
             stateSeries={openSeries}

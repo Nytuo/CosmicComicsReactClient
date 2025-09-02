@@ -203,7 +203,7 @@
         "addLib": "Añadir biblioteca",
         "download": "Descargar",
         "ALL": "Todos",
-        "TRACKER": "Rastreador",
+        "TRACKER": "Manual Books",
         "DELETE": "Borrar",
         "ADD": "Añadir",
         "EDIT": "Editar",
@@ -361,5 +361,6 @@
         "releaseDates": "Fechas de lanzamiento",
         "please_wait_series_load" : "Por favor, espere mientras se cargan las series",
         "extracting_cover" : " Extracción de la cubierta",
-        "cover_extraction_completed" : "Extracción de la cubierta completada"
+        "cover_extraction_completed" : "Extracción de la cubierta completada",
+        "add_a_new_manual_book": "Agregar un nuevo libro manual"
 }

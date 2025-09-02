@@ -203,7 +203,7 @@
   "addLib": "Add Library",
   "download": "Download",
   "ALL": "All",
-  "TRACKER": "Tracker",
+  "TRACKER": "Manual Books",
   "DELETE": "Delete",
   "ADD": "Add",
   "EDIT": "Edit",
@@ -361,5 +361,6 @@
   "releaseDates": "Release Dates",
   "please_wait_series_load" : "Please wait until the series are loaded",
   "extracting_cover" : "Extracting cover...",
-  "cover_extraction_completed" : "Cover extraction completed"
+  "cover_extraction_completed" : "Cover extraction completed",
+  "add_a_new_manual_book": "Add a new manual book"
 }
